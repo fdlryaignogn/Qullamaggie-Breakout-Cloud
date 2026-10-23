@@ -30,7 +30,7 @@ METADATA_PATH = DATA / "scan_metadata.json"
 STATE_LOCK = threading.RLock()
 MAX_BODY = 6_000_000
 SCAN_MIN_INTERVAL = timedelta(hours=24)
-SCANNER_VERSION = "2.7"
+SCANNER_VERSION = "3.1"
 MIN_MARKET_COVERAGE = .90  # full-US ranking must have >=90% quote coverage
 
 
