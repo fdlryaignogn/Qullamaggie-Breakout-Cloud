@@ -84,7 +84,11 @@ class V2ScannerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             root=Path(root)
             (root/'universe.csv').write_text('symbol\nTEST\n')
-            store=Store(root/'universe.csv',provider='csv',auto=True)
+            # This is an isolated unit test: the checked-in full-market state
+            # may contain tracked stocks without checked-in price caches.
+            with patch('server.STATE_PATH', root/'tracking_state.json'), \
+                 patch('server.METADATA_PATH', root/'scan_metadata.json'):
+                store=Store(root/'universe.csv',provider='csv',auto=True)
             now=datetime.now(timezone.utc)
             today=expected_last_session(datetime.now(ZoneInfo('America/New_York')))
             store.metadata.update({'as_of_date':today,'last_success':(now-timedelta(hours=25)).isoformat()})
