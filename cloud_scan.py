@@ -58,7 +58,7 @@ def publish(snapshot):
         public_state[stage]=[{k:v for k,v in row.items() if k not in bad_fields}
                              for row in state.get(stage,[])]
     payload={'revision':int(datetime.now(timezone.utc).timestamp()),'running':False,
-             'metadata':{**meta,'phase':'success','scanner_version':'3.0-cloud'},
+             'metadata':{**meta,'phase':'success','scanner_version':'3.1-cloud'},
              'state':public_state}
     # Avoid stale charts when a formerly followed symbol has disappeared.
     dest=SITE/'data'/'charts';dest.mkdir(parents=True,exist_ok=True)

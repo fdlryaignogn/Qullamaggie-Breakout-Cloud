@@ -205,56 +205,88 @@ def prior_advance_before_base(df: pd.DataFrame, base_start, sessions=63):
     }
 
 
-def setup_evidence(df: pd.DataFrame):
-    """Transparent, CONFIGURABLE heuristic for proposing FORMING setups.
+def setup_evidence(df: pd.DataFrame, base_start=None, min_prior_advance=DEFAULT_MIN_PRIOR_ADVANCE_PCT):
+    """Daily, explainable setup assessment; never grants trading approval.
 
-    It is NOT a verified Qullamaggie VCP detector. 'READY' requires manual
-    chart review in the dashboard. Excludes current bar from base resistance.
+    Existing setups use their persisted base_start so the identity cannot drift
+    when the candidate falls out of Stage 1. The latest day is not included in
+    resistance or contraction measurements, avoiding lookahead.
     """
     if len(df) < 110:
         return None
+    choices = []
+    if base_start:
+        try:
+            anchored = df[(df.index >= pd.Timestamp(base_start)) & (df.index < df.index[-1])]
+        except (ValueError, TypeError):
+            return None
+        if len(anchored) < 10:
+            return None
+        choices = [anchored]
+    else:
+        choices = [df.iloc[-n-1:-1] for n in (10, 15, 20, 30, 40)]
     options = []
-    for base_len in (10, 15, 20, 30, 40):
-        b = df.iloc[-base_len-1:-1]
-        if len(b) < base_len:
+    for base in choices:
+        n = len(base)
+        if n < 10:
             continue
-        previous = df.iloc[-base_len-65:-base_len-1]
-        if len(previous) < 64:
+        advance = prior_advance_before_base(df, base.index[0])
+        if advance is None:
             continue
-        # Distinct prior-upmove window (63 sessions) preceding the base.
-        gain = 100*(float(previous.close.iloc[-1])/float(previous.close.iloc[0])-1)
-        high = float(b.high.max()); low = float(b.low.min()); price=float(df.close.iloc[-1])
-        pullback = 100*(high-low)/high
-        # Early-versus-late daily high-low percentage range; smaller means contraction.
-        early = (b.high.iloc[:5]-b.low.iloc[:5]) / b.close.iloc[:5]
-        late  = (b.high.iloc[-5:]-b.low.iloc[-5:]) / b.close.iloc[-5:]
-        contraction = float(late.mean()) < float(early.mean())*.85 if float(early.mean())>0 else False
-        left_low = float(b.low.iloc[:base_len//2].min())
-        right_low = float(b.low.iloc[base_len//2:].min())
-        higher_lows = right_low > left_low
-        location = (price-low)/(high-low) if high>low else 0
-        sma20 = float(df.close.iloc[-20:].mean())
-        sma50 = float(df.close.iloc[-50:].mean())
-        near_ma = price >= .95*sma20 and sma20 >= .97*sma50
-        criteria = (gain >= 30 and 4 <= pullback <= 35 and .50 <= location <= 1.15 and near_ma)
-        score = sum([contraction, higher_lows, location >= .75, near_ma])
-        if criteria:
-            options.append((score,base_len,gain,high,low,pullback,higher_lows,contraction,price,sma20,sma50,b))
+        gain = advance['prior_advance_pct']
+        high = float(base.high.max())
+        low = float(base.low.min())
+        price = float(df.close.iloc[-1])
+        pullback = 100 * (high - low) / high
+        early = (base.high.iloc[:5] - base.low.iloc[:5]) / base.close.iloc[:5]
+        late = (base.high.iloc[-5:] - base.low.iloc[-5:]) / base.close.iloc[-5:]
+        contraction = float(early.mean()) > 0 and float(late.mean()) < float(early.mean()) * .85
+        higher_lows = float(base.low.iloc[n//2:].min()) > float(base.low.iloc[:n//2].min())
+        location = (price - low) / (high - low) if high > low else 0
+        ma20 = float(df.close.iloc[-20:].mean())
+        ma50 = float(df.close.iloc[-50:].mean())
+        near_ma = price >= .95 * ma20 and ma20 >= .97 * ma50
+        # 30% is only a reference score. Structure, not prior gain, decides
+        # whether a new candidate enters FORMING.
+        if not base_start and not (4 <= pullback <= 35 and .50 <= location <= 1.15 and near_ma):
+            continue
+        proximity = .94 * high <= price <= 1.03 * high
+        checks = {
+            'prior_advance': gain >= min_prior_advance,
+            'base_quality': 10 <= n <= 40 and 4 <= pullback <= 35,
+            'volatility_contraction': bool(contraction),
+            'price_structure': bool(higher_lows and near_ma),
+            'breakout_proximity': bool(proximity),
+        }
+        score = sum(checks.values())
+        candidate = score >= 4 and checks['volatility_contraction'] and checks['price_structure'] and checks['breakout_proximity']
+        options.append((score, int(candidate), int(gain >= min_prior_advance), n, base,
+                        advance, high, low, pullback, higher_lows, contraction, price, ma20, ma50, checks, candidate))
     if not options:
         return None
-    score,n,gain,hi,lo,depth,higher,contract,price,ma20,ma50,b = max(options, key=lambda x:(x[0],x[1]))
-    return {"prior_advance_pct":round(gain,2),"prior_advance_days":63,
-            "prior_advance_start":df.iloc[-n-65].name.strftime("%Y-%m-%d"),
-            "prior_advance_end":df.iloc[-n-2].name.strftime("%Y-%m-%d"),
-            "prior_advance_min_pct":DEFAULT_MIN_PRIOR_ADVANCE_PCT,
-            "base_start":b.index[0].strftime("%Y-%m-%d"),"base_end":b.index[-1].strftime("%Y-%m-%d"),
-            "base_length_days":n,"base_high":round(hi,4),"base_low":round(lo,4),
-            "pullback_pct":round(depth,2),"higher_lows":"YES" if higher else "NO",
-            "volatility_contraction":"YES" if contract else "NO",
-            "moving_average_context":f"close={price:.2f}, SMA20={ma20:.2f}, SMA50={ma50:.2f}",
-            "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-            "_heuristic_score":score}
-
+    (score, _, _, n, b, advance, hi, lo, depth, higher, contract, price,
+     ma20, ma50, checks, candidate) = max(options, key=lambda x: (x[1], x[0], x[2], x[3]))
+    recommendation = 'READY_CANDIDATE' if candidate else 'FORMING'
+    missing = ', '.join(k for k, ok in checks.items() if not ok) or 'none'
+    return {
+        **advance,
+        'prior_advance_min_pct': min_prior_advance,
+        'base_start': b.index[0].strftime('%Y-%m-%d'),
+        'base_end': b.index[-1].strftime('%Y-%m-%d'),
+        'base_length_days': n,
+        'base_high': round(hi, 4),
+        'base_low': round(lo, 4),
+        'pullback_pct': round(depth, 2),
+        'higher_lows': 'YES' if higher else 'NO',
+        'volatility_contraction': 'YES' if contract else 'NO',
+        'moving_average_context': f'close={price:.2f}, SMA20={ma20:.2f}, SMA50={ma50:.2f}',
+        'readiness_score': score,
+        'readiness_checks': checks,
+        'readiness_recommendation': recommendation,
+        'readiness_rationale': f'{score}/5 prototype checks; unmet: {missing}. Human review required; no automated READY.',
+        'rationale': 'Algorithmic setup evaluation; breakout level and pattern require human chart review.',
+        '_heuristic_score': score,
+    }
 
 def merge_scan(state: dict, frames: dict, rows: list[dict], meta: dict) -> dict:
     """Merge automated scan into long-lived tracking. Never reset READY or TRIGGERED."""
@@ -285,29 +317,55 @@ def merge_scan(state: dict, frames: dict, rows: list[dict], meta: dict) -> dict:
     active2={r.get("symbol"):r for r in state["2"] if str(r.get("setup_status","")).upper() not in ("ARCHIVED","INVALIDATED","REJECT")}
     for sym in sorted(set(newmap)|set(active2)):
         df=frames.get(sym)
+        current=active2.get(sym)
         if df is None or df.empty:
+            if current:
+                current['readiness_recommendation'] = 'INSUFFICIENT_DATA'
+                current['readiness_rationale'] = 'No current price data; retain setup, suspend automatic recommendation.'
             continue
         df = df.loc[df.index.strftime("%Y-%m-%d") <= as_of]
         if df.empty or df.index[-1].strftime("%Y-%m-%d")!=as_of:
+            if current:
+                current['readiness_recommendation'] = 'INSUFFICIENT_DATA'
+                current['readiness_rationale'] = 'Price history stale; setup kept for review.'
             continue
-        evidence=setup_evidence(df)
-        current=active2.get(sym)
+        try:
+            minimum=float(current.get('prior_advance_min_pct') or DEFAULT_MIN_PRIOR_ADVANCE_PCT) if current else DEFAULT_MIN_PRIOR_ADVANCE_PCT
+        except (ValueError, TypeError):
+            minimum=DEFAULT_MIN_PRIOR_ADVANCE_PCT
+        evidence=setup_evidence(df, base_start=current.get('base_start') if current else None,
+                                min_prior_advance=minimum)
         if current is not None:
             current["last_reviewed_at"]=as_of
             current["as_of_date"]=as_of
             current["_scanned_at"]=captured
+            previous_recommendation=current.get('readiness_recommendation')
             if evidence:
-                # Keep manually accepted resistance/structure for READY/triggered setups.
-                if current.get("setup_status") not in ("READY",):
-                    # User's edited minimum is a reference, not overwritten on rescan.
+                current.update({k:v for k,v in evidence.items()
+                                if k.startswith('readiness_')})
+                # Human READY levels are immutable during automated scans.
+                # FORMING levels evolve only within the original anchored base.
+                if current.get("setup_status") != "READY":
                     saved_min = current.get('prior_advance_min_pct')
-                    current.update({k:v for k,v in evidence.items() if not k.startswith("_")})
+                    saved_start = current.get('base_start')
+                    current.update({k:v for k,v in evidence.items()
+                                    if not k.startswith("_") and not k.startswith('readiness_')
+                                    and k not in ('base_start', 'prior_advance_min_pct')})
+                    if not saved_start:
+                        current['base_start'] = evidence['base_start']
                     if saved_min is not None and str(saved_min).strip():
                         current['prior_advance_min_pct'] = saved_min
-                else:
-                    current["algorithm_evidence"] = evidence["rationale"]
+                current['algorithm_evidence'] = evidence['readiness_rationale']
             else:
-                current["algorithm_evidence"] = "No matching heuristic setup this run; human review required (no automatic invalidation)"
+                current['readiness_recommendation'] = 'INSUFFICIENT_DATA'
+                current['readiness_score'] = None
+                current['readiness_checks'] = {}
+                current['readiness_rationale'] = 'Anchored base cannot be evaluated; keep setup and request manual review.'
+                current["algorithm_evidence"] = current['readiness_rationale']
+            if previous_recommendation != current.get('readiness_recommendation'):
+                state['history'].insert(0, {'when':captured,'stage':2,'symbol':sym,
+                    'setup_id':current.get('setup_id'),'from':previous_recommendation or '',
+                    'to':current['readiness_recommendation'],'reason':'Automated recommendation only; approval unchanged'})
             # Existing human-approved READY bases can retain their original base_start
             # and be safely backfilled without moving the window forward in time.
             if not str(current.get('prior_advance_pct') or '').strip() and current.get('base_start'):
