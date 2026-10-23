@@ -1,1 +1,741 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Qullamaggie Breakout Cloud</title><style>body{font:15px system-ui,sans-serif;background:#101826;color:#f3f7ff;margin:0}header{position:sticky;top:0;background:#15243a;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px}main{max-width:1200px;margin:auto;padding:24px}button,select{background:#25466a;color:white;border:1px solid #53759c;border-radius:7px;padding:9px;cursor:pointer}nav{display:flex;gap:8px;margin:18px 0}table{width:100%;border-collapse:collapse;background:#172438}th,td{border-bottom:1px solid #344357;padding:12px;text-align:left}small{color:#b9c7d8}.notice{background:#332c1e;padding:14px;border-radius:8px;margin-bottom:18px}</style></head><body><header><strong>Qullamaggie Breakout Cloud · v3 (setup)</strong><span><select id="lang"><option value="zh">繁體中文</option><option value="en">English</option></select> <button onclick="refresh()">↻</button></span></header><main><h1 id="heading">三階段股票監察</h1><p id="meta"></p><div id="notice" class="notice">尚未完成第一次雲端掃描，沒有可顯示的選股結果。</div><nav><button onclick="show('1')">1 · Momentum</button><button onclick="show('2')">2 · Setup</button><button onclick="show('3')">3 · Breakout</button></nav><table><thead id="thead"></thead><tbody id="tbody"></tbody></table><p><small id="foot"></small></p></main><script>let data=null,stage='1';const $=x=>document.getElementById(x);const tr=(zh,en)=>$('lang').value==='zh'?zh:en;function show(s){stage=s;render()}function render(){let m=data?.metadata||{},rows=data?.state?.[stage]||[];let fields=stage==='1'?['symbol','return_1m','rank_pct_1m','return_3m','rank_pct_3m','return_6m','rank_pct_6m']:stage==='2'?['symbol','setup_status','prior_advance_pct','base_start','base_high','ready_since']:['symbol','status','breakout_level','triggered_at'];$('heading').textContent=tr('三階段股票監察','Three-stage stock monitor');$('meta').textContent=tr('行情日期','Market session')+': '+(m.as_of_date||'—')+' | '+tr('最後成功掃描','Last successful scan')+': '+(m.last_success||'—')+' | '+tr('股票池','Universe')+': '+(m.universe_size??'—');$('notice').style.display=m.phase==='success'?'none':'block';$('notice').textContent=tr('尚未取得已驗證的全市場掃描結果。','No verified full-market scan has been published yet.');$('thead').innerHTML='<tr>'+fields.map(x=>'<th>'+x+'</th>').join('')+'</tr>';$('tbody').innerHTML=rows.map(r=>'<tr>'+fields.map(f=>'<td>'+String(r[f]??'—').replaceAll('&','&amp;').replaceAll('<','&lt;')+'</td>').join('')+'</tr>').join('');$('foot').textContent=tr('只讀介面；READY 及 TRIGGERED 需要人工覆核。','Read-only; READY and TRIGGERED require human review.')};async function refresh(){try{let r=await fetch('./data/latest.json?bust='+Date.now());if(!r.ok)throw Error(r.status);data=await r.json();render()}catch(e){$('notice').textContent='Data load failed: '+e}}$('lang').onchange=render;refresh()</script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a101e">
+<title>Qullamaggie Breakout｜三輪股票監察台</title>
+<style>
+  /* V2.7: 3M/6M half-ticker hover with synchronized right-hand dual axes. */
+  .topbar{position:sticky;top:0;z-index:30;background:rgba(10,16,30,.97);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding-inline:10px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+  .brand{min-width:0}
+  .version-pill{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:100px;border:1px solid #396453;background:#18362f;color:#97f4d3;font-size:11px;font-weight:780;letter-spacing:.015em;white-space:nowrap;cursor:pointer}
+  .version-pill:hover{border-color:var(--accent);background:#235043;color:#d0ffee}
+  .version-pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .version-dot{width:6px;height:6px;background:var(--accent);border-radius:50%}
+  .version-details h3{color:var(--text);font-size:13px;margin:12px 0 5px}
+  .version-details p{margin:0 0 11px}
+  .version-details .build-line{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid var(--line-soft);padding:8px 0;font-size:12px;color:var(--muted)}
+  .version-details .build-line strong{color:var(--text);font-variant-numeric:tabular-nums}
+  @media(max-width:600px){.topbar{padding:9px 0 8px;gap:7px}.brand{gap:7px}.brand-mark{width:31px;height:31px;font-size:18px}.version-pill{padding:4px 8px;font-size:10px}.top-actions{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:3px;scrollbar-width:thin}.top-actions .outline-btn,.top-actions .solid-btn{flex:0 0 auto;min-height:32px;padding:6px 10px}.language-picker{flex:0 0 auto}}
+  .overlay{z-index:70}
+  .toast{z-index:80}
+  :root { color-scheme: dark; --bg:#0a101e; --surface:#111a2b; --surface2:#152037; --surface3:#1a2940; --line:#26344e; --line-soft:#1e2b40; --text:#edf4ff; --muted:#8d9bb4; --muted2:#697b99; --accent:#66e4cc; --accent-hover:#8df5dc; --amber:#f2c67b; --blue:#77abff; --red:#f08f93; --shadow:0 24px 80px #0000003a; }
+  * {box-sizing:border-box} html{scroll-behavior:smooth} body{margin:0;min-height:100vh;background:radial-gradient(ellipse 65% 28% at 65% -15%,#1d3c4a 0%,transparent 75%),var(--bg);color:var(--text);font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif} button,input,select,textarea{font:inherit} button{cursor:pointer} button:disabled{cursor:not-allowed;opacity:.45} button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px} a{color:var(--accent)}
+  .shell{max-width:1480px;margin:auto;padding:0 34px 58px} .topbar{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line-soft)}
+  .brand{display:flex;align-items:center;gap:12px}.brand-mark{width:37px;height:37px;display:grid;place-items:center;border:1px solid #48b6b0;border-radius:11px;background:#102e38;font-size:23px;font-weight:800;color:var(--accent);letter-spacing:-.09em;padding-right:3px}.brand-name{font-size:14px;font-weight:800;letter-spacing:.16em}.brand-sub{font-size:10px;letter-spacing:.17em;color:var(--muted);margin-top:1px}
+  .top-actions,.actions,.head-actions,.cell-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.outline-btn,.solid-btn,.subtle-btn{border-radius:9px;min-height:36px;border:1px solid var(--line);padding:8px 13px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-size:12px;font-weight:650;white-space:nowrap;background:#162239;color:var(--text);transition:.16s}.outline-btn:hover,.subtle-btn:hover{background:#23314b;border-color:#415574}.solid-btn{background:var(--accent);border-color:var(--accent);color:#072725}.solid-btn:hover{background:var(--accent-hover)}.subtle-btn{background:transparent;color:var(--muted)}.small-btn{min-height:29px;padding:5px 10px;font-size:11px}.icon{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0} .live-dot{height:7px;width:7px;border-radius:100%;background:var(--amber);box-shadow:0 0 0 4px #f2c67b14}
+  .language-picker{display:inline-flex;padding:3px;border:1px solid #34465f;border-radius:9px;background:#111d31;white-space:nowrap;gap:2px}.language-option{background:transparent;color:var(--muted);border:0;padding:5px 11px;border-radius:6px;min-height:28px;font-size:12px;font-weight:750;transition:background .15s,color .15s}.language-option[aria-pressed="true"]{background:#29574f;color:#96fbe1;box-shadow:0 1px 5px #0004}.language-option:hover{color:var(--text)}
+  .intro{padding:36px 0 26px;display:flex;gap:24px;justify-content:space-between;align-items:end}.eyebrow{color:var(--accent);font-weight:750;font-size:11px;letter-spacing:.17em}.intro h1{font-size:clamp(27px,3.3vw,39px);letter-spacing:-.04em;margin:7px 0 8px;line-height:1.18;font-weight:780}.intro p{margin:0;color:var(--muted);font-size:13px;max-width:700px}.metadata{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:11px;white-space:nowrap}.metadata .pill{border:1px solid var(--line);border-radius:100px;padding:5px 11px;background:#121d30}
+  .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:6px 0 30px}.metric{border:1px solid var(--line-soft);border-radius:13px;background:linear-gradient(140deg,#152036,#10192a);padding:17px 19px;min-height:111px;position:relative;overflow:hidden}.metric:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-65px;top:-63px;border:26px solid #ffffff05}.metric-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:12px;gap:8px}.metric-icon{width:29px;height:29px;border:1px solid #33415a;border-radius:9px;display:grid;place-items:center;color:var(--blue);font-size:14px}.metric-value{font-size:32px;font-weight:800;line-height:1.35;letter-spacing:-.045em;margin-top:8px}.metric-caption{font-size:10px;color:var(--muted2);margin-top:1px}
+  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);gap:8px}.tab{position:relative;background:none;border:0;border-radius:10px 10px 0 0;color:var(--muted);padding:17px 18px 18px;text-align:left;display:flex;gap:13px;align-items:center;min-width:0}.tab:hover{background:#17223788}.tab[aria-selected=true]{background:#18263a;color:var(--text)}.tab[aria-selected=true]:after{content:"";height:3px;position:absolute;bottom:-1px;left:0;right:0;border-radius:3px 3px 0 0;background:var(--accent)}.tab-n{width:35px;height:35px;border:1px solid #33445e;border-radius:10px;display:grid;place-items:center;color:var(--accent);font-weight:850;letter-spacing:-.04em;background:#111d30}.tab-title{font-size:13px;font-weight:700}.tab-desc{font-size:11px;color:var(--muted);margin-top:2px}.tab-count{margin-left:auto;background:#23324a;min-width:24px;height:22px;padding:0 6px;display:grid;place-items:center;border-radius:6px;font-size:11px;color:#bfd0e8;font-weight:700}
+  .panel{border:1px solid var(--line);border-top:0;background:#101a2c;border-radius:0 0 14px 14px;min-height:445px;box-shadow:var(--shadow)}.panel-info{display:flex;justify-content:space-between;align-items:start;gap:15px;padding:24px 24px 18px}.panel-info h2{font-size:18px;margin:0 0 5px;letter-spacing:-.025em}.panel-info p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}.workflow{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#a6decf;background:#183835;border:1px solid #285950;border-radius:7px;padding:7px 10px;white-space:nowrap}.toolbar{padding:0 24px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.searchbox{width:265px;max-width:100%;position:relative}.searchbox input{padding:9px 13px 9px 36px;width:100%;border:1px solid #30415c;background:#101c31;color:var(--text);outline:none;border-radius:9px;font-size:12px;height:36px}.searchbox svg{position:absolute;left:12px;top:10px;color:var(--muted)}.filter-select{height:36px;min-width:125px;background:#101c31;border:1px solid #30415c;border-radius:9px;padding:0 11px;color:#c8d5e8;font-size:12px}.status-note{padding:8px 24px 12px;color:var(--muted2);font-size:11px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line-soft)}
+  .table-wrap{width:100%;overflow-x:auto;min-height:215px;border-top:1px solid var(--line-soft)}table{border-collapse:collapse;width:100%;min-width:1090px;white-space:nowrap;font-size:12px;text-align:left}thead{background:#151f33}thead th{padding:13px 14px;font-size:10px;color:#91a1bd;text-transform:uppercase;letter-spacing:.04em;font-weight:750;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:1}thead th.clickable{cursor:pointer;user-select:none}thead th.clickable:hover{color:var(--accent)}tbody td{padding:13px 14px;border-bottom:1px solid #203048;color:#c6d1e5;vertical-align:middle}tbody tr:hover{background:#19263b}tbody tr:last-child td{border-bottom:0}th:first-child,td:first-child{position:sticky;left:0;background:#151f33;z-index:2;box-shadow:1px 0 #28354e}tbody td:first-child{background:#101a2c}tbody tr:hover td:first-child{background:#19263b}.symbol{font-weight:800;color:var(--text);font-size:13px;letter-spacing:.015em}.symbol-sub{font-size:10px;color:var(--muted2);margin-top:1px}.num{font-variant-numeric:tabular-nums}.positive{color:#66e4be;font-weight:700}.negative{color:#f29aa1;font-weight:700}.muted{color:var(--muted2)}.status{display:inline-block;border-radius:6px;border:1px solid #34445c;background:#1e2b3f;color:#b5c3d8;font-size:10px;font-weight:750;letter-spacing:.03em;padding:4px 7px}.status.READY,.status.TRIGGERED,.status.ACTIVE{background:#153a34;border-color:#277963;color:#7cf1ca}.status.FORMING,.status.DEVELOPING,.status.WATCH,.status.NEW{background:#293044;border-color:#4a5180;color:#aebdff}.status.REJECT,.status.INVALIDATED,.status.NO_TRADE{background:#422733;border-color:#80505b;color:#ffb7b5}.status.INSUFFICIENT_DATA,.status.ARCHIVED{background:#273044;border-color:#444d63;color:#a8b7cf}.ellipsis{max-width:225px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}.link-btn{background:none;border:0;color:var(--accent);font-size:11px;padding:3px 0;font-weight:700}.link-btn:hover{text-decoration:underline}.link-btn.warn{color:var(--amber)}.link-btn.danger{color:#efa0a8}.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:265px;padding:42px 18px;text-align:center}.empty-graphic{width:61px;height:61px;display:grid;place-items:center;border:1px dashed #3a5366;border-radius:16px;color:#7d9cb2;background:#17273a;font-size:25px;margin-bottom:17px}.empty strong{font-size:14px;display:block;margin-bottom:6px}.empty p{font-size:12px;color:var(--muted);max-width:510px;margin:0 0 17px}.empty .actions{justify-content:center}.footline{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:15px 24px;color:var(--muted2);font-size:11px;border-top:1px solid var(--line-soft)}
+  .below{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr);gap:15px;margin-top:20px}.info-card{border:1px solid var(--line-soft);border-radius:12px;background:#101a2b;padding:18px 20px}.info-card h3{margin:0 0 9px;font-size:12px;color:#dce9f8}.info-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.75}.info-card b{color:var(--text)}.steps{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:11px;margin-top:14px}.step{padding:5px 9px;border:1px solid #31455b;border-radius:7px;background:#18263a;color:#c2d4e9}.arrow{color:var(--accent)}.footer{margin-top:28px;display:flex;justify-content:space-between;color:#62748e;font-size:11px;gap:12px;flex-wrap:wrap}
+  .overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:#030916c9;backdrop-filter:blur(5px);padding:18px}.overlay.visible{display:flex}.modal{width:min(810px,100%);max-height:min(91vh,950px);overflow:auto;border:1px solid #3b5068;background:#111d30;border-radius:15px;box-shadow:0 40px 120px #000a}.modal-head{padding:21px 23px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:start;gap:10px;position:sticky;top:0;background:#111d30;z-index:2}.modal-head h2{margin:0;font-size:17px}.modal-head p{font-size:11px;margin:5px 0 0;color:var(--muted)}.close-btn{border:0;background:transparent;color:var(--muted);font-size:23px;width:26px;height:26px;line-height:1}.modal-main{padding:21px 23px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 17px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field label{font-size:11px;font-weight:650;color:#aabbd1}.field input,.field select,.field textarea{background:#0b1729;border:1px solid #334762;border-radius:8px;padding:9px 11px;color:var(--text);min-height:38px;width:100%;outline:0;font-size:12px}.field input:focus,.field select:focus,.field textarea:focus{border-color:#59cfbc}.field textarea{min-height:70px;resize:vertical}.field-full{grid-column:1 / -1}.modal-foot{padding:17px 23px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}.helper{font-size:11px;color:var(--muted);line-height:1.7}.helper strong{color:var(--amber)}.notice{border:1px solid #37544d;background:#17372f;border-radius:9px;color:#b7e8d5;padding:11px 12px;margin-bottom:17px;font-size:12px}.import-drop{border:1px dashed #58738e;border-radius:12px;padding:25px;text-align:center;background:#15263a;margin:10px 0 16px}.import-drop b{display:block;margin:4px 0;font-size:14px}.import-drop p{margin:0;font-size:12px;color:var(--muted)}.modal-text p,.modal-text li{font-size:12px;color:var(--muted);line-height:1.8}.modal-text code{color:#a2f4dd}.toast{position:fixed;bottom:24px;right:24px;z-index:20;max-width:min(420px,90vw);border:1px solid #377768;border-radius:10px;background:#194235;padding:13px 17px;color:#dbfff1;box-shadow:0 15px 40px #0007;display:none;font-size:12px}.toast.error{background:#4c252d;border-color:#9e5861;color:#ffe5e6}.toast.visible{display:block}
+  @media(max-width:980px){.shell{padding:0 19px 45px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.intro{align-items:start;flex-direction:column}.metadata{margin-top:-6px}.panel-info{flex-direction:column}.below{grid-template-columns:1fr}.topbar{flex-wrap:wrap;padding:16px 0}}
+  @media(max-width:600px){.shell{padding:0 13px 35px}.brand-name{font-size:11px}.brand-sub{font-size:9px}.top-actions{width:100%}.top-actions .outline-btn{flex:1}.intro{padding:29px 2px 22px}.intro h1{font-size:29px}.metadata{flex-wrap:wrap}.metrics{gap:8px;margin-bottom:23px}.metric{min-height:102px;padding:14px}.metric-value{font-size:27px}.metric-top{font-size:10px}.metric-icon{display:none}.tabbar{gap:1px}.tab{padding:13px 5px;display:block;text-align:center}.tab-n{margin:auto auto 8px;width:29px;height:29px;font-size:12px}.tab-title{font-size:11px}.tab-desc{display:none}.tab-count{position:absolute;right:6px;top:7px;font-size:9px;min-width:17px;height:17px}.panel-info{padding:21px 16px 15px}.panel-info h2{font-size:16px}.toolbar{padding:0 16px 15px}.filters,.head-actions{width:100%}.searchbox{width:100%;flex:1 0 100%}.filter-select{flex:1}.head-actions .outline-btn,.head-actions .solid-btn{flex:1}.status-note{padding-left:16px;padding-right:16px}.footline{padding:13px 16px}.form-grid{grid-template-columns:1fr}.modal-head,.modal-main,.modal-foot{padding-left:16px;padding-right:16px}}
+
+  .empty[hidden]{display:none}
+  /* V2: timezone choice and local daily OHLC hover chart */
+  .metadata{flex-wrap:wrap;justify-content:flex-end}.tz-chooser{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:100px;padding:4px 10px;background:#121d30;font-size:11px;color:var(--muted)}
+  .tz-chooser select{background:transparent;color:var(--text);border:none;max-width:165px;font-size:11px;outline-offset:2px;cursor:pointer}.tz-chooser option{background:#121d30;color:var(--text)}
+  .symbol-hover{font-family:inherit;border:0;background:transparent;padding:3px 4px;min-width:80px;display:inline-flex;align-items:center;flex-direction:column;gap:2px;cursor:crosshair;border-radius:6px;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:#568f95;text-underline-offset:4px}
+  .symbol-hover:hover,.symbol-hover:focus-visible{color:var(--accent);text-decoration-style:solid}
+  .symbol-hover[data-chart-side="6m"]{background:linear-gradient(90deg,#25534a 50%,transparent 50%)}
+  .symbol-hover[data-chart-side="3m"]{background:linear-gradient(90deg,transparent 50%,#25534a 50%)}
+  .symbol-mode-guide{font-size:9px;letter-spacing:.01em;color:#9daeca;font-weight:600;text-decoration:none;white-space:nowrap;line-height:12px}
+  .symbol-hover:hover .symbol-mode-guide{color:#c6d9e7}
+  .price-popup{position:fixed;z-index:40;width:min(530px,calc(100vw - 20px));border:1px solid #426576;border-radius:14px;box-shadow:0 22px 70px #000b;background:#0e1929;padding:15px 17px 13px;pointer-events:none;display:none}
+  .price-popup.visible{display:block}.price-popup-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}.price-popup-title{font-size:16px;font-weight:800;color:#eaf6ff}.price-popup-sub,.price-popup-foot{color:#8a9cb9;font-size:11px}.price-popup-sub{margin-top:1px}.price-popup-body{min-height:212px;display:flex;justify-content:center;align-items:center;color:#a6bad0;font-size:12px}.price-popup-body canvas{display:block;width:100%;height:250px}.price-popup-foot{margin-top:6px;line-height:1.5}
+  .price-popup[role="tooltip"]{touch-action:none}
+  @media(max-width:600px){.metadata{justify-content:flex-start}.price-popup{padding:12px}.price-popup-body canvas{height:235px}}
+</style>
+<style>
+/* Public GitHub Pages view: edits and state changes require an authenticated separate backend. */
+#addBtn,#importBtn,#scanBtn,button[data-act]{display:none!important}
+</style>
+</head>
+<body>
+<div style="background:#183737;color:#baf8e6;text-align:center;padding:7px 16px;font-size:12px;font-weight:650">CLOUD VIEW · 只讀 / Read-only · 每日收市後更新，非即時報價</div>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">Q</div><div><div class="brand-name">QULLAMAGGIE <span style="color:var(--accent)">/</span> BREAKOUT</div><div class="brand-sub">THREE-STAGE STOCK TRACKER</div></div><button class="version-pill" id="versionBtn" type="button" title="查看版本與更新內容 / View version details" aria-label="查看網頁版本與更新內容"><span class="version-dot" aria-hidden="true"></span><span>v3.0 Cloud Preview</span></button></div>
+    <div class="top-actions">
+      <div class="language-picker" role="group" aria-label="Language / 語言"><button id="langZh" class="language-option" type="button" aria-pressed="true" lang="zh-Hant">繁中</button><button id="langEn" class="language-option" type="button" aria-pressed="false" lang="en">EN</button></div>
+       <button class="outline-btn" id="helpBtn" type="button">ⓘ&nbsp; 使用說明</button>
+      <button class="outline-btn" id="importBtn" type="button">↥&nbsp; 匯入數據</button>
+      <button class="outline-btn" id="syncBtn" type="button">⟳ 同步</button>
+      <button class="solid-btn" id="scanBtn" type="button">▶ 開始掃描</button>
+      <button class="outline-btn" id="exportAllBtn" type="button">↧&nbsp; 備份 JSON</button>
+    </div>
+  </header>
+  <section class="intro">
+    <div><div class="eyebrow">TRADING WORKSPACE / WATCHLIST</div><h1>三階段突破監察台 <span style="color:var(--accent)">↗</span></h1><p>從市場強勢股出發，追蹤整理收縮形態，再觀察突破觸發。候選股票會保留追蹤，不會因每日排名變動而自動清空。</p></div>
+    <div class="metadata"><span class="pill" id="sourceBadge">●&nbsp; 本地資料 · 非即時報價</span><span class="pill" id="updatedAt" role="status" aria-live="off">尚未有成功掃描</span><label class="tz-chooser" for="tzSelect"><span id="tzLabel">時間：</span><select id="tzSelect" aria-label="Timestamp timezone"><option value="America/New_York">紐約 NY</option><option value="Asia/Singapore">新加坡 SG</option><option value="UTC">UTC 世界標準時間</option></select></label><span class="pill" id="serverBadge">○ 未連線</span></div>
+  </section>
+  <section class="metrics" aria-label="監察摘要">
+    <div class="metric"><div class="metric-top"><span>第一輪 · 動能候選</span><span class="metric-icon">↗</span></div><div class="metric-value" id="m1">0</div><div class="metric-caption">未歸檔的強勢股</div></div>
+    <div class="metric"><div class="metric-top"><span>第二輪 · 整理追蹤</span><span class="metric-icon">◷</span></div><div class="metric-value" id="m2">0</div><div class="metric-caption">FORMING / READY 的 setup</div></div>
+    <div class="metric"><div class="metric-top"><span>第三輪 · READY 觀察來源</span><span class="metric-icon">◎</span></div><div class="metric-value" id="mReady">0</div><div class="metric-caption">第二輪符合突破觀察資格</div></div>
+    <div class="metric"><div class="metric-top"><span>突破訊號 · TRIGGERED</span><span class="metric-icon">⚡</span></div><div class="metric-value" id="m3">0</div><div class="metric-caption">僅代表訊號，並非已成交</div></div>
+  </section>
+  <nav class="tabbar" aria-label="篩選輪次" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" aria-controls="tablePanel" data-stage="1"><span class="tab-n">01</span><span><div class="tab-title">第一輪 · 動能篩選</div><div class="tab-desc">Momentum screening</div></span><span class="tab-count" id="count1">0</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="2"><span class="tab-n">02</span><span><div class="tab-title">第二輪 · 整理形態</div><div class="tab-desc">Setup qualification</div></span><span class="tab-count" id="count2">0</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="3"><span class="tab-n">03</span><span><div class="tab-title">第三輪 · 突破訊號</div><div class="tab-desc">Breakout execution</div></span><span class="tab-count" id="count3">0</span></button>
+  </nav>
+  <main class="panel" id="tablePanel" role="tabpanel">
+    <div class="panel-info"><div><h2 id="panelTitle">第一輪：強勢股動能篩選</h2><p id="panelDesc">比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。</p></div><span class="workflow" id="workflow">◇ 每日更新，歷史保留</span></div>
+    <div class="toolbar"><div class="filters"><div class="searchbox"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="7.1"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="搜尋代號、Setup ID、備註…" aria-label="搜尋股票"></div><select class="filter-select" id="statusFilter" aria-label="篩選狀態"><option value="">全部狀態</option></select></div><div class="head-actions"><button type="button" class="outline-btn" id="templateBtn">↓ CSV 範本</button><button type="button" class="outline-btn" id="exportCsvBtn">↓ 匯出表格</button><button type="button" class="solid-btn" id="addBtn">＋ 加入股票</button></div></div>
+    <div class="table-wrap" id="tableWrap"><table id="stocksTable"><thead id="thead"></thead><tbody id="tbody"></tbody></table><div class="empty" id="empty" hidden></div></div>
+    <div class="status-note" id="scanNote" style="color:var(--accent)">掃描器：正在檢查連線…</div>
+    <div class="status-note" id="note">◈ 所有記錄只儲存於此瀏覽器。匯入新一期資料採合併更新，不會清空其他輪次。</div>
+    <div class="footline"><span id="rowCount">共 0 筆記錄</span><span>點擊欄名可排序 · 左右捲動查看所有欄位</span></div>
+  </main>
+  <section class="below"><div class="info-card"><h3>三輪邏輯 · 由選股到監察</h3><p>第一輪以 1 / 3 / 6 個月強勢排名的<b>聯集</b>作初選；第二輪確認拉升後的整理與波動收縮；第三輪只接收第二輪 <b>READY</b> 的 setup。<b>TRIGGERED</b> 不等於券商成交。</p><div class="steps"><span class="step">STAGE 1 · MOMENTUM</span><span class="arrow">→</span><span class="step">STAGE 2 · FORMING / READY</span><span class="arrow">→</span><span class="step">STAGE 3 · WATCH / TRIGGERED</span></div></div><div class="info-card"><h3>持續追蹤原則</h3><p>第二輪股票即使不再進入當日第一輪排名，仍保留其整理形態與歷史紀錄。失效後以 <b>INVALIDATED</b> 記錄原因，再歸檔；並非每天重建整張觀察名單。</p></div></section>
+  <footer class="footer"><span>QULLAMAGGIE BREAKOUT · CLOUD VIEW · UI v3.0</span><span>依據 Project 三份 Skill 文件建立 · 非即時日線 · 沒有券商連接</span></footer>
+</div>
+<input id="fileInput" type="file" accept=".csv,.json,text/csv,application/json" hidden>
+<div class="overlay" id="overlay" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><div><h2 id="modalTitle">加入股票</h2><p id="modalSubtitle"></p></div><button class="close-btn" id="closeModal" aria-label="關閉">×</button></div><div class="modal-main" id="modalMain"></div><div class="modal-foot" id="modalFoot"></div></section></div>
+<div class="toast" id="toast" role="status"></div>
+<div id="pricePopup" class="price-popup" role="tooltip" aria-live="off"><div class="price-popup-head"><div><div id="pricePopupName" class="price-popup-title"></div><div id="pricePopupSub" class="price-popup-sub"></div></div><span class="status" id="pricePopupWindow">6M · 1D</span></div><div id="pricePopupBody" class="price-popup-body"></div><div id="pricePopupFoot" class="price-popup-foot"></div></div>
+<script>
+(() => {
+'use strict';
+const DASHBOARD_VERSION='3.0-cloud';
+const CLOUD_MODE=true;
+const SCANNER_VERSION='2.7';
+const STORE_KEY='qulla_breakout_dashboard_v1';
+const stages={
+  1:{title:'第一輪：強勢股動能篩選',desc:'比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。',workflow:'◇ 動能掃描 · 最少間隔 24 小時',note:'每期第一輪 CSV 會合併入候選池，不會覆寫第二輪 FORMING 或 READY 的狀態。',statuses:['NEW','ACTIVE','ARCHIVED','INSUFFICIENT_DATA'],fields:[
+  ['symbol','股票代號','text',true],['market','市場','text'],['as_of_date','評估日期','date'],['return_1m','1 個月報酬 %','number'],['rank_pct_1m','1M 排名百分位 %','number'],['return_3m','3 個月報酬 %','number'],['rank_pct_3m','3M 排名百分位 %','number'],['return_6m','6 個月報酬 %','number'],['rank_pct_6m','6M 排名百分位 %','number'],['selected_windows','入選區間 (如 1M,3M)','text'],['pass_stage_1','通過第一輪 (YES / NO)','select-yes'],['status','追蹤狀態','select'],['first_seen_date','首次入選日期','date'],['last_screened_date','最近掃描日期','date'],['last_pass_date','最近通過日期','date'],['data_warnings','數據注意事項','textarea']
+  ],columns:[['symbol','股票'],['as_of_date','評估日'],['return_1m','1M 報酬'],['rank_pct_1m','1M 百分位'],['return_3m','3M 報酬'],['rank_pct_3m','3M 百分位'],['return_6m','6M 報酬'],['rank_pct_6m','6M 百分位'],['selected_windows','入選區間'],['status','狀態'],['last_screened_date','最近掃描']]},
+  2:{title:'第二輪：整理形態確認',desc:'持續追蹤強勢股的整理底部、回撤與波動收縮；只有 READY 才可進入第三輪。',workflow:'◇ Setup 追蹤 · 不每日清空',note:'整理前 63 個交易日（約 3 個月）的漲幅，預設 30% 僅屬參考門檻，非官方強制條件；READY 仍須人工覆核。',statuses:['NEW','FORMING','DEVELOPING','READY','REJECT','INVALIDATED','INSUFFICIENT_DATA','ARCHIVED'],fields:[
+  ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['as_of_date','評估日期','date'],['setup_status','形態狀態','select'],['prior_advance_pct','整理前63個交易日升幅 %','number'],['prior_advance_days','前段上漲天數','number'],['prior_advance_start','前段上漲起始日','date'],['prior_advance_end','前段上漲截止日','date'],['prior_advance_min_pct','最低參考升幅 %（預設30）','number'],['base_start','整理開始','date'],['base_end','整理結束／評估','date'],['base_length_days','整理天數','number'],['base_high','整理高點 / 突破參考','number'],['base_low','整理低點','number'],['pullback_pct','回撤 %','number'],['higher_lows','低點抬高','select-yes'],['volatility_contraction','波動收縮','select-yes'],['moving_average_context','均線描述','textarea'],['ready_since','READY 起始日','date'],['invalidation_reason','失效原因','textarea'],['status_reason','狀態原因 / 判斷依據','textarea'],['rationale','形態判斷理由','textarea'],['last_reviewed_at','最後覆核日','date']
+  ],columns:[['symbol','股票 / Setup'],['setup_status','形態狀態'],['prior_advance_pct','整理前63日升幅'],['prior_advance_min_pct','最低參考升幅'],['prior_advance_ref_pass','符合參考？'],['base_start','整理開始'],['base_length_days','整理天數'],['base_high','整理高點'],['base_low','整理低點'],['pullback_pct','回撤'],['higher_lows','低點抬高'],['volatility_contraction','波動收縮'],['ready_since','READY 起始'],['last_reviewed_at','最近覆核']]},
+  3:{title:'第三輪：突破監察與風險規劃',desc:'僅根據第二輪 READY 的 Setup 監察突破、開盤區間與風險參數，不會替你落單。',workflow:'◇ READY → WATCH → TRIGGERED',note:'只有第二輪目前為 READY 的 Setup 才能有效監察突破；TRIGGERED 代表訊號而非實際成交。',statuses:['WATCH','TRIGGERED','INVALIDATED','NO_TRADE','ARCHIVED'],fields:[
+  ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['watch_date','監察日期','date'],['trade_date','交易日','date'],['setup_status','來源 Setup 狀態','text'],['breakout_level','突破關鍵價','number'],['opening_range_minutes','Opening range 分鐘','number'],['opening_range_high','開盤區間高點','number'],['trigger_price','觸發價格','number'],['trigger_time','觸發時間','text'],['trigger_rule','突破確認規則','textarea'],['entry_plan','入場計劃','textarea'],['initial_stop','初始止損','number'],['risk_per_share','每股風險','number'],['atr_adr_context','ATR / ADR 參考','text'],['suggested_max_shares','建議最大股數','number'],['status','觸發狀態','select'],['triggered_at','觸發記錄時間','text'],['status_reason','狀態原因','textarea'],['rationale','其他依據 / 注意事項','textarea'],['last_reviewed_at','最後覆核日','date']
+  ],columns:[['symbol','股票 / Setup'],['watch_date','監察日'],['status','突破狀態'],['breakout_level','突破價'],['opening_range_minutes','開盤區間'],['opening_range_high','區間高點'],['trigger_price','觸發價'],['trigger_time','觸發時間'],['initial_stop','初始止損'],['risk_per_share','每股風險'],['suggested_max_shares','最大股數'],['last_reviewed_at','最近覆核']]}
+};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Singapore'});
+const nowIso=()=>new Date().toISOString();
+const ui={stage:1,sortBy:'',sortDir:-1,query:'',filter:''};
+const blank=()=>({'1':[],'2':[],'3':[],history:[],updatedAt:null});
+let state=blank();
+try {const prev=JSON.parse(localStorage.getItem(STORE_KEY));if(prev&&typeof prev==='object'){for(const k of ['1','2','3'])state[k]=Array.isArray(prev[k])?prev[k]:[];state.history=Array.isArray(prev.history)?prev.history:[];state.updatedAt=prev.updatedAt||null;}}catch(e){console.warn('Local storage unavailable',e)}
+const byId=id=>document.getElementById(id);
+
+// Interface language changes only labels. Stored stock data, CSV field keys and stage rules remain unchanged.
+const LANG_KEY='qulla_breakout_dashboard_language';
+let lang='zh';
+try{lang=localStorage.getItem(LANG_KEY)==='en'?'en':'zh';}catch(e){}
+const EN_TEXT={"第一輪：強勢股動能篩選":"Stage 1: Momentum Screening","比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。":"Compare 1-, 3- and 6-month returns and percentiles to build a momentum watchlist. This stage does not produce buy signals.","◇ 動能掃描 · 最少間隔 24 小時":"◇ Momentum scan · 24h minimum interval","每期第一輪 CSV 會合併入候選池，不會覆寫第二輪 FORMING 或 READY 的狀態。":"Stage 1 CSV imports merge with existing candidates without overwriting Stage 2 FORMING or READY statuses.","第二輪：整理形態確認":"Stage 2: Setup Qualification","持續追蹤強勢股的整理底部、回撤與波動收縮；只有 READY 才可進入第三輪。":"Track bases, pullbacks and volatility contractions in strong stocks. Only READY setups may advance to Stage 3.","◇ Setup 追蹤 · 不每日清空":"◇ Setup tracking · Not reset daily","整理前 63 個交易日（約 3 個月）的漲幅，預設 30% 僅屬參考門檻，非官方強制條件；READY 仍須人工覆核。":"Pre-base advance over 63 trading sessions (approx. 3 months). The default 30% is a reference, not an official mandatory rule; READY requires manual confirmation.","DEVELOPING 與 FORMING 都代表尚在整理；READY 若形態轉弱可降回 FORMING，勿因排名下降而刪除。":"DEVELOPING and FORMING indicate an unfinished setup. READY may revert to FORMING if the structure weakens; do not remove a setup merely due to a lower momentum rank.","第三輪：突破監察與風險規劃":"Stage 3: Breakout Monitoring & Risk Planning","僅根據第二輪 READY 的 Setup 監察突破、開盤區間與風險參數，不會替你落單。":"Monitor breakouts, opening ranges and risk parameters only for Stage 2 READY setups. This dashboard does not place orders.","只有第二輪目前為 READY 的 Setup 才能有效監察突破；TRIGGERED 代表訊號而非實際成交。":"Only setups currently READY in Stage 2 qualify for active breakout monitoring. TRIGGERED is a signal, not a filled trade.","股票代號":"Ticker Symbol","市場":"Market","評估日期":"As-of Date","1 個月報酬 %":"1-Month Return %","1M 排名百分位 %":"1M Rank Percentile %","3 個月報酬 %":"3-Month Return %","3M 排名百分位 %":"3M Rank Percentile %","6 個月報酬 %":"6-Month Return %","6M 排名百分位 %":"6M Rank Percentile %","入選區間 (如 1M,3M)":"Selected Periods (e.g. 1M,3M)","通過第一輪 (YES / NO)":"Passed Stage 1 (YES / NO)","追蹤狀態":"Tracking Status","首次入選日期":"First Seen Date","最近掃描日期":"Last Scan Date","最近通過日期":"Last Passed Date","數據注意事項":"Data Warnings","股票":"Ticker","評估日":"As-of Date","1M 報酬":"1M Return","1M 百分位":"1M Percentile","3M 報酬":"3M Return","3M 百分位":"3M Percentile","6M 報酬":"6M Return","6M 百分位":"6M Percentile","入選區間":"Selected Periods","狀態":"Status","最近掃描":"Last Scanned","形態狀態":"Setup Status","整理前63個交易日升幅 %":"63-Session Advance Before Base %","前段上漲起始日":"Prior Advance Start","前段上漲截止日":"Prior Advance End","最低參考升幅 %（預設30）":"Min. Reference Advance % (default 30)","整理前63日升幅":"Pre-base 63D Advance","最低參考升幅":"Min. Reference Gain","符合參考？":"Meets Reference?","整理前漲幅 %":"Prior Advance %","前段上漲天數":"Prior Advance Days","整理開始":"Base Start","整理結束／評估":"Base End / Assessment","整理天數":"Base Length (Days)","整理高點 / 突破參考":"Base High / Breakout Reference","整理低點":"Base Low","回撤 %":"Pullback %","低點抬高":"Higher Lows","波動收縮":"Volatility Contraction","均線描述":"Moving Average Context","READY 起始日":"READY Since","失效原因":"Invalidation Reason","狀態原因 / 判斷依據":"Status Rationale","形態判斷理由":"Setup Rationale","最後覆核日":"Last Reviewed Date","股票 / Setup":"Ticker / Setup","前段漲幅":"Prior Advance","整理高點":"Base High","回撤":"Pullback","READY 起始":"READY Since","最近覆核":"Last Reviewed","監察日期":"Watch Date","交易日":"Trade Date","來源 Setup 狀態":"Source Setup Status","突破關鍵價":"Breakout Level","Opening range 分鐘":"Opening Range (Minutes)","開盤區間高點":"Opening Range High","觸發價格":"Trigger Price","觸發時間":"Trigger Time","突破確認規則":"Breakout Confirmation Rule","入場計劃":"Entry Plan","初始止損":"Initial Stop","每股風險":"Risk per Share","ATR / ADR 參考":"ATR / ADR Context","建議最大股數":"Suggested Max Shares","觸發狀態":"Trigger Status","觸發記錄時間":"Triggered At","狀態原因":"Status Reason","其他依據 / 注意事項":"Other Rationale / Notes","監察日":"Watch Date","突破狀態":"Breakout Status","突破價":"Breakout Level","開盤區間":"Opening Range","區間高點":"Range High","觸發價":"Trigger Price","最大股數":"Max Shares","全部狀態":"All Statuses","操作":"Actions","點擊排序":"Click to sort","編輯":"Edit","刪除":"Delete","暫停":"Paused","第二輪未處於 READY；暫停突破監察":"Stage 2 is not READY; breakout monitoring is paused","是":"Yes","否":"No","最近更新：":"Last updated: ","尚未更新":"Not updated yet","沒有符合搜尋或狀態條件的股票。":"No stocks match your search or status filter.","第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。":"No Stage 1 stocks yet. Add a ticker or import a screening CSV.","第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。":"No Stage 2 setups yet. Promote a stock from Stage 1 or import existing setup data.","第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。":"No Stage 3 breakout watchlist yet. Promote a READY setup from Stage 2.","搜尋無結果":"No matching results","＋ 加入股票":"+ Add Stock","查看來源輪次":"Go to Previous Stage","↥ 匯入 CSV / JSON":"↥ Import CSV / JSON","＋ 從第一輪建立":"+ From Stage 1","＋ 從 READY 建立":"+ From READY","未設定":"Not set","例如 35.5":"e.g. 35.5","第一輪暫無活躍候選，請先加入第一輪股票。":"No active Stage 1 candidates. Add a stock to Stage 1 first.","第二輪目前沒有 READY 的 Setup。":"No READY setup in Stage 2.","建立第二輪 Setup":"Create Stage 2 Setup","建立第三輪觀察":"Create Stage 3 Watch","僅從上一輪合格名單建立":"Only eligible candidates from the preceding stage can be promoted","將第一輪股票加入持續追蹤，初始狀態為 FORMING。":"Track a Stage 1 stock as a persistent setup. Initial status: FORMING.","只有第二輪 READY 的 Setup 才能進入第三輪；初始狀態為 WATCH。":"Only Stage 2 READY setups can enter Stage 3. Initial status: WATCH.","選擇股票 / Setup":"Select Stock / Setup","原有輪次會保留，不會被移除。":"Prior-stage records are retained.","建立並編輯":"Create & Edit","狀態變更會保留事件紀錄":"Status changes are logged","數值百分比請直接輸入數字，例如 35.5 代表 35.5%":"Enter percent values as plain numbers, e.g. 35.5 means 35.5%","觸發訊號不是實際買入。":"A breakout signal is not an executed buy.","更改狀態不會每天清空資料。":"Status changes do not reset the daily watchlist.","取消":"Cancel","儲存記錄":"Save Record","股票代號不可留空":"Ticker symbol is required","READY Setup 需先提供整理高點（突破參考價）。":"READY setups require a base high (breakout reference).","TRIGGERED 需要觸發價、觸發時間及事先定義的確認規則。":"TRIGGERED requires a trigger price, trigger time and predefined confirmation rule.","只有第二輪 READY 的 Setup 可新增突破觀察。":"Only Stage 2 READY setups may create a breakout watch.","此股票／Setup 已存在，請直接編輯原記錄。":"This ticker/setup already exists. Please edit the existing record.","已在第二輪追蹤，直接查看現有 Setup。":"is already being tracked in Stage 2. Opening the existing setup.","只有第二輪 READY 的 Setup 才可送往第三輪。":"Only Stage 2 READY setups may enter Stage 3.","同一 Setup 已在第三輪追蹤，避免重複訊號。":"This setup is already tracked in Stage 3; duplicate signals are blocked.","刪除記錄":"Delete Record","永久刪除不可復原。建議改為 ARCHIVED 保留追蹤歷史；刪除本輪不會自動刪除其他輪次。":"Permanent deletion cannot be undone. Consider ARCHIVED instead to preserve history. Deleting this stage does not delete other stages.","請確認你真的要刪除此筆記錄。亦可先匯出 JSON 備份。":"Confirm permanent deletion, or export a JSON backup first.","確定刪除":"Delete Permanently","已刪除本輪記錄。":"Record deleted from this stage.","已下載本輪 CSV 空白範本。":"CSV template downloaded for this stage.","已匯出本輪 CSV。":"CSV exported for this stage.","CSV 有未結束的雙引號":"CSV contains an unterminated quoted field","CSV 標題必須有 symbol 欄位；請按「CSV 範本」下載對應格式。":"CSV header must include symbol. Download the CSV template to check the format.","檔案超過 8 MB，請分批匯入。":"File exceeds 8 MB. Split it into smaller batches.","JSON 應為股票陣列，或包含 1、2、3 / stage1、stage2、stage3 陣列。":"JSON must be an array of stocks or contain 1, 2, 3 / stage1, stage2, stage3 arrays.","JSON 格式不正確。":"Invalid JSON format.","沒有有效股票資料。檢查 symbol 欄位和檔案格式。":"No valid stock records found. Check the symbol field and file format.","匯入失敗：":"Import failed: ","已備份三輪資料與狀態歷史。":"All stages and status history backed up.","瀏覽器無法儲存：請立即按「備份 JSON」以免數據遺失。":"Browser storage failed. Export a JSON backup to avoid losing your data.","資料來源與使用說明":"Data Sources & User Guide","三輪 Skill 對應的本地監察網頁":"Local dashboard based on the three Project skills","我明白了":"Got It","新增":"Added","人工更新":"Manually updated","人工刪除":"Manually deleted","由上一輪晉級":"Promoted from previous stage","從第一輪動能候選建立":"Created from Stage 1 momentum candidate","第二輪 READY，加入突破觀察":"Stage 2 READY; added to breakout watch"};
+const STATIC_EN={"#helpBtn":"ⓘ  User Guide","#importBtn":"↥  Import Data","#exportAllBtn":"↧  Backup JSON",".intro .eyebrow":"TRADING WORKSPACE / WATCHLIST",".intro h1":"Three-Stage Breakout Monitor <span style=\"color:var(--accent)\">↗</span>",".intro p":"Discover strong momentum stocks, monitor orderly consolidations and volatility contractions, then watch for breakout signals. Existing setups stay on the list even when momentum rankings change.",".metadata .pill:first-child":"●  Local data · No live quotes",".metrics .metric:nth-child(1) .metric-top span:first-child":"Stage 1 · Momentum candidates",".metrics .metric:nth-child(1) .metric-caption":"Active momentum stocks",".metrics .metric:nth-child(2) .metric-top span:first-child":"Stage 2 · Setup tracking",".metrics .metric:nth-child(2) .metric-caption":"FORMING / READY setups",".metrics .metric:nth-child(3) .metric-top span:first-child":"Stage 3 · READY sources",".metrics .metric:nth-child(3) .metric-caption":"Stage 2 setups eligible for breakout watch",".metrics .metric:nth-child(4) .metric-top span:first-child":"Breakout signals · TRIGGERED",".metrics .metric:nth-child(4) .metric-caption":"Signals only; not filled trades",".tab[data-stage=\"1\"] .tab-title":"Stage 1 · Momentum Screen",".tab[data-stage=\"1\"] .tab-desc":"Relative strength scan",".tab[data-stage=\"2\"] .tab-title":"Stage 2 · Setup Qualification",".tab[data-stage=\"2\"] .tab-desc":"Consolidation tracking",".tab[data-stage=\"3\"] .tab-title":"Stage 3 · Breakout Signals",".tab[data-stage=\"3\"] .tab-desc":"Breakout monitoring","#templateBtn":"↓ CSV Template","#exportCsvBtn":"↓ Export Table",".footline span:last-child":"Click column headers to sort · Scroll sideways to view all columns",".below .info-card:nth-child(1)":"<h3>Three-stage process · From screening to monitoring</h3><p>Stage 1 selects the <b>union</b> of top-ranked stocks over 1, 3 and 6 months. Stage 2 verifies orderly consolidation and volatility contraction after a strong advance. Only Stage 2 <b>READY</b> setups enter Stage 3. A <b>TRIGGERED</b> signal is not a broker execution.</p><div class=\"steps\"><span class=\"step\">STAGE 1 · MOMENTUM</span><span class=\"arrow\">→</span><span class=\"step\">STAGE 2 · FORMING / READY</span><span class=\"arrow\">→</span><span class=\"step\">STAGE 3 · WATCH / TRIGGERED</span></div>",".below .info-card:nth-child(2)":"<h3>Continuous tracking principle</h3><p>Stage 2 setups remain tracked even if a stock drops out of today’s Stage 1 momentum rankings. If a setup breaks down, record an <b>INVALIDATED</b> reason before archiving it. The watchlist is <b>not reset daily</b>.</p>",".footer span:last-child":"Built from the three Project Skill files · No live market or broker connection"};
+const STATIC_ZH=Object.fromEntries(Object.keys(STATIC_EN).map(selector=>[selector,document.querySelector(selector)?.innerHTML||'']));
+const t=value=>lang==='en'?(EN_TEXT[value]||value):value;
+const tl=(zh,en)=>lang==='en'?en:zh;
+function applyLanguage(){
+ document.documentElement.lang=lang==='en'?'en':'zh-Hant';
+ document.title=lang==='en'?'Qullamaggie Breakout | Three-Stage Stock Dashboard':'Qullamaggie Breakout｜三輪股票監察台';
+ Object.entries(STATIC_EN).forEach(([selector,en])=>{const el=document.querySelector(selector);if(el)el.innerHTML=lang==='en'?en:STATIC_ZH[selector]});
+ byId('langZh').setAttribute('aria-pressed',String(lang==='zh'));
+ byId('langEn').setAttribute('aria-pressed',String(lang==='en'));
+ const search=byId('search');search.placeholder=tl('搜尋代號、Setup ID、備註…','Search ticker, Setup ID, notes…');search.setAttribute('aria-label',tl('搜尋股票','Search stocks'));
+ byId('statusFilter').setAttribute('aria-label',tl('篩選狀態','Filter by status'));
+ document.querySelector('.metrics').setAttribute('aria-label',tl('監察摘要','Dashboard summary'));
+ document.querySelector('.tabbar').setAttribute('aria-label',tl('篩選輪次','Screening stages'));
+ byId('closeModal').setAttribute('aria-label',tl('關閉','Close'));
+ byId('versionBtn').setAttribute('aria-label',tl('查看網頁版本與更新內容：v'+DASHBOARD_VERSION,'View dashboard version and release notes: v'+DASHBOARD_VERSION));
+ byId('versionBtn').title=tl('查看版本與更新內容','View version and release notes');
+ render();
+}
+function setLanguage(next){if(next!==lang){lang=next;try{localStorage.setItem(LANG_KEY,lang)}catch(e){}modal.close();}applyLanguage()}
+
+function storeLocal(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){toast(t('瀏覽器無法儲存：請立即按「備份 JSON」以免數據遺失。'),true);}}
+function save(){state.updatedAt=nowIso();storeLocal();render();if(serverOnline)sendState();}
+function toast(msg,error=false){const box=byId('toast');box.textContent=msg;box.classList.toggle('error',error);box.classList.add('visible');clearTimeout(toast.timer);toast.timer=setTimeout(()=>box.classList.remove('visible'),4200)}
+function sid(row,stage){if(stage===1)return String(row.symbol||'').toUpperCase()+'|'+String(row.market||'US').toUpperCase();return String(row.setup_id||'').toUpperCase()}
+function findIndex(stage,id){return state[stage].findIndex(r=>sid(r,stage)===id)}
+function audit(stage,row,from,to,reason=''){state.history.unshift({when:nowIso(),stage,symbol:row.symbol,setup_id:row.setup_id||'',from,to,reason});state.history=state.history.slice(0,1000)}
+function statusOf(row,stage){return String((stage===2?row.setup_status:row.status)||'').toUpperCase()}
+function validReady(row){return ['READY'].includes(statusOf(row,2))}
+function eligible(row){const parent=state['2'].find(r=>String(r.setup_id).toUpperCase()===String(row.setup_id).toUpperCase());return !!parent&&validReady(parent)}
+function newSetupId(symbol){const prefix=String(symbol).toUpperCase()+'-'+today().replaceAll('-','');let id=prefix,n=2;while(state['2'].some(r=>r.setup_id===id)){id=prefix+'-'+n;n++}return id}
+function pct(v,signed=false){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);if(!Number.isFinite(n))return esc(v);return (signed&&n>0?'+':'')+n.toLocaleString('en-US',{maximumFractionDigits:2})+'%'}
+function fmtNum(v){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);return Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:4}):esc(v)}
+function cellValue(row,key,stage){const v=row[key];if(key==='symbol'){let sub=stage===1?(row.market||'US'):(row.setup_id||'—');return `<button type="button" class="symbol symbol-hover" data-chart-symbol="${esc(String(row.symbol||'').toUpperCase())}" data-chart-setup="${esc(String(row.setup_id||''))}" aria-label="${esc(tl((row.symbol||'')+'：左半部顯示六個月，右半部顯示三個月 K 線',(row.symbol||'')+': left half shows six months, right half shows three months'))}" title="${esc(tl('左半部 6 個月 │ 右半部 3 個月','Left half 6 months │ Right half 3 months'))}"><span>${esc(row.symbol||'—')}</span><span class="symbol-mode-guide">6M ◀ │ ▶ 3M</span></button><div class="symbol-sub">${esc(sub)}</div>`}
+  if(key==='prior_advance_ref_pass'){
+    const gain=String(row.prior_advance_pct??'').trim();
+    const min=String(row.prior_advance_min_pct??'').trim();
+    if(!gain||!Number.isFinite(Number(gain)))return '<span class="muted">—</span>';
+    const threshold=(min&&Number.isFinite(Number(min)))?Number(min):30;
+    const pass=Number(gain)>=threshold;
+    return `<span class="status ${pass?'READY':'FORMING'}" title="${esc(tl('參考值，非官方硬性條件','Reference only; not an official hard rule'))}">${pass?tl('✓ 達標','✓ Yes'):tl('未達標','Below')}</span>`;
+  }
+  if(key==='status'||key==='setup_status'){const s=String(v||'—').toUpperCase();let badge=`<span class="status ${esc(s)}">${esc(s)}</span>`;if(stage===3&&s==='WATCH'&&!eligible(row))badge+=` <span class="status INVALIDATED" title="${esc(t('第二輪未處於 READY；暫停突破監察'))}">${t('暫停')}</span>`;return badge}
+  if(['return_1m','return_3m','return_6m'].includes(key)){const n=Number(v);return `<span class="num ${String(v??'').trim()===''?'muted':n>=0?'positive':'negative'}">${pct(v,true)}</span>`}
+  if(['rank_pct_1m','rank_pct_3m','rank_pct_6m','prior_advance_pct','prior_advance_min_pct','pullback_pct'].includes(key))return `<span class="num">${pct(v)}</span>`;
+  if(['base_high','base_low','breakout_level','opening_range_high','trigger_price','initial_stop','risk_per_share','suggested_max_shares','prior_advance_days','base_length_days','opening_range_minutes'].includes(key))return `<span class="num">${fmtNum(v)}</span>`;
+  if(['higher_lows','volatility_contraction'].includes(key))return v==='YES'?`<span class="positive">✓ ${t('是')}</span>`:v==='NO'?`<span class="negative">✕ ${t('否')}</span>`:'—';
+  if(v===null||v===undefined||String(v)==='')return '<span class="muted">—</span>';
+  return `<span class="ellipsis" title="${esc(v)}">${esc(v)}</span>`;
+}
+function sortRows(rows){const stage=ui.stage;if(!ui.sortBy){if(stage===1)return rows.sort((a,b)=>Number(b.return_3m||-Infinity)-Number(a.return_3m||-Infinity));if(stage===2){const rank={READY:0,FORMING:1,DEVELOPING:1,NEW:2,INSUFFICIENT_DATA:3,REJECT:4,INVALIDATED:5,ARCHIVED:6};return rows.sort((a,b)=>(rank[statusOf(a,2)]??7)-(rank[statusOf(b,2)]??7))}const rank={TRIGGERED:0,WATCH:1,NO_TRADE:2,INVALIDATED:3,ARCHIVED:4};return rows.sort((a,b)=>(rank[statusOf(a,3)]??5)-(rank[statusOf(b,3)]??5))}
+ return rows.sort((a,b)=>{let x=a[ui.sortBy]??'',y=b[ui.sortBy]??'';const nx=Number(x),ny=Number(y);const v=String(x).trim()!==''&&String(y).trim()!==''&&Number.isFinite(nx)&&Number.isFinite(ny)?nx-ny:String(x).localeCompare(String(y),lang==='en'?'en':'zh-Hant',{numeric:true});return v*ui.sortDir})}
+function render(){const stage=ui.stage,config=stages[stage],all=state[stage];byId('m1').textContent=state['1'].filter(r=>!['ARCHIVED'].includes(statusOf(r,1))).length;byId('m2').textContent=state['2'].filter(r=>['FORMING','DEVELOPING','READY'].includes(statusOf(r,2))).length;byId('mReady').textContent=state['2'].filter(validReady).length;byId('m3').textContent=state['3'].filter(r=>statusOf(r,3)==='TRIGGERED').length;
+ for(let s=1;s<=3;s++){byId('count'+s).textContent=state[s].length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
+ byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note);renderUpdatedTime();
+ const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
+ byId('thead').innerHTML='<tr>'+config.columns.map(([key,name])=>`<th class="clickable" data-sort="${esc(key)}" title="${esc(key.startsWith('rank_pct_')?tl('由最高升幅開始的排名百分比：數值越小，排名越強。例如 1.5% = 排名前 1.5%。按一下可排序。','Top-ranked share of eligible stocks: lower is stronger. Example: 1.5% means top 1.5%. Click to sort.'):t('點擊排序'))}">${esc(t(name))}${ui.sortBy===key?(ui.sortDir===1?' ↑':' ↓'):''}</th>`).join('')+'<th>'+t('操作')+'</th></tr>';
+ let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
+ byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
+ byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
+ if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;return `<tr>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}<td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td></tr>`}).join('')}
+ else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
+ byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
+}
+function switchTab(stage){ui.stage=stage;ui.query='';ui.filter='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';render();}
+const modal={close(){byId('overlay').classList.remove('visible');byId('modalMain').innerHTML='';byId('modalFoot').innerHTML='';},open(title,subtitle,body,footer){byId('modalTitle').textContent=title;byId('modalSubtitle').textContent=subtitle||'';byId('modalMain').innerHTML=body;byId('modalFoot').innerHTML=footer;byId('overlay').classList.add('visible');}};
+function fieldHtml(def,value,stage,edit=false){const [key,label,type,req]=def,readonly=edit&&(['symbol','setup_id'].includes(key));let control='';const val=String(value??'');const required=req?'required':'';const place=type==='number'?'placeholder="'+t('例如 35.5')+'"':'';if(type==='select'||type==='select-yes'){
+ const opts=type==='select-yes'?['','YES','NO']:(stage===2&&key==='setup_status'?stages[2].statuses:stages[stage].statuses);control=`<select id="f_${esc(key)}" name="${esc(key)}">${opts.map(s=>`<option value="${esc(s)}" ${s===val?'selected':''}>${esc(s||t('未設定'))}</option>`).join('')}</select>`;
+ }else if(type==='textarea'){control=`<textarea id="f_${esc(key)}" name="${esc(key)}">${esc(val)}</textarea>`}else{control=`<input ${required} ${readonly?'readonly':''} id="f_${esc(key)}" name="${esc(key)}" type="${esc(type)}" step="${type==='number'?'any':''}" ${place} value="${esc(val)}">`}
+ return `<div class="field ${type==='textarea'?'field-full':''}"><label for="f_${esc(key)}">${esc(t(label))}${req?' *':''}</label>${control}</div>`}
+function chooseParent(stage){const src=stage===2?state['1'].filter(r=>statusOf(r,1)!=='ARCHIVED'):state['2'].filter(validReady);if(!src.length){toast(t(stage===2?'第一輪暫無活躍候選，請先加入第一輪股票。':'第二輪目前沒有 READY 的 Setup。'),true);switchTab(stage-1);return}
+ const choices=src.map((r,i)=>`<option value="${i}">${esc(r.symbol)}${r.setup_id?' · '+esc(r.setup_id):''}</option>`).join('');modal.open(t(stage===2?'建立第二輪 Setup':'建立第三輪觀察'),t('僅從上一輪合格名單建立'),`<div class="notice">${t(stage===2?'將第一輪股票加入持續追蹤，初始狀態為 FORMING。':'只有第二輪 READY 的 Setup 才能進入第三輪；初始狀態為 WATCH。')}</div><div class="field"><label for="selectParent">${t('選擇股票 / Setup')}</label><select id="selectParent">${choices}</select></div>`,`<span class="helper">${t('原有輪次會保留，不會被移除。')}</span><button class="solid-btn" type="button" id="confirmChoose">${t('建立並編輯')}</button>`);
+ byId('confirmChoose').onclick=()=>{const p=src[Number(byId('selectParent').value)];modal.close();promote(stage-1,p,true)};
+}
+function openForm(stage=ui.stage,row=null,prefill=null){if(!row&&!prefill&&stage>1){chooseParent(stage);return}
+ let init=row?{...row}:{...(prefill||{})};if(stage===2&&(init.prior_advance_min_pct===undefined||init.prior_advance_min_pct===''))init.prior_advance_min_pct=30;if(!row){init.symbol=init.symbol||'';init.status=init.status||(stage===1?'NEW':'WATCH');if(stage===2){init.setup_status=init.setup_status||'FORMING';init.setup_id=init.setup_id||newSetupId(init.symbol||'STOCK')}if(stage===1){init.as_of_date=init.as_of_date||today();init.first_seen_date=init.first_seen_date||today();init.pass_stage_1=init.pass_stage_1||'YES'}if(stage===3)init.watch_date=init.watch_date||today()}
+ const id=row?sid(row,stage):null;modal.open(tl(`${row?'編輯':'建立'}第 ${stage} 輪記錄`,`${row?'Edit':'Create'} Stage ${stage} Record`),row?`${row.symbol} ${row.setup_id||''} · ${t('狀態變更會保留事件紀錄')}`:t('數值百分比請直接輸入數字，例如 35.5 代表 35.5%'),`<form id="stockForm"><div class="form-grid">${stages[stage].fields.map(f=>fieldHtml(f,init[f[0]],stage,!!row)).join('')}</div></form>`,`<span class="helper">${stage===3?'<strong>'+tl('提醒：','Reminder: ')+'</strong>'+t('觸發訊號不是實際買入。'):t('更改狀態不會每天清空資料。')}</span><button type="button" class="outline-btn" id="cancelForm">${t('取消')}</button><button type="button" class="solid-btn" id="saveForm">${t('儲存記錄')}</button>`);
+ byId('cancelForm').onclick=modal.close;byId('saveForm').onclick=()=>{const form=byId('stockForm');if(!form.reportValidity())return;const values={...init};for(const f of stages[stage].fields){values[f[0]]=String(form.elements[f[0]].value||'').trim()}values.symbol=values.symbol.toUpperCase();values.market=(values.market||'US').toUpperCase();if(!values.symbol){toast(t('股票代號不可留空'),true);return}if(stage===2&&!values.setup_id)values.setup_id=newSetupId(values.symbol);if(stage===2&&!values.prior_advance_min_pct)values.prior_advance_min_pct='30';const nextStatus=statusOf(values,stage);if(stage===2&&nextStatus==='READY'&&!values.base_high){toast(t('READY Setup 需先提供整理高點（突破參考價）。'),true);return}if(stage===3&&nextStatus==='TRIGGERED'&&(!values.trigger_price||!values.trigger_rule||!values.trigger_time)){toast(t('TRIGGERED 需要觸發價、觸發時間及事先定義的確認規則。'),true);return}if(stage===3){const parent=state['2'].find(p=>p.setup_id===values.setup_id);if(parent&&!validReady(parent)&&!row&&values.status==='WATCH'){toast(t('只有第二輪 READY 的 Setup 可新增突破觀察。'),true);return}if(values.status==='TRIGGERED'&&!values.triggered_at)values.triggered_at=nowIso()}
+ const newId=sid(values,stage);if((!row||newId!==id)&&findIndex(stage,newId)>=0){toast(t('此股票／Setup 已存在，請直接編輯原記錄。'),true);return}
+ const field=stage===2?'setup_status':'status';const before=row?statusOf(row,stage):'';const after=statusOf(values,stage);values._updated_at=nowIso();if(stage===2&&!row)values.first_seen_date=values.first_seen_date||today();if(stage===2&&after==='READY'&&before!=='READY')values.ready_since=values.ready_since||today();if(!row){state[stage].push(values);audit(stage,values,'',after,'新增')}else{state[stage][findIndex(stage,id)]=values;if(before!==after)audit(stage,values,before,after,values.status_reason||'人工更新')}
+ modal.close();save();toast(tl(`${values.symbol} 已${row?'更新':'加入'}第 ${stage} 輪。`,`${values.symbol} ${row?'updated in':'added to'} Stage ${stage}.`));
+ };
+}
+function promote(from,row,openEditor=false){const to=from+1;if(to===3&&!validReady(row)){toast(t('只有第二輪 READY 的 Setup 才可送往第三輪。'),true);return}
+ let data;if(to===2){const existing=state['2'].find(r=>r.symbol===row.symbol&&!['INVALIDATED','ARCHIVED','REJECT'].includes(statusOf(r,2)));if(existing){toast(`${row.symbol} ${t('已在第二輪追蹤，直接查看現有 Setup。')}`);switchTab(2);openForm(2,existing);return}data={symbol:row.symbol,setup_id:newSetupId(row.symbol),prior_advance_min_pct:30,first_seen_date:today(),as_of_date:today(),setup_status:'FORMING',last_reviewed_at:today(),status_reason:'從第一輪動能候選建立'}}
+ else{const existing=state['3'].find(r=>r.setup_id===row.setup_id);if(existing){toast(t('同一 Setup 已在第三輪追蹤，避免重複訊號。'));switchTab(3);openForm(3,existing);return}data={symbol:row.symbol,setup_id:row.setup_id,setup_status:'READY',watch_date:today(),trade_date:today(),breakout_level:row.base_high||'',status:'WATCH',last_reviewed_at:today(),status_reason:'第二輪 READY，加入突破觀察'}}
+ state[to].push(data);audit(to,data,'',statusOf(data,to),'由上一輪晉級');save();switchTab(to);toast(tl(`${row.symbol} 已加入第 ${to} 輪，原有記錄保留。`,`${row.symbol} added to Stage ${to}; previous-stage record retained.`));if(openEditor)openForm(to,data);
+}
+function remove(stage,row){const label=row.symbol+(row.setup_id?' · '+row.setup_id:'');modal.open(t('刪除記錄'),tl(`第 ${stage} 輪 · ${label}`,`Stage ${stage} · ${label}`),`<div class="notice" style="background:#402a2e;border-color:#87464e;color:#ffcfd0">${t('永久刪除不可復原。建議改為 ARCHIVED 保留追蹤歷史；刪除本輪不會自動刪除其他輪次。')}</div><p class="helper">${t('請確認你真的要刪除此筆記錄。亦可先匯出 JSON 備份。')}</p>`,`<span class="helper">${tl('此操作只影響第 '+stage+' 輪。','Only Stage '+stage+' is affected.')}</span><button id="cancelDelete" class="outline-btn">${t('取消')}</button><button id="confirmDelete" class="outline-btn" style="color:#ffb5b5;border-color:#814753">${t('確定刪除')}</button>`);byId('cancelDelete').onclick=modal.close;byId('confirmDelete').onclick=()=>{state[stage]=state[stage].filter(r=>sid(r,stage)!==sid(row,stage));audit(stage,row,statusOf(row,stage),'DELETED','人工刪除');modal.close();save();toast(t('已刪除本輪記錄。'))};}
+function download(filename,contents,mime){const blob=new Blob(['\ufeff',contents],{type:mime});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function csvEscape(v){const x=String(v??'');return /[",\r\n]/.test(x)?'"'+x.replaceAll('"','""')+'"':x}
+function exportCSV(template=false){const stage=ui.stage,keys=stages[stage].fields.map(f=>f[0]);const rows=template?[]:state[stage];const content=[keys.join(','),...rows.map(r=>keys.map(key=>csvEscape(r[key])).join(','))].join('\r\n');download(`qullamaggie_stage_${stage}_${template?'template':today()}.csv`,content,'text/csv;charset=utf-8');toast(t(template?'已下載本輪 CSV 空白範本。':'已匯出本輪 CSV。'))}
+function parseCSV(raw){let i=0,field='',row=[],out=[],q=false;const content=raw.replace(/^\ufeff/,'');for(;i<content.length;i++){let c=content[i];if(q){if(c==='"'&&content[i+1]==='"'){field+='"';i++}else if(c==='"'){q=false}else field+=c}else if(c==='"'){q=true}else if(c===','){row.push(field);field=''}else if(c==='\n'||c==='\r'){if(c==='\r'&&content[i+1]==='\n')i++;row.push(field);if(row.some(v=>v.trim()))out.push(row);row=[];field=''}else field+=c}if(q)throw Error(t('CSV 有未結束的雙引號'));row.push(field);if(row.some(v=>v.trim()))out.push(row);if(!out.length)return [];const headers=out.shift().map(h=>h.trim());if(!headers.includes('symbol'))throw Error(t('CSV 標題必須有 symbol 欄位；請按「CSV 範本」下載對應格式。'));return out.map(cols=>Object.fromEntries(headers.map((h,i)=>[h,(cols[i]??'').trim()]))) }
+function normalizeRow(raw,stage){if(!raw||typeof raw!=='object'||Array.isArray(raw))return null;const fields=stages[stage].fields.map(x=>x[0]);const r={};for(const k of fields){if(raw[k]!==null&&raw[k]!==undefined)r[k]=String(raw[k]).trim()}r.symbol=String(r.symbol||'').toUpperCase();if(!r.symbol)return null;if(stage===1){if(['FALSE','0','NO','N','否'].includes(String(raw.pass_stage_1??'').trim().toUpperCase()))return null;r.pass_stage_1=r.pass_stage_1||'YES';r.market=String(r.market||'US').toUpperCase();r.status=String(r.status||'ACTIVE').toUpperCase();r.last_screened_date=r.last_screened_date||r.as_of_date||today()}
+ if(stage===2){if(!r.prior_advance_min_pct)r.prior_advance_min_pct='30';const matching=state['2'].find(p=>p.symbol===r.symbol&&p.base_start===(r.base_start||'')&&p.setup_status!=='ARCHIVED');r.setup_id=r.setup_id||matching?.setup_id||newSetupId(r.symbol);r.setup_status=String(r.setup_status||raw.status||'FORMING').toUpperCase();r.last_reviewed_at=r.last_reviewed_at||r.as_of_date||today()}
+ if(stage===3){r.setup_id=r.setup_id||newSetupId(r.symbol);r.status=String(r.status||'WATCH').toUpperCase();r.watch_date=r.watch_date||r.trade_date||today();r.trade_date=r.trade_date||r.watch_date}
+ for(const field of ['higher_lows','volatility_contraction'])if(field in r){const v=String(r[field]).toLowerCase();if(['true','1','yes','y','是'].includes(v))r[field]='YES';else if(['false','0','no','n','否'].includes(v))r[field]='NO';}r._updated_at=nowIso();return r}
+function mergeRows(stage,rows){let added=0,modified=0,skipped=0;for(const raw of rows){const row=normalizeRow(raw,stage);if(!row){skipped++;continue}const id=sid(row,stage),idx=findIndex(stage,id);if(idx>=0){const prior=state[stage][idx],before=statusOf(prior,stage);state[stage][idx]={...prior,...row};const after=statusOf(state[stage][idx],stage);if(before!==after)audit(stage,row,before,after,'CSV / JSON 匯入');modified++}else{state[stage].push(row);audit(stage,row,'',statusOf(row,stage),'CSV / JSON 匯入');added++}}return {added,modified,skipped}}
+async function importFile(file){if(!file)return;try{if(file.size>8*1024*1024)throw Error(t('檔案超過 8 MB，請分批匯入。'));const text=await file.text();let batches={};if(file.name.toLowerCase().endsWith('.json')){const parsed=JSON.parse(text);if(Array.isArray(parsed)){batches[ui.stage]=parsed}else if(parsed&&typeof parsed==='object'){
+ let found=false;for(let s=1;s<=3;s++){const rows=parsed[String(s)]||parsed['stage'+s]||parsed['stage_'+s]||parsed['round'+s]||parsed['round_'+s];if(Array.isArray(rows)){batches[s]=rows;found=true}}if(!found)throw Error(t('JSON 應為股票陣列，或包含 1、2、3 / stage1、stage2、stage3 陣列。'));if(Array.isArray(parsed.history))state.history=[...parsed.history,...state.history].slice(0,1000);
+ }else throw Error(t('JSON 格式不正確。'))}else{batches[ui.stage]=parseCSV(text)}
+ let a=0,m=0,sk=0;for(const [stage,rows]of Object.entries(batches)){const r=mergeRows(Number(stage),rows);a+=r.added;m+=r.modified;sk+=r.skipped}save();toast(tl(`匯入完成：新增 ${a} 筆、更新 ${m} 筆、略過 ${sk} 筆。`,`Import complete: ${a} added, ${m} updated, ${sk} skipped.`));if(a+m===0)toast(t('沒有有效股票資料。檢查 symbol 欄位和檔案格式。'),true);
+ }catch(e){toast(t('匯入失敗：')+e.message,true)}finally{byId('fileInput').value=''}}
+function showVersionDetails(){
+ const body=`<div class="modal-text version-details">
+  <div class="build-line"><span>${tl('網頁介面版本','Dashboard UI version')}</span><strong>v${DASHBOARD_VERSION}</strong></div>
+  <div class="build-line"><span>${tl('Python 掃描器基礎版本','Python scanner base version')}</span><strong>v${esc(serverMeta?.scanner_version||SCANNER_VERSION)}</strong></div>
+  <h3>${tl('V2.7 更新','V2.7 update')}</h3>
+  <p>${tl('股票代號左半部停留顯示最近約 6 個月（126 根交易日日線）；右半部停留顯示約 3 個月（63 根）。左右移動滑鼠即可即時切換，兩條 Y 軸同在右邊；第一輪／READY 直線僅在所選時段涵蓋該日期時顯示。圖表快取增至 180 根；舊快取不足會提示，不會繞過 24 小時重新掃描限制。','Hover over the LEFT half of a ticker for about six months (126 sessions), or RIGHT half for three months (63 sessions). Move between halves to switch instantly, with both Y axes still on the right. Stage 1 / READY milestones appear only when the chosen window includes their dates. New price caches retain 180 sessions; older shorter caches show a history warning and do not bypass the 24-hour scan cooldown.')}</p>
+  <h3>${tl('V2.6 更新','V2.6 update')}</h3>
+  <p>${tl('首頁改為 24 小時重新掃描倒數，滑鼠停在倒數顯示選定時區的上次掃描時間；Hover K 線加入第一輪初次入選及第二輪 READY 日期直線。若事件不在歷史棒圖範圍，明確標示圖外日期。 第二輪另外新增『整理前 63 個交易日升幅』、『可編輯最低參考升幅（預設 30%）』及達標顯示。','The header now shows a live 24-hour rescan countdown; hover it for the last-success timestamp in the chosen timezone. Hover charts mark the first Stage 1 qualifying scan and the Stage 2 READY date with vertical lines, or state when a milestone lies outside the cached bars. Stage 2 now shows pre-base 63-session advance, editable 30% reference minimum and a reference check badge.')}</p>
+  <h3>${tl('前版保留功能','Previous features')}</h3>
+  <p>${tl('頂部版本標籤一按即可查看資訊；工具列固定在頂部；第一輪預設根據 Nasdaq Trader 的美國交易所上市股票全市場名單選股。','Click the release badge for details; top navigation stays visible while scrolling; Stage 1 now defaults to a broad US-listed-equity universe built from Nasdaq Trader directories.')}</p>
+  <p>${tl('系統排除 ETF、權證、供認購單位、優先股及債券；不包括 OTC。三個動能週期按各自有足夠交易紀錄的股票獨立排名，再取聯集。','ETFs, warrants, units, preferreds, bonds and OTC are excluded. Each momentum horizon has its own eligible universe and the winners are combined by UNION.')}</p>
+  <p>${tl('大範圍 Yahoo Finance 非官方下載可能被限流；如行情覆蓋不足，系統會顯示失敗而保留上一次結果，不會假稱已完成全市場掃描。','Yahoo Finance is unofficial and broad downloads may be rate-limited. If coverage is too low, scanning fails safely and preserves prior results, rather than claiming a full-market ranking.')}</p>
+  <h3>${tl('保留既有功能','Retained features')}</h3>
+  <p>${tl('三輪股票追蹤、右側雙 Y 軸 Hover 圖表、紐約／新加坡／UTC 時區切換，以及成功掃描後 24 小時內不重複掃描。','Three-stage tracking, both chart Y-axes on the right, NY / SG / UTC timezone display, and a 24-hour cooldown after a successful scan.')}</p>
+  <p>${tl('版本標籤只顯示已安裝網頁的版本，不會連線檢查是否有更新。更換網頁檔案後，請按 Ctrl + F5 強制重新整理。','The badge shows your installed UI version; it does not check the internet for updates. After replacing dashboard.html, press Ctrl + F5 to hard-refresh.')}</p>
+ </div>`;
+ modal.open(tl('版本資訊','Version information'),tl('Qullamaggie Breakout · 已安裝版本','Qullamaggie Breakout · Installed release'),body,
+  `<button class="solid-btn" type="button" id="dismissVersion">${tl('關閉','Close')}</button>`);
+ byId('dismissVersion').onclick=modal.close;
+}
+function help(){
+ const guideZh=`<div class="modal-text"><p><b>數據來源視乎是否已啟動本地 Python 掃描器。</b> 啟動服務時會檢查行情日期，缺少預期最新日線就自動掃描，已是最新則保留原資料；手動也可按「開始掃描」。滑鼠停在股票代號會顯示掃描後快取的日線 K 棒圖。時區選單改變倒數提示的時間詳情（滑鼠停留可查看上次掃描時間），並不改變剩餘時數或數據。若以 HTML 檔離線開啟則只能手動匯入。掃描來源不是即時行情。</p><p><b>美股範圍：</b>預設掃描 Nasdaq Trader Nasdaq＋其他美國交易所上市股票，排除 ETF、權證、單位、優先股、債券及 OTC。Yahoo Finance 非官方資料可能限流；只有行情覆蓋足夠才會公佈排名。</p><p><b>三輪職責：</b>第一輪看 1M / 3M / 6M 動能排名，候選集合採各期間前列股票的聯集；第二輪確認整理形態並持續追蹤；第三輪只從 READY 的 Setup 監察突破和初始風險。</p><p><b>建立股票：</b>在第一輪按「加入股票」，再按列內「→ 第二輪」。把第二輪狀態改為 READY 才能按「→ 第三輪」。晉級不會刪除前一輪的記錄。</p><p><b>CSV 匯入：</b>切換到目標 Tab，下載該輪「CSV 範本」，以同名欄位填入數據後按右上角「匯入數據」。CSV 會匯入<b>目前的 Tab</b>。百分比填純數字（35.5 代表 35.5%）。</p><p><b>JSON 備份：</b>右上角「備份 JSON」會將三輪的資料與狀態事件一同匯出；把該 JSON 匯入新瀏覽器即可恢復。匯入採合併方式，並不刪除其他 Setup。</p><p><b>持續追蹤：</b>連接本機掃描器時會將資料保存在本電腦的 data/tracking_state.json，並在本機瀏覽器保留備份。HTML 離線開啟才是純 localStorage。請定期匯出 JSON。</p><p><b>風險：</b>TRIGGERED 僅為監察訊號，並非已成交、不是自動下單；確認規則與風險參數需由交易者自行檢核。本掃描器只有日線，絕不自動產生盤中 TRIGGERED；收市突破僅供人工覆核。</p></div>`;
+ const guideEn=`<div class="modal-text"><p><b>A local Python scanner is available when the server is running.</b> At server startup, an automatic freshness check reuses the most recent valid EOD scan or triggers a new scan when outdated. Run Scan is still available manually. Hover over a ticker to see the locally cached daily OHLCV bar chart. The header shows time remaining until the next allowed scan; hover it for the last-success timestamp in the selected timezone. The timezone selector does not alter the remaining duration. Opened as a local HTML file, the dashboard remains manual-only. No real-time quotes are implied.</p><p><b>US stock coverage:</b> By default the scanner uses Nasdaq Trader Nasdaq + other US exchange listed equities, excluding ETFs, warrants, units, preferreds, debt and OTC. Yahoo Finance may rate-limit; an incomplete scan is not published as full-market rankings.</p><p><b>Stage responsibilities:</b> Stage 1 uses the union of top-ranked stocks by 1M, 3M and 6M momentum; Stage 2 verifies consolidation and tracks setups continuously; Stage 3 monitors breakouts and initial risk for READY setups only.</p><p><b>Managing stocks:</b> Add a ticker on Stage 1 and use “→ Stage 2” to promote it. Mark a Stage 2 setup READY before advancing it to Stage 3. Promotion does not remove prior-stage data.</p><p><b>Importing CSV:</b> Choose a tab, download its CSV template, populate matching field names, then click Import Data. CSV imports apply to the <b>currently active tab</b>. Enter percent values as plain numbers (35.5 means 35.5%).</p><p><b>JSON backup:</b> Backup JSON exports all three stages and status history. Import the JSON into another browser to restore your data. Import merges records without deleting other setups.</p><p><b>Continuous tracking:</b> With the local scanner online, records are also saved on your computer under data/tracking_state.json. The browser keeps a local copy. When opened as a standalone HTML file, only localStorage is used. Back up your JSON regularly.</p><p><b>Risk:</b> TRIGGERED is a monitoring signal, not a filled order. You must verify confirmation rules and risk parameters yourself. EOD scan cannot establish intraday trigger timing: it only flags unconfirmed daily breakout candidates and does not auto-TRIGGER.</p></div>`;
+ modal.open(t('資料來源與使用說明'),t('三輪 Skill 對應的本地監察網頁'),tl(guideZh,guideEn),`<span class="helper">Skills: 01_momentum_screen / 02_setup_qualification / 03_breakout_execution</span><button class="solid-btn" id="okHelp">${t('我明白了')}</button>`);
+ byId('okHelp').onclick=modal.close;
+}
+for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchTab(Number(b.dataset.stage)));
+byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});byId('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render()});
+byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){toast(tl('雲端網站為只讀；請勿在公開頁面編輯交易狀態。','Cloud view is read-only; do not edit trading states here.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
+byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLanguage('en');
+byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(true);byId('exportCsvBtn').onclick=()=>exportCSV(false);byId('importBtn').onclick=()=>byId('fileInput').click();byId('fileInput').addEventListener('change',e=>importFile(e.target.files[0]));byId('exportAllBtn').onclick=()=>{download(`qullamaggie_all_stages_${today()}.json`,JSON.stringify({...state,exported_at:nowIso(),version:1},null,2),'application/json;charset=utf-8');toast(t('已備份三輪資料與狀態歷史。'))};byId('helpBtn').onclick=help;byId('versionBtn').onclick=showVersionDetails;byId('closeModal').onclick=modal.close;byId('overlay').addEventListener('click',e=>{if(e.target===byId('overlay'))modal.close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.close();hidePricePopup()}});
+// Same-origin browser-to-Python API. Standalone HTML still works offline.
+let serverOnline=false,serverRevision=0,serverMeta={},syncBusy=false,syncPending=false,scanActive=false,bootstrapping=false;
+
+// V2 timestamps are time-zone formatted at display time; scan completion != stock price date.
+const TZ_KEY='qulla_breakout_timestamp_timezone';
+const TIME_ZONES={'America/New_York':'NY','Asia/Singapore':'SG','UTC':'UTC'};
+let selectedTz='Asia/Singapore';
+try{const stored=localStorage.getItem(TZ_KEY);if(TIME_ZONES[stored])selectedTz=stored;}catch(e){}
+byId('tzSelect').value=selectedTz;
+// The primary timestamp display is a LIVE countdown. Exact scan timestamps remain
+// available in the tooltip using the selected NY / Singapore / UTC timezone.
+function formatScanDateTime(value){
+ const date=new Date(value);
+ if(!Number.isFinite(date.getTime()))return '—';
+ return new Intl.DateTimeFormat(lang==='en'?'en-US':'zh-HK',{
+  timeZone:selectedTz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'
+ }).format(date)+' '+TIME_ZONES[selectedTz];
+}
+function remainingCooldown(){
+ const cooldownEnd=serverMeta?.cooldown_until ? new Date(serverMeta.cooldown_until) : null;
+ return cooldownEnd&&Number.isFinite(cooldownEnd.getTime())?Math.max(0,cooldownEnd.getTime()-Date.now()):0;
+}
+function formatRemaining(ms){
+ const minutes=Math.ceil(ms/60000);
+ const hours=Math.floor(minutes/60),mins=minutes%60;
+ return lang==='en'?`${hours}h ${String(mins).padStart(2,'0')}m`:`${hours} 小時 ${String(mins).padStart(2,'0')} 分鐘`;
+}
+function renderUpdatedTime(){
+ const element=byId('updatedAt');
+ const last=serverMeta?.last_success;
+ const remaining=remainingCooldown();
+ const lastInfo=last?tl('上次成功掃描：','Last successful scan: ')+formatScanDateTime(last):tl('尚未有成功掃描','No successful scan yet');
+ if(scanActive){element.textContent=tl('◷ 正在掃描…','◷ Scan in progress…');}
+ else if(last&&remaining>0){element.textContent=tl('下次掃描倒數：','Next scan in: ')+formatRemaining(remaining);}
+ else if(last){element.textContent=tl('✓ 已滿 24 小時，可重新掃描','✓ 24h elapsed · Scan allowed');}
+ else if(serverOnline){element.textContent=tl('✓ 尚無掃描，可立即開始','✓ No prior scan · Ready to scan');}
+ else{element.textContent=tl('掃描器未連線','Scanner offline');}
+ element.title=lastInfo+(serverMeta?.cooldown_until?'\n'+tl('下次允許：','Allowed from: ')+formatScanDateTime(serverMeta.cooldown_until):'')+
+  '\n'+tl('這是重新掃描的最早時間，實際仍視乎可用行情及掃描狀態。','This is the earliest scan time, not a promise of fresh market data.');
+}
+// Update countdown without requesting or re-running the scanner.
+setInterval(renderUpdatedTime,1000);
+byId('tzSelect').addEventListener('change', e=>{
+ const tz=e.target.value;
+ if(!TIME_ZONES[tz])return;
+ selectedTz=tz;try{localStorage.setItem(TZ_KEY,tz)}catch(e){}
+ refreshServerUi();
+});
+function updateTzUi(){
+ byId('tzLabel').textContent=tl('時間：','Time:');
+ const opts=byId('tzSelect').options;
+ opts[0].textContent=tl('紐約 NY','New York NY');
+ opts[1].textContent=tl('新加坡 SG','Singapore SG');
+ opts[2].textContent=tl('UTC 世界標準時間','UTC (world standard)');
+ renderUpdatedTime();
+}
+
+// Hover-only price chart; downloaded once per symbol from local EOD cache.
+const popup=byId('pricePopup'), popupBody=byId('pricePopupBody');
+const priceCache=new Map();
+let chartHoverTimer=null,chartOpenSymbol=null,chartOpenWindow=null,chartGeneration=0;
+function hidePricePopup(){
+ chartGeneration++;clearTimeout(chartHoverTimer);chartOpenSymbol=null;chartOpenWindow=null;
+ popup.classList.remove('visible');popupBody.innerHTML='';
+}
+function positionPopup(target){
+ const anchor=target.getBoundingClientRect();
+ const width=Math.min(530,window.innerWidth-20);
+ let x=anchor.right+16;
+ if(x+width>window.innerWidth-9)x=anchor.left-width-16;
+ if(x<10)x=10;
+ const height=popup.offsetHeight||320;
+ let y=anchor.top-13;
+ if(y+height>window.innerHeight-8)y=window.innerHeight-height-8;
+ popup.style.left=Math.max(10,x)+'px';popup.style.top=Math.max(8,y)+'px';
+}
+function chartPayload(sym){
+ if(priceCache.has(sym))return priceCache.get(sym);
+ const request=fetch('./data/charts/'+encodeURIComponent(sym)+'.json?v='+Date.now(),{cache:'no-store'}).then(async r=>{
+  const body=await r.json();
+  if(!r.ok)throw Error(body.error||'No chart data');
+  return body;
+ });
+ priceCache.set(sym,request);
+ request.catch(()=>priceCache.delete(sym));
+ return request;
+}
+function shortPrice(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+// Two synchronized Y axes are BOTH on the RIGHT: inner (nearest bars) = price,
+// outer (far right) = percentage change. 0% = first visible day's close.
+function chartPercent(value,base){return (value/base-1)*100;}
+function percentLabel(value){return `${value>0?'+':''}${value.toFixed(1)}%`;}
+// An event is marked only if its original date can be placed within the cached
+// EOD bar window; never invent a stage/READY date or shift it to a false candle.
+function validEventDate(value){
+ const s=String(value||'').slice(0,10);
+ return /^\d{4}-\d{2}-\d{2}$/.test(s)?s:null;
+}
+function chartMilestones(symbol,setupId=''){
+ const selected=state['1'].find(r=>r.symbol===symbol);
+ const first=selected?validEventDate(selected.first_seen_date)||validEventDate(selected.as_of_date):null;
+ const setups=state['2'].filter(r=>r.symbol===symbol);
+ // For Stage 2/3 rows, prefer that exact setup; otherwise use its most
+ // recently READY-dated setup. Do not confuse Stage-2 first_seen with Stage-1.
+ let setup=setupId?setups.find(r=>r.setup_id===setupId):null;
+ if(!setup)setup=setups.filter(r=>validEventDate(r.ready_since))
+   .sort((a,b)=>String(b.ready_since).localeCompare(String(a.ready_since)))[0];
+ const ready=setup?validEventDate(setup.ready_since):null;
+ return [
+  ...(first?[{type:'first',date:first,label:tl('第一輪初次入選','Stage 1 first pass'),color:'#f4c66e'}]:[]),
+  ...(ready?[{type:'ready',date:ready,label:tl('第二輪 READY','Stage 2 READY'),color:'#78bafb'}]:[])
+ ];
+}
+// User-selected windows are fixed. Do not silently stretch them for milestones.
+// US daily bar dates refer to NY trading sessions; 63 / 126 sessions are
+// approximations of 3 / 6 months, not calendar-month boundaries.
+const CHART_WINDOWS={'3m':63,'6m':126};
+function selectChartBars(cached,windowKey){
+ const count=CHART_WINDOWS[windowKey]||63;
+ return cached.slice(-count);
+}
+function chartWindowFromPointer(button,clientX){
+ if(!button || !Number.isFinite(clientX))return '6m';
+ const box=button.getBoundingClientRect();
+ return clientX<box.left+box.width/2?'6m':'3m';
+}
+function markChartSide(button,windowKey){
+ if(button)button.dataset.chartSide=windowKey;
+}
+function drawChartMilestones(ctx,bars,milestones,left,step,plotRight,top,volBottom){
+ const visible=[];const unavailable=[];
+ milestones.forEach((m,i)=>{
+  if(m.date<bars[0].date||m.date>bars[bars.length-1].date){unavailable.push(m);return;}
+  const index=bars.findIndex(b=>b.date>=m.date);
+  if(index<0){unavailable.push(m);return;}
+  const x=left+(index+.5)*step;
+  ctx.save();ctx.strokeStyle=m.color;ctx.lineWidth=1.8;ctx.setLineDash(i===0?[6,3]:[3,3]);
+  ctx.beginPath();ctx.moveTo(x,top+3);ctx.lineTo(x,volBottom);ctx.stroke();ctx.setLineDash([]);
+  // Offset label rows so first-pass and READY remain legible when dates coincide.
+  const label=(m.type==='first'?'S1 ':'READY ')+m.date.slice(5);
+  ctx.font='bold 9px sans-serif';ctx.textBaseline='middle';
+  const textWidth=ctx.measureText(label).width;
+  const labelX=Math.max(left+3,Math.min(x-textWidth/2-5,plotRight-textWidth-9));
+  const labelY=top+8+i*15;
+  ctx.fillStyle='rgba(10,20,34,.92)';ctx.fillRect(labelX,labelY-6,textWidth+10,13);
+  ctx.fillStyle=m.color;ctx.textAlign='left';ctx.fillText(label,labelX+5,labelY);
+  ctx.restore();visible.push(m);
+ });
+ return {visible,unavailable};
+}
+function drawPriceBars(canvas, bars, milestones=[]){
+ if(!bars.length)return;
+ const baseClose=Number(bars[0].close);
+ if(!Number.isFinite(baseClose)||baseClose<=0)throw Error('Invalid first-day close for percent axis');
+ const factor=Math.min(window.devicePixelRatio||1,2);
+ const w=Math.max(canvas.clientWidth||460,190),h=250;
+ canvas.width=Math.round(w*factor);canvas.height=Math.round(h*factor);
+ const ctx=canvas.getContext('2d');ctx.scale(factor,factor);
+ const left=12,top=27,priceBottom=182,volTop=194,volBottom=224;
+ const highs=bars.map(b=>Number(b.high)),lows=bars.map(b=>Number(b.low));
+ let hi=Math.max(...highs),lo=Math.min(...lows);
+ if(!Number.isFinite(hi)||!Number.isFinite(lo))throw Error('Invalid price data');
+ let diff=hi-lo;if(diff===0)diff=Math.abs(hi)*.02||1;
+ hi+=diff*.06;lo=Math.max(0,lo-diff*.06);
+ const y=v=>top+(hi-v)/(hi-lo)*(priceBottom-top);
+ const axisPrice=v=>{
+  const decimals=hi-lo<.2?4:hi-lo<2?3:2;
+  return Number(v).toLocaleString('en-US',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+ };
+ const ticks=Array.from({length:5},(_,i)=>{
+  const val=hi-(hi-lo)*i/4;
+  return {val,py:y(val),price:axisPrice(val),percent:percentLabel(chartPercent(val,baseClose))};
+ });
+ // Reserve two tick-label columns at the right, measured using actual font widths.
+ ctx.font='10px sans-serif';ctx.textBaseline='middle';
+ const pctTitle=tl('相對變幅 %','Change %'),priceTitle=tl('價格','Price');
+ const pctWidth=Math.max(ctx.measureText(pctTitle).width,...ticks.map(t=>ctx.measureText(t.percent).width));
+ const priceWidth=Math.max(ctx.measureText(priceTitle).width,...ticks.map(t=>ctx.measureText(t.price).width));
+ const pctAxisX=Math.ceil(w-pctWidth-12);
+ const priceAxisX=Math.ceil(pctAxisX-priceWidth-14);
+ const plotRight=priceAxisX-6;
+ const pw=Math.max(25,plotRight-left);
+ // Price axis closest to candles, percentage axis on the far-right edge.
+ ctx.textAlign='left';
+ ctx.fillStyle='#a6b8cf';ctx.fillText(priceTitle,priceAxisX+5,11);
+ ctx.fillStyle='#89d5c6';ctx.fillText(pctTitle,pctAxisX+5,11);
+ for(const tick of ticks){
+  ctx.strokeStyle='#293e54';ctx.lineWidth=1;ctx.setLineDash([3,4]);
+  ctx.beginPath();ctx.moveTo(left,tick.py);ctx.lineTo(plotRight,tick.py);ctx.stroke();ctx.setLineDash([]);
+  ctx.textAlign='left';
+  ctx.fillStyle='#a6b8cf';ctx.fillText(tick.price,priceAxisX+5,tick.py);
+  ctx.fillStyle='#89d5c6';ctx.fillText(tick.percent,pctAxisX+5,tick.py);
+ }
+ ctx.strokeStyle='#48617a';ctx.lineWidth=1;
+ for(const axisX of [priceAxisX,pctAxisX]){
+  ctx.beginPath();ctx.moveTo(axisX,top);ctx.lineTo(axisX,priceBottom);ctx.stroke();
+  for(const tick of ticks){
+   ctx.beginPath();ctx.moveTo(axisX-3,tick.py);ctx.lineTo(axisX,tick.py);ctx.stroke();
+  }
+ }
+ // The first visible day's close is the 0% reference line, only if in range.
+ if(baseClose>=lo&&baseClose<=hi){
+  const zeroY=y(baseClose);
+  ctx.strokeStyle='#4da89a';ctx.lineWidth=1;ctx.setLineDash([5,4]);
+  ctx.beginPath();ctx.moveTo(left,zeroY);ctx.lineTo(plotRight,zeroY);ctx.stroke();ctx.setLineDash([]);
+ }
+ const step=pw/bars.length,bodyWidth=Math.max(1.2,Math.min(step*.66,8));
+ const vmax=Math.max(1,...bars.map(b=>Number(b.volume)||0));
+ bars.forEach((b,i)=>{
+  const xx=left+(i+.5)*step,up=b.close>=b.open;
+  const color=up?'#64d8b5':'#f58a92';
+  const o=y(b.open),c=y(b.close),yt=y(b.high),yb=y(b.low);
+  ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(xx,yt);ctx.lineTo(xx,yb);ctx.stroke();
+  ctx.fillRect(xx-bodyWidth/2,Math.min(o,c),bodyWidth,Math.max(1.4,Math.abs(o-c)));
+  ctx.globalAlpha=.48;
+  const volumeHeight=Math.max(1,(Number(b.volume)||0)/vmax*(volBottom-volTop));
+  ctx.fillRect(xx-bodyWidth/2,volBottom-volumeHeight,bodyWidth,volumeHeight);
+  ctx.globalAlpha=1;
+ });
+ ctx.fillStyle='#8296b0';ctx.textBaseline='alphabetic';ctx.textAlign='left';
+ ctx.fillText(bars[0].date.slice(5),left,243);
+ ctx.textAlign='center';ctx.fillText(bars[Math.floor((bars.length-1)/2)].date.slice(5),left+pw/2,243);
+ ctx.textAlign='right';ctx.fillText(bars[bars.length-1].date.slice(5),left+pw,243);
+ ctx.strokeStyle='#294056';ctx.beginPath();ctx.moveTo(left,188);ctx.lineTo(plotRight,188);ctx.stroke();
+ return drawChartMilestones(ctx,bars,milestones,left,step,plotRight,top,volBottom);
+}
+async function showPricePopup(target,windowKey='6m'){
+ const sym=target?.dataset.chartSymbol;
+ if(!sym || !/^[A-Z][A-Z0-9.\-]{0,14}$/.test(sym))return;
+ windowKey=windowKey==='3m'?'3m':'6m';
+ markChartSide(target,windowKey);
+ chartOpenSymbol=sym;chartOpenWindow=windowKey;const generation=++chartGeneration;
+ byId('pricePopupWindow').textContent=(windowKey==='6m'?'6M':'3M')+' · 1D';
+ byId('pricePopupName').textContent=sym;
+ byId('pricePopupSub').textContent=tl((windowKey==='6m'?'6 個月':'3 個月')+'日線 · 首次入選／READY 標記',(windowKey==='6m'?'6-month':'3-month')+' daily OHLC · Stage 1 / READY markers');
+ byId('pricePopupFoot').textContent=tl('收市日線 · 非即時報價 · 不代表突破已確認','End-of-day chart · Not live · No confirmed trigger implied');
+ popupBody.textContent=tl('正在讀取本機圖表快取…','Loading cached daily OHLCV…');
+ popup.classList.add('visible');positionPopup(target);
+ if(!serverOnline){popupBody.textContent=tl('請啟動掃描器並完成一次掃描，以取得價格圖。','Start the scanner and complete a scan to view a price chart.');return}
+ try{
+  const payload=await chartPayload(sym);
+  if(chartGeneration!==generation||chartOpenSymbol!==sym||chartOpenWindow!==windowKey)return;
+  const milestones=chartMilestones(sym,target.dataset.chartSetup||'');
+  const bars=selectChartBars(payload.bars||[],windowKey);
+  if(!bars.length)throw Error('No OHLC bars');
+  const first=bars[0],last=bars[bars.length-1];
+  const change=chartPercent(Number(last.close),Number(first.close));
+  const targetCount=CHART_WINDOWS[windowKey];
+  const windowLabel=windowKey==='6m'?tl('6 個月','6 months'):tl('3 個月','3 months');
+  byId('pricePopupSub').textContent=tl(`${windowLabel} · ${bars.length} 根日 K 線 · 最新收盤 ${shortPrice(last.close)} (${percentLabel(change)})`,`${windowLabel} · ${bars.length} daily bars · Close ${shortPrice(last.close)} (${percentLabel(change)})`);
+  popupBody.innerHTML='<canvas id="pricePopupCanvas" role="img"></canvas>';
+  const canvas=byId('pricePopupCanvas');
+  const eventDesc=milestones.map(m=>`${m.label}: ${m.date}`).join('; ');
+  canvas.setAttribute('aria-label',`${sym} ${windowKey.toUpperCase()} OHLCV ${first.date} to ${last.date}. Both Y axes on the right: inner price and outer percent. ${eventDesc||'No saved milestones'}. Latest ${percentLabel(change)}.`);
+  const markResult=drawPriceBars(canvas,bars,milestones);
+  const visibleLegend=markResult.visible.map(m=>`${m.type==='first'?'🟨':'🟦'} ${m.label} ${m.date}`).join(' · ');
+  const outOfRange=markResult.unavailable.map(m=>`${m.label} ${m.date}`).join('、');
+  const milestoneLine=(visibleLegend?visibleLegend+' · ':'')+
+   (outOfRange?tl(`圖外日期：${outOfRange} · `,`Outside available bars: ${outOfRange} · `):'')+
+   (!milestones.length?tl('尚未記錄第一輪／READY 日期 · ','No saved Stage 1 / READY dates · '):'');
+  const shortHistory=bars.length<targetCount?
+   tl(`可用歷史僅 ${bars.length}/${targetCount} 根（可能是舊圖表快取或新上市股票）；下次成功掃描可補充歷史數據。 · `,
+      `Only ${bars.length}/${targetCount} sessions available (older cache or newer listing); a successful future scan may add history. · `):'';
+  byId('pricePopupFoot').textContent=shortHistory+milestoneLine+tl(`右側雙 Y 軸：內側股價、外側百分比（所選時段首日收盤 ${shortPrice(first.close)} = 0%） · 截至 ${last.date} · 非即時`,
+   `Right-hand Y axes: inner price, outer % (first close in selected window ${shortPrice(first.close)} = 0%) · EOD ${last.date} · Not live`);
+  positionPopup(target);
+ }catch(e){
+  if(chartGeneration!==generation)return;
+  popupBody.textContent=tl('尚無可用圖表。請先成功執行一次掃描，或檢查股票數據。','Chart unavailable. Complete a successful scan or check ticker data.');
+  byId('pricePopupFoot').textContent=String(e.message).slice(0,120);
+  positionPopup(target);
+ }
+}
+const tableBody=byId('tbody');
+function chartButtonFrom(event){return event.target instanceof Element?event.target.closest('button[data-chart-symbol]'):null;}
+tableBody.addEventListener('mouseover',event=>{
+ const btn=chartButtonFrom(event);
+ if(!btn||btn.contains(event.relatedTarget))return;
+ const windowKey=chartWindowFromPointer(btn,event.clientX);
+ markChartSide(btn,windowKey);
+ clearTimeout(chartHoverTimer);
+ chartHoverTimer=setTimeout(()=>{
+  if(btn.isConnected && btn.matches(':hover'))showPricePopup(btn,btn.dataset.chartSide||windowKey);
+ },110);
+});
+// Switch between the left/right halves without leaving or clicking the ticker.
+tableBody.addEventListener('mousemove',event=>{
+ if(window.matchMedia('(hover: none)').matches)return;
+ const btn=chartButtonFrom(event);if(!btn)return;
+ const windowKey=chartWindowFromPointer(btn,event.clientX);
+ markChartSide(btn,windowKey);
+ if(chartOpenSymbol===btn.dataset.chartSymbol && chartOpenWindow!==windowKey){
+  clearTimeout(chartHoverTimer);
+  showPricePopup(btn,windowKey);
+ }
+});
+tableBody.addEventListener('mouseout',event=>{
+ const btn=chartButtonFrom(event);
+ if(!btn||btn.contains(event.relatedTarget))return;
+ delete btn.dataset.chartSide;
+ hidePricePopup();
+});
+tableBody.addEventListener('focusin',event=>{const btn=chartButtonFrom(event);if(btn)showPricePopup(btn,'6m')});
+tableBody.addEventListener('focusout',event=>{if(chartButtonFrom(event))hidePricePopup()});
+tableBody.addEventListener('click',event=>{
+ const btn=chartButtonFrom(event);if(!btn)return;
+ if(window.matchMedia('(hover: none)').matches){
+  event.preventDefault();
+  const windowKey=chartWindowFromPointer(btn,event.clientX);
+  if(chartOpenSymbol===btn.dataset.chartSymbol&&chartOpenWindow===windowKey)hidePricePopup();
+  else showPricePopup(btn,windowKey);
+ }
+});
+document.addEventListener('pointerdown',event=>{
+ if(!chartButtonFrom(event) && window.matchMedia('(hover: none)').matches)hidePricePopup();
+});
+window.addEventListener('scroll',hidePricePopup,true);
+window.addEventListener('resize',hidePricePopup);
+
+const API_ENABLED=(location.protocol==='http:'||location.protocol==='https:');
+function mergeDatasets(remote,local){
+ const result={...remote};
+ for(const stage of ['1','2','3']){
+  const combined=new Map();
+  for(const row of (remote[stage]||[]))combined.set(sid(row,Number(stage)),row);
+  for(const row of (local[stage]||[])){
+   const key=sid(row,Number(stage)),prev=combined.get(key);
+   if(!prev || String(row._updated_at||'')>String(prev._updated_at||''))combined.set(key,row);
+  }
+  result[stage]=[...combined.values()];
+ }
+ const history=[...(remote.history||[]),...(local.history||[])];
+ const seen=new Set();result.history=history.filter(r=>{const key=JSON.stringify(r);if(seen.has(key))return false;seen.add(key);return true}).slice(0,1000);
+ result.updatedAt=remote.updatedAt||local.updatedAt||null;
+ return result;
+}
+function refreshServerUi(){
+ if(CLOUD_MODE){
+  byId('serverBadge').textContent=tl('● 雲端已發布資料','● Cloud published data');
+  byId('sourceBadge').textContent=tl('● 收市日線 · 非即時','● EOD quotes · Not live');
+  byId('scanBtn').style.display='none';
+  byId('importBtn').style.display='none';
+  byId('addBtn').style.display='none';
+  byId('syncBtn').disabled=!serverOnline;
+  byId('syncBtn').textContent=tl('⟳ 重新讀取雲端資料','⟳ Refresh cloud data');
+  const m=serverMeta||{};
+  renderUpdatedTime();
+  const ready=m.phase==='success' && m.last_success;
+  byId('scanNote').textContent=ready?tl(`雲端只讀模式 · 資料截至 ${m.as_of_date||'—'} · 股票池 ${m.universe_size||'—'} · 覆蓋率 ${m.market_coverage_pct??'—'}% · 如無新資料則沿用上次成功結果。`,`Cloud read-only · EOD ${m.as_of_date||'—'} · Universe ${m.universe_size||'—'} · Coverage ${m.market_coverage_pct??'—'}% · Last valid results stay visible if the next scan fails.`):tl('尚未發布首次合格的全市場掃描結果。','No complete eligible US-wide scan has been published yet.');
+  return;
+ }
+ const cooldownEnd=serverMeta?.cooldown_until?new Date(serverMeta.cooldown_until):null;
+ const cooldownActive=!!cooldownEnd&&Number.isFinite(cooldownEnd.getTime())&&cooldownEnd.getTime()>Date.now();
+ const cooldownText=cooldownActive?formatRemaining(remainingCooldown()):'';
+ byId('syncBtn').textContent=tl('⟳ 同步','⟳ Sync');
+ byId('scanBtn').textContent=scanActive?tl('◷ 掃描中','◷ Scanning'):
+  cooldownActive?tl('◷ 24 小時內不重掃','◷ 24h scan cooldown'):tl('▶ 開始掃描','▶ Run Scan');
+ byId('scanBtn').disabled=!serverOnline||scanActive||cooldownActive;
+ byId('scanBtn').title=cooldownActive?tl(`剩餘 ${cooldownText} 才能重新掃描`,`${cooldownText} until next allowed scan`):'';
+ byId('syncBtn').disabled=!serverOnline;
+ byId('serverBadge').textContent=serverOnline?tl('● 掃描器已連線','● Scanner connected'):tl('○ 掃描器未連線','○ Scanner offline');
+ byId('sourceBadge').textContent=serverOnline?tl('● 日線資料 · 非即時','● EOD quotes · Not live'):tl('● 本地資料 · 非即時報價','● Local data · Not live');
+ renderUpdatedTime();
+ const m=serverMeta,finish=m.as_of_date||'—',n=m.universe_size??'—',eligible=m.eligible??'—';
+ const startup=m.startup_action==='cached'?tl('啟動檢查：沿用最新結果 · ','Startup: up to date · '):
+  m.startup_action==='cooldown'?tl('啟動檢查：24 小時內不重掃 · ','Startup: 24h cooldown, scan skipped · '):
+  m.startup_action==='scan'?tl('啟動檢查：已自動掃描 · ','Startup: auto scan checked · '):'';
+ const usingFullUS=(m.last_scan_universe_mode||'file')==='us';
+ const scope=usingFullUS?tl('美國交易所上市股票池（不含 ETF／OTC）','US-exchange-listed equities (ex ETFs / OTC)'):
+                   tl('自訂股票池（非全美股）','Custom symbol universe (not full US market)');
+ const cov=m.market_coverage_pct==null?'—':Number(m.market_coverage_pct).toFixed(1)+'%';
+ const elig=m.eligible_by_window||{};
+ const listingNote=m.listing_info?.listing_warning?' ⚠ '+m.listing_info.listing_warning:'';
+ const scanDetail=tl(`來源 ${m.source||'—'} · ${scope} ${n} 隻 · 行情覆蓋 ${cov} · 1M/3M/6M 合格數 ${elig['1m']??'—'}/${elig['3m']??'—'}/${elig['6m']??'—'} · 日線截至 ${finish} · 各期前 ${m.top_fraction?Math.round(m.top_fraction*10000)/100:2}% 聯集${listingNote}`,
+    `Source ${m.source||'—'} · ${scope}: ${n} symbols · Data coverage ${cov} · Eligible 1M/3M/6M ${elig['1m']??'—'}/${elig['3m']??'—'}/${elig['6m']??'—'} · EOD ${finish} · Union of top ${m.top_fraction?Math.round(m.top_fraction*10000)/100:2}%${listingNote}`);
+ const progress=m.progress;
+ const scanningDetail=progress?.phase==='downloading'?
+   tl(`美股行情下載中：${progress.done||0} / ${progress.total||0}（${progress.pct||0}%），成功 ${progress.downloaded||0}，缺資料 ${progress.failed||0}。`,
+      `US daily quotes: ${progress.done||0}/${progress.total||0} (${progress.pct||0}%); fetched ${progress.downloaded||0}; unavailable ${progress.failed||0}.`):
+   progress?.phase==='loading_universe'?tl('正在讀取美國交易所上市股票名單…','Loading the US-listed equity directory…'):
+   progress?.phase==='ranking'?tl('正在計算全市場排名及更新三輪追蹤…','Ranking the market and updating three-stage tracking…'):
+   tl('日線掃描正在進行；完成後表格會更新。','Daily-price scan in progress; tables will refresh when complete.');
+ const oldUniverseCooldown=cooldownActive && m.universe_mode==='us' && m.last_scan_universe_mode!=='us';
+ const universePending=oldUniverseCooldown?tl('注意：上一輪成功掃描仍使用舊股票池，24 小時冷卻結束後才可開始全美股掃描。',
+  'Note: last successful scan still used the old, smaller universe. Full US scan is deferred until the 24h cooldown expires. '):'';
+ byId('scanNote').textContent=!serverOnline?tl('掃描器未連線：請執行 start_windows.bat，並開啟 http://127.0.0.1:8765/','Scanner offline: run start_windows.bat and open http://127.0.0.1:8765/'):
+  scanActive?scanningDetail:
+  m.phase==='error'?tl('掃描失敗（保留原有資料）：','Scan failed (existing data preserved): ')+(m.last_error||''):
+  startup+universePending+(cooldownActive?tl(`距上次成功掃描未滿 24 小時，沿用舊結果。尚餘 ${cooldownText} · `,
+    `Less than 24 hours since last success; reusing data. Remaining: ${cooldownText} · `):'')+scanDetail;
+}
+async function sendState(){
+ if(CLOUD_MODE)return;
+ syncPending=true;if(syncBusy||!serverOnline)return;
+ syncBusy=true;
+ try{
+  let attempts=0;
+  while(syncPending&&attempts<4){
+   syncPending=false;attempts++;
+   const payload=JSON.stringify({revision:serverRevision,state});
+   const response=await fetch('/api/state',{method:'PUT',headers:{'Content-Type':'application/json'},body:payload});
+   const info=await response.json();
+   if(response.status===409){
+    state=mergeDatasets(info.state,state);serverRevision=info.revision;syncPending=true;storeLocal();render();
+   }else if(response.ok){serverRevision=info.revision;serverMeta=info.metadata;}
+   else throw Error(info.error||'Save failed');
+  }
+ }catch(e){toast(tl('資料同步失敗，已保留瀏覽器備份：','Sync error; browser backup kept: ')+e.message,true);serverOnline=false;}
+ finally{syncBusy=false;refreshServerUi();}
+}
+async function loadServer(){
+ if(!API_ENABLED)return;
+ try{
+  const res=await fetch('./data/latest.json?v='+Date.now(),{cache:'no-store'});
+  if(!res.ok)throw Error('No local scanner API');
+  const payload=await res.json();
+  const wasOnline=serverOnline;
+  serverOnline=true;scanActive=payload.metadata?.phase==='running';serverMeta=payload.metadata||{};
+  const oldRev=serverRevision;serverRevision=payload.revision;
+  if(!wasOnline && !CLOUD_MODE){
+   // Import local legacy browser records on first connection, without dropping remote scan records.
+   const combined=mergeDatasets(payload.state,state);
+   const needsUpload=JSON.stringify(combined)!==JSON.stringify(payload.state);
+   state=combined;storeLocal();render();
+   if(needsUpload)sendState();
+  }else if(payload.revision!==oldRev&&!syncBusy&&!syncPending&&!byId('overlay').classList.contains('visible')){
+   state=payload.state;storeLocal();render();
+  }
+  refreshServerUi();
+ }catch(e){serverOnline=false;scanActive=false;refreshServerUi();}
+}
+async function startScan(){
+ if(CLOUD_MODE)return;
+ if(!serverOnline)return;
+ try{
+  const response=await fetch('/api/scan',{method:'POST'});
+  const result=await response.json();
+  if(result.metadata)serverMeta=result.metadata;
+  if(result.started){
+   scanActive=true;refreshServerUi();toast(tl('已啟動股票掃描；結果完成後會自動同步。','Scan started; results will sync automatically.'));
+  }else if(result.reason==='cooldown'){
+   scanActive=false;refreshServerUi();toast(tl('上次成功掃描未滿 24 小時，不需更新；保留現有資料。','Scan skipped: less than 24h since last success. Existing results kept.'));
+  }else if(result.reason==='running'){
+   scanActive=true;refreshServerUi();toast(tl('股票掃描已在進行中。','A scan is already running.'));
+  }else throw Error(result.error||'Scanner request rejected');
+ }catch(e){toast(tl('無法啟動掃描：','Could not start scan: ')+e.message,true);}
+}
+async function backendPoll(){
+ if(!API_ENABLED)return;
+ if(!serverOnline){await loadServer();return;}
+ try{
+  const response=await fetch('./data/latest.json?v='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw Error();
+  const result=await response.json();
+  scanActive=!!result.running;
+  const oldSuccess=serverMeta.last_success;
+  serverMeta=result.metadata||{};
+  if(oldSuccess!==serverMeta.last_success)priceCache.clear();
+  refreshServerUi();
+  if(result.revision!==serverRevision&&!syncBusy&&!syncPending&&!byId('overlay').classList.contains('visible'))await loadServer();
+ }catch(e){serverOnline=false;refreshServerUi();}
+}
+byId('scanBtn').onclick=startScan;
+byId('syncBtn').onclick=async()=>{await loadServer();toast(tl('已同步最新追蹤資料。','Latest tracking records synced.'))};
+const oldApplyLanguage=applyLanguage;
+applyLanguage=function(){oldApplyLanguage();refreshServerUi();updateTzUi();};
+applyLanguage();
+if(API_ENABLED){loadServer();setInterval(backendPoll,120000);}
+})();
+</script>
+</body>
+</html>
