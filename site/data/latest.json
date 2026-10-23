@@ -1,0 +1,22 @@
+{
+  "revision": 0,
+  "running": false,
+  "state": {
+    "1": [],
+    "2": [],
+    "3": [],
+    "history": [],
+    "updatedAt": null
+  },
+  "metadata": {
+    "phase": "pending",
+    "scanner_version": "3.0-cloud",
+    "universe_mode": "us",
+    "last_scan_universe_mode": null,
+    "as_of_date": null,
+    "last_success": null,
+    "universe_size": null,
+    "market_coverage_pct": null,
+    "source": "yahoo"
+  }
+}
