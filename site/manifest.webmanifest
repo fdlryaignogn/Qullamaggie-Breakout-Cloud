@@ -1,0 +1,26 @@
+{
+  "id": "./",
+  "name": "Qullamaggie Breakout Cloud",
+  "short_name": "Qullamaggie",
+  "description": "Three-stage US stock momentum and breakout monitoring dashboard",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a101e",
+  "theme_color": "#0a101e",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "./icons/app-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/app-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
