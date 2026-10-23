@@ -55,6 +55,16 @@
   @media(max-width:600px){.metadata{justify-content:flex-start}.price-popup{padding:12px}.price-popup-body canvas{height:235px}}
 </style>
 <style>
+/* Cloud EOD update notice: shown only when a NEW validated scan appears while viewing. */
+.cloud-update-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:15px;padding:13px 16px;background:#14352f;border:1px solid #398a78;border-radius:11px;color:#c2f7e9;box-shadow:0 8px 22px #0002}
+.cloud-update-banner[hidden]{display:none!important}
+.cloud-update-banner__body{min-width:0;display:flex;align-items:flex-start;gap:12px}
+.cloud-update-banner__icon{font-size:19px;line-height:1.2}
+.cloud-update-banner__heading{font-size:13px;font-weight:800}
+.cloud-update-banner__details{font-size:11px;margin-top:3px;color:#a4d8ca;overflow-wrap:anywhere}
+.cloud-update-banner__close{align-self:flex-start;background:transparent;border:1px solid #4d857b;color:#d6f8ec;border-radius:8px;padding:5px 10px;font-size:12px;white-space:nowrap}
+.cloud-update-banner__close:hover{background:#245347}
+@media(max-width:600px){.cloud-update-banner{margin:12px 4px 0;padding:11px}.cloud-update-banner__body{gap:8px}}
 /* Public GitHub Pages view: edits and state changes require an authenticated separate backend. */
 #addBtn,#importBtn,#scanBtn,button[data-act]{display:none!important}
 </style>
@@ -73,6 +83,13 @@
       <button class="outline-btn" id="exportAllBtn" type="button">↧&nbsp; 備份 JSON</button>
     </div>
   </header>
+  <section id="cloudUpdateBanner" class="cloud-update-banner" role="status" aria-live="polite" hidden>
+    <div class="cloud-update-banner__body">
+      <span class="cloud-update-banner__icon" aria-hidden="true">↗</span>
+      <div><div id="cloudUpdateHeading" class="cloud-update-banner__heading"></div><div id="cloudUpdateDetails" class="cloud-update-banner__details"></div></div>
+    </div>
+    <button id="cloudUpdateClose" class="cloud-update-banner__close" type="button" aria-label="Dismiss update notice / 關閉更新提示">✕</button>
+  </section>
   <section class="intro">
     <div><div class="eyebrow">TRADING WORKSPACE / WATCHLIST</div><h1>三階段突破監察台 <span style="color:var(--accent)">↗</span></h1><p>從市場強勢股出發，追蹤整理收縮形態，再觀察突破觸發。候選股票會保留追蹤，不會因每日排名變動而自動清空。</p></div>
     <div class="metadata"><span class="pill" id="sourceBadge">●&nbsp; 本地資料 · 非即時報價</span><span class="pill" id="updatedAt" role="status" aria-live="off">尚未有成功掃描</span><label class="tz-chooser" for="tzSelect"><span id="tzLabel">時間：</span><select id="tzSelect" aria-label="Timestamp timezone"><option value="America/New_York">紐約 NY</option><option value="Asia/Singapore">新加坡 SG</option><option value="UTC">UTC 世界標準時間</option></select></label><span class="pill" id="serverBadge">○ 未連線</span></div>
@@ -271,6 +288,23 @@ byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLangu
 byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(true);byId('exportCsvBtn').onclick=()=>exportCSV(false);byId('importBtn').onclick=()=>byId('fileInput').click();byId('fileInput').addEventListener('change',e=>importFile(e.target.files[0]));byId('exportAllBtn').onclick=()=>{download(`qullamaggie_all_stages_${today()}.json`,JSON.stringify({...state,exported_at:nowIso(),version:1},null,2),'application/json;charset=utf-8');toast(t('已備份三輪資料與狀態歷史。'))};byId('helpBtn').onclick=help;byId('versionBtn').onclick=showVersionDetails;byId('closeModal').onclick=modal.close;byId('overlay').addEventListener('click',e=>{if(e.target===byId('overlay'))modal.close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.close();hidePricePopup()}});
 // Same-origin browser-to-Python API. Standalone HTML still works offline.
 let serverOnline=false,serverRevision=0,serverMeta={},syncBusy=false,syncPending=false,scanActive=false,bootstrapping=false;
+let cloudSnapshotSeen=false,cloudNewScanNotice=null;
+const CLOUD_REFRESH_INTERVAL_MS=30*60*1000;
+function renderCloudNewScanNotice(){
+ const banner=byId('cloudUpdateBanner');
+ if(!banner)return;
+ if(!CLOUD_MODE||!cloudNewScanNotice){banner.hidden=true;return;}
+ const meta=cloudNewScanNotice;
+ byId('cloudUpdateHeading').textContent=tl('✓ 已載入新的選股結果','✓ New screening results loaded');
+ byId('cloudUpdateDetails').textContent=tl('美股交易日：','US market session: ')+(meta.as_of_date||'—')
+  +' · '+tl('掃描完成：','Scan completed: ')+formatScanDateTime(meta.last_success)
+  +' · '+tl('三輪表格已自動更新','All three stages updated automatically');
+ banner.hidden=false;
+}
+byId('cloudUpdateClose').addEventListener('click',()=>{
+ cloudNewScanNotice=null;
+ renderCloudNewScanNotice();
+});
 
 // V2 timestamps are time-zone formatted at display time; scan completion != stock price date.
 const TZ_KEY='qulla_breakout_timestamp_timezone';
@@ -299,6 +333,17 @@ function formatRemaining(ms){
 function renderUpdatedTime(){
  const element=byId('updatedAt');
  const last=serverMeta?.last_success;
+ if(CLOUD_MODE){
+  const complete=serverMeta?.phase==='success' && !!last;
+  element.textContent=complete
+    ? tl('✓ 最後成功掃描：','✓ Last successful scan: ')+formatScanDateTime(last)
+    : tl('尚未發布成功的全市場掃描','No verified full-market scan published');
+  element.title=complete
+    ? tl('美股交易日：','US market session: ')+(serverMeta?.as_of_date||'—')
+       +'\n'+tl('資料只在雲端完成新掃描及發布後更新。','Updated only after a successful cloud scan and deployment.')
+    : tl('尚未有可發布的合格全美股結果。','No verified US-wide results have been published yet.');
+  return;
+ }
  const remaining=remainingCooldown();
  const lastInfo=last?tl('上次成功掃描：','Last successful scan: ')+formatScanDateTime(last):tl('尚未有成功掃描','No successful scan yet');
  if(scanActive){element.textContent=tl('◷ 正在掃描…','◷ Scan in progress…');}
@@ -617,6 +662,7 @@ function refreshServerUi(){
   byId('syncBtn').textContent=tl('⟳ 重新讀取雲端資料','⟳ Refresh cloud data');
   const m=serverMeta||{};
   renderUpdatedTime();
+  renderCloudNewScanNotice();
   const ready=m.phase==='success' && m.last_success;
   byId('scanNote').textContent=ready?tl(`雲端只讀模式 · 資料截至 ${m.as_of_date||'—'} · 股票池 ${m.universe_size||'—'} · 覆蓋率 ${m.market_coverage_pct??'—'}% · 如無新資料則沿用上次成功結果。`,`Cloud read-only · EOD ${m.as_of_date||'—'} · Universe ${m.universe_size||'—'} · Coverage ${m.market_coverage_pct??'—'}% · Last valid results stay visible if the next scan fails.`):tl('尚未發布首次合格的全市場掃描結果。','No complete eligible US-wide scan has been published yet.');
   return;
@@ -687,7 +733,16 @@ async function loadServer(){
   if(!res.ok)throw Error('No local scanner API');
   const payload=await res.json();
   const wasOnline=serverOnline;
-  serverOnline=true;scanActive=payload.metadata?.phase==='running';serverMeta=payload.metadata||{};
+  const previousSuccessfulScan=serverMeta?.last_success||null;
+  const incomingMeta=payload.metadata||{};
+  if(CLOUD_MODE){
+   const nextSuccessfulScan=incomingMeta.phase==='success'?(incomingMeta.last_success||null):null;
+   if(cloudSnapshotSeen&&nextSuccessfulScan&&nextSuccessfulScan!==previousSuccessfulScan){
+    cloudNewScanNotice={last_success:nextSuccessfulScan,as_of_date:incomingMeta.as_of_date||null};
+   }
+   cloudSnapshotSeen=true;
+  }
+  serverOnline=true;scanActive=payload.metadata?.phase==='running';serverMeta=incomingMeta;
   const oldRev=serverRevision;serverRevision=payload.revision;
   if(!wasOnline && !CLOUD_MODE){
    // Import local legacy browser records on first connection, without dropping remote scan records.
@@ -695,7 +750,7 @@ async function loadServer(){
    const needsUpload=JSON.stringify(combined)!==JSON.stringify(payload.state);
    state=combined;storeLocal();render();
    if(needsUpload)sendState();
-  }else if(payload.revision!==oldRev&&!syncBusy&&!syncPending&&!byId('overlay').classList.contains('visible')){
+  }else if((payload.revision!==oldRev||CLOUD_MODE&&!wasOnline)&&(!syncBusy&&!syncPending&&!byId('overlay').classList.contains('visible')||CLOUD_MODE)){
    state=payload.state;storeLocal();render();
   }
   refreshServerUi();
@@ -724,6 +779,17 @@ async function backendPoll(){
   const response=await fetch('./data/latest.json?v='+Date.now(),{cache:'no-store'});
   if(!response.ok)throw Error();
   const result=await response.json();
+  if(CLOUD_MODE){
+   // Do not change last_success before loadServer compares it to the last loaded snapshot.
+   const previousSuccess=serverMeta?.last_success||null;
+   if(result.revision!==serverRevision||(result.metadata?.last_success||null)!==previousSuccess){
+    await loadServer();
+   }else{
+    serverMeta=result.metadata||{};
+    refreshServerUi();
+   }
+   return;
+  }
   scanActive=!!result.running;
   const oldSuccess=serverMeta.last_success;
   serverMeta=result.metadata||{};
@@ -735,9 +801,15 @@ async function backendPoll(){
 byId('scanBtn').onclick=startScan;
 byId('syncBtn').onclick=async()=>{await loadServer();toast(tl('已同步最新追蹤資料。','Latest tracking records synced.'))};
 const oldApplyLanguage=applyLanguage;
-applyLanguage=function(){oldApplyLanguage();refreshServerUi();updateTzUi();};
+applyLanguage=function(){oldApplyLanguage();refreshServerUi();updateTzUi();renderCloudNewScanNotice();};
 applyLanguage();
-if(API_ENABLED){loadServer();setInterval(backendPoll,120000);}
+if(API_ENABLED){
+ // EOD scanner runs once per US trading day; half-hour polling is sufficient.
+ loadServer();
+ setInterval(()=>{if(!document.hidden)backendPoll();},CLOUD_MODE?CLOUD_REFRESH_INTERVAL_MS:120000);
+ // Refresh promptly when the app/window becomes active again.
+ if(CLOUD_MODE)document.addEventListener('visibilitychange',()=>{if(!document.hidden)backendPoll();});
+}
 })();
 </script>
 </body>
