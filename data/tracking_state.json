@@ -4167,7 +4167,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 88.37,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4181,9 +4181,20 @@
       "pullback_pct": 30.14,
       "higher_lows": "YES",
       "volatility_contraction": "NO",
-      "moving_average_context": "close=17.42, SMA20=15.20, SMA50=14.03",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "moving_average_context": "close=17.42, SMA20=15.19, SMA50=14.03",
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "AMWL",
@@ -4194,7 +4205,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 34.84,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4209,8 +4220,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=13.57, SMA20=12.82, SMA50=12.76",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "APPN",
@@ -4221,7 +4243,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 54.8,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-02",
@@ -4236,8 +4258,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=52.35, SMA20=40.61, SMA50=38.99",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "ASAN",
@@ -4248,7 +4281,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 43.35,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-25",
@@ -4263,8 +4296,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=12.02, SMA20=9.79, SMA50=9.57",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "ASBP",
@@ -4275,7 +4319,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 38.1,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4290,8 +4334,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=8.80, SMA20=8.50, SMA50=8.49",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "ASST",
@@ -4302,7 +4357,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 128.4,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4317,8 +4372,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=28.97, SMA20=28.16, SMA50=25.67",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "AVTR",
@@ -4329,7 +4395,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 72.62,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4344,8 +4410,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=17.29, SMA20=15.87, SMA50=15.19",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "BNC",
@@ -4356,7 +4433,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 75.26,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4371,8 +4448,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=5.34, SMA20=5.37, SMA50=4.63",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "BOX",
@@ -4383,7 +4471,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 35.35,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4398,8 +4486,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=43.18, SMA20=37.36, SMA50=35.24",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, price_structure. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, price_structure. Human review required; no automated READY."
     },
     {
       "symbol": "BRBI",
@@ -4410,7 +4509,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 30.74,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4425,8 +4524,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=15.06, SMA20=13.80, SMA50=11.83",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, price_structure. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, price_structure. Human review required; no automated READY."
     },
     {
       "symbol": "CAI",
@@ -4437,7 +4547,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 54.92,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-02",
@@ -4452,8 +4562,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=32.00, SMA20=30.12, SMA50=27.95",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "CDNA",
@@ -4464,7 +4585,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 113.21,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -4479,8 +4600,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=69.21, SMA20=65.94, SMA50=57.14",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "CPIX",
@@ -4491,7 +4623,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 97.4,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4506,8 +4638,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=8.49, SMA20=7.47, SMA50=7.42",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "CRWD",
@@ -4518,7 +4661,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 53.05,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-25",
@@ -4533,8 +4676,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=257.57, SMA20=255.68, SMA50=234.80",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "CVI",
@@ -4545,7 +4699,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 56.52,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -4560,8 +4714,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=58.16, SMA20=57.86, SMA50=50.09",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "DCBO",
@@ -4572,7 +4737,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 42.96,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4587,8 +4752,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=30.91, SMA20=26.15, SMA50=24.89",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "DXC",
@@ -4599,7 +4775,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 32.73,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4613,9 +4789,20 @@
       "pullback_pct": 24.47,
       "higher_lows": "YES",
       "volatility_contraction": "NO",
-      "moving_average_context": "close=16.09, SMA20=12.83, SMA50=11.78",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "moving_average_context": "close=16.09, SMA20=12.82, SMA50=11.78",
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "ECO",
@@ -4626,7 +4813,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 61.71,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -4641,8 +4828,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=94.73, SMA20=89.50, SMA50=78.84",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "EMBC",
@@ -4653,7 +4851,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 51.22,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4668,8 +4866,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=6.71, SMA20=6.10, SMA50=5.61",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "ESTC",
@@ -4680,7 +4889,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 47.03,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4695,8 +4904,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=102.43, SMA20=94.57, SMA50=90.45",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "EXFY",
@@ -4707,7 +4927,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 77.6,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -4722,8 +4942,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=2.59, SMA20=2.39, SMA50=2.39",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "FIGS",
@@ -4734,7 +4965,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 49.2,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4749,8 +4980,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=20.20, SMA20=16.73, SMA50=15.12",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "FIVN",
@@ -4761,7 +5003,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 43.24,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4776,8 +5018,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=37.61, SMA20=34.65, SMA50=33.95",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "FROG",
@@ -4788,7 +5041,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 30.01,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4803,8 +5056,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=100.62, SMA20=95.33, SMA50=93.48",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "GCL",
@@ -4815,7 +5079,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 58.89,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-25",
@@ -4830,8 +5094,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=0.94, SMA20=0.80, SMA50=0.69",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "GRAL",
@@ -4842,7 +5117,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 84.18,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4857,8 +5132,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=132.55, SMA20=134.63, SMA50=104.19",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "GTE",
@@ -4869,7 +5155,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 37.97,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -4884,8 +5170,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=11.73, SMA20=10.64, SMA50=10.31",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "GTLB",
@@ -4896,7 +5193,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 55.77,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4911,8 +5208,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=56.28, SMA20=52.40, SMA50=48.63",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "HMR",
@@ -4923,7 +5231,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 75.7,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -4938,8 +5246,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "YES",
       "moving_average_context": "close=1.82, SMA20=1.74, SMA50=1.59",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "HNGE",
@@ -4950,7 +5269,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 68.91,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -4965,8 +5284,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=111.52, SMA20=102.00, SMA50=95.50",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "HTFL",
@@ -4977,7 +5307,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 74.9,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-02",
@@ -4992,8 +5322,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=56.71, SMA20=51.07, SMA50=49.38",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "IBTA",
@@ -5004,7 +5345,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 40.25,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -5019,8 +5360,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=48.61, SMA20=43.99, SMA50=41.07",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "INTA",
@@ -5031,7 +5383,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 59.63,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5046,8 +5398,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=47.99, SMA20=40.34, SMA50=39.78",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "IOVA",
@@ -5058,7 +5421,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 156.53,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-25",
@@ -5073,8 +5436,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=14.09, SMA20=14.01, SMA50=10.91",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "LIFE",
@@ -5085,7 +5459,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 135.31,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5100,8 +5474,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=43.10, SMA20=37.54, SMA50=37.20",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "NIQ",
@@ -5112,7 +5497,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 74.49,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-02",
@@ -5127,8 +5512,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=20.02, SMA20=18.12, SMA50=18.23",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "NSIT",
@@ -5139,7 +5535,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 42.9,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5154,8 +5550,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=176.77, SMA20=163.43, SMA50=158.54",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "NTWK",
@@ -5166,7 +5573,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 38.85,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -5181,8 +5588,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=7.86, SMA20=6.29, SMA50=5.03",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "OABI",
@@ -5193,7 +5611,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 65.97,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5208,8 +5626,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=4.66, SMA20=4.75, SMA50=4.54",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "OKTA",
@@ -5220,7 +5649,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 50.19,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5235,8 +5664,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=213.05, SMA20=210.79, SMA50=185.00",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "PACB",
@@ -5247,7 +5687,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 47.44,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -5262,8 +5702,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=2.11, SMA20=2.19, SMA50=1.69",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "PANW",
@@ -5274,7 +5725,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 36.56,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5289,8 +5740,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=380.55, SMA20=384.25, SMA50=370.35",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "PAYC",
@@ -5301,7 +5763,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 58.28,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5316,8 +5778,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=274.59, SMA20=238.89, SMA50=231.39",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "PAYS",
@@ -5328,7 +5801,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 86.08,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5343,8 +5816,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=14.92, SMA20=14.73, SMA50=13.69",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "PD",
@@ -5355,7 +5839,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 69.54,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5370,8 +5854,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=17.49, SMA20=16.11, SMA50=14.55",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "PLSE",
@@ -5382,7 +5877,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 117.81,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5397,8 +5892,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "YES",
       "moving_average_context": "close=53.02, SMA20=49.84, SMA50=50.38",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "PRCH",
@@ -5409,7 +5915,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 69.71,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5424,8 +5930,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=17.73, SMA20=17.38, SMA50=17.08",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "QLYS",
@@ -5436,7 +5953,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 46.62,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5451,8 +5968,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=216.70, SMA20=193.49, SMA50=184.32",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "RBRK",
@@ -5463,7 +5991,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 46.07,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5478,8 +6006,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=128.74, SMA20=118.79, SMA50=107.23",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "RCEL",
@@ -5490,7 +6029,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 195.41,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-25",
@@ -5505,8 +6044,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=15.51, SMA20=13.27, SMA50=11.53",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "RPD",
@@ -5517,7 +6067,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 45.63,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5532,8 +6082,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=14.91, SMA20=12.87, SMA50=12.40",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "RSKD",
@@ -5544,7 +6105,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 56.73,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-10",
@@ -5559,8 +6120,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=9.15, SMA20=8.27, SMA50=7.13",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "SAIH",
@@ -5571,7 +6143,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 147.42,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-02",
@@ -5586,8 +6158,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=29.32, SMA20=27.19, SMA50=25.62",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 2
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 2,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, price_structure. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, price_structure. Human review required; no automated READY."
     },
     {
       "symbol": "SGHT",
@@ -5598,7 +6181,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 65.69,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-07-02",
@@ -5613,8 +6196,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=8.99, SMA20=8.76, SMA50=8.49",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "SLE",
@@ -5625,7 +6219,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 38.91,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5640,8 +6234,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=5.85, SMA20=5.11, SMA50=4.64",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "SMWB",
@@ -5652,7 +6257,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 94.24,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5667,8 +6272,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=8.79, SMA20=8.39, SMA50=8.47",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "SPT",
@@ -5679,7 +6295,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 50.07,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-10",
@@ -5694,8 +6310,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=12.86, SMA20=11.05, SMA50=10.76",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "TEAM",
@@ -5706,7 +6333,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 89.14,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5721,8 +6348,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "YES",
       "moving_average_context": "close=227.61, SMA20=203.29, SMA50=190.70",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": false,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: price_structure. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: price_structure. Human review required; no automated READY."
     },
     {
       "symbol": "TENB",
@@ -5733,7 +6371,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 37.67,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5748,8 +6386,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=44.59, SMA20=38.91, SMA50=36.65",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 3,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "3/5 prototype checks; unmet: volatility_contraction, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "TLIH",
@@ -5760,7 +6409,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 67.94,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5775,8 +6424,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=5.40, SMA20=5.63, SMA50=5.72",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "TOP",
@@ -5787,7 +6447,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 213.16,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5802,8 +6462,19 @@
       "higher_lows": "NO",
       "volatility_contraction": "NO",
       "moving_average_context": "close=15.29, SMA20=15.04, SMA50=14.86",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 1
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 1,
+      "readiness_score": 2,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": false,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "2/5 prototype checks; unmet: volatility_contraction, price_structure, breakout_proximity. Human review required; no automated READY."
     },
     {
       "symbol": "USIO",
@@ -5814,7 +6485,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 77.44,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5829,8 +6500,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=3.14, SMA20=2.83, SMA50=2.67",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 4
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 4,
+      "readiness_score": 5,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "READY_CANDIDATE",
+      "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+      "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
     },
     {
       "symbol": "VIA",
@@ -5841,7 +6523,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 92.54,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-05-27",
@@ -5856,8 +6538,19 @@
       "higher_lows": "YES",
       "volatility_contraction": "NO",
       "moving_average_context": "close=36.75, SMA20=31.96, SMA50=29.17",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": false,
+        "price_structure": true,
+        "breakout_proximity": true
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: volatility_contraction. Human review required; no automated READY."
     },
     {
       "symbol": "VNCE",
@@ -5868,7 +6561,7 @@
       "last_reviewed_at": "2026-10-23",
       "status_reason": "Heuristic candidate; manual chart review required",
       "_updated_at": "2026-10-23T23:12:24+00:00",
-      "_scanned_at": "2026-10-23T23:12:24+00:00",
+      "_scanned_at": "2026-10-23T23:53:58+00:00",
       "prior_advance_pct": 41.55,
       "prior_advance_days": 63,
       "prior_advance_start": "2026-06-25",
@@ -5883,12 +6576,599 @@
       "higher_lows": "YES",
       "volatility_contraction": "YES",
       "moving_average_context": "close=11.94, SMA20=11.59, SMA50=9.13",
-      "rationale": "Algorithmic FORMING proposal; manually review advance, base, contraction and breakout level before READY.",
-      "_heuristic_score": 3
+      "rationale": "Algorithmic setup evaluation; breakout level and pattern require human chart review.",
+      "_heuristic_score": 3,
+      "readiness_score": 4,
+      "readiness_checks": {
+        "prior_advance": true,
+        "base_quality": true,
+        "volatility_contraction": true,
+        "price_structure": true,
+        "breakout_proximity": false
+      },
+      "readiness_recommendation": "FORMING",
+      "readiness_rationale": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY.",
+      "algorithm_evidence": "4/5 prototype checks; unmet: breakout_proximity. Human review required; no automated READY."
     }
   ],
   "3": [],
   "history": [
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "VNCE",
+      "setup_id": "VNCE-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "VIA",
+      "setup_id": "VIA-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "USIO",
+      "setup_id": "USIO-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "TOP",
+      "setup_id": "TOP-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "TLIH",
+      "setup_id": "TLIH-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "TENB",
+      "setup_id": "TENB-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "TEAM",
+      "setup_id": "TEAM-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "SPT",
+      "setup_id": "SPT-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "SMWB",
+      "setup_id": "SMWB-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "SLE",
+      "setup_id": "SLE-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "SGHT",
+      "setup_id": "SGHT-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "SAIH",
+      "setup_id": "SAIH-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "RSKD",
+      "setup_id": "RSKD-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "RPD",
+      "setup_id": "RPD-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "RCEL",
+      "setup_id": "RCEL-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "RBRK",
+      "setup_id": "RBRK-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "QLYS",
+      "setup_id": "QLYS-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PRCH",
+      "setup_id": "PRCH-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PLSE",
+      "setup_id": "PLSE-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PD",
+      "setup_id": "PD-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PAYS",
+      "setup_id": "PAYS-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PAYC",
+      "setup_id": "PAYC-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PANW",
+      "setup_id": "PANW-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "PACB",
+      "setup_id": "PACB-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "OKTA",
+      "setup_id": "OKTA-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "OABI",
+      "setup_id": "OABI-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "NTWK",
+      "setup_id": "NTWK-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "NSIT",
+      "setup_id": "NSIT-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "NIQ",
+      "setup_id": "NIQ-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "LIFE",
+      "setup_id": "LIFE-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "IOVA",
+      "setup_id": "IOVA-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "INTA",
+      "setup_id": "INTA-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "IBTA",
+      "setup_id": "IBTA-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "HTFL",
+      "setup_id": "HTFL-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "HNGE",
+      "setup_id": "HNGE-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "HMR",
+      "setup_id": "HMR-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "GTLB",
+      "setup_id": "GTLB-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "GTE",
+      "setup_id": "GTE-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "GRAL",
+      "setup_id": "GRAL-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "GCL",
+      "setup_id": "GCL-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "FROG",
+      "setup_id": "FROG-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "FIVN",
+      "setup_id": "FIVN-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "FIGS",
+      "setup_id": "FIGS-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "EXFY",
+      "setup_id": "EXFY-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "ESTC",
+      "setup_id": "ESTC-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "EMBC",
+      "setup_id": "EMBC-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "ECO",
+      "setup_id": "ECO-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "DXC",
+      "setup_id": "DXC-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "DCBO",
+      "setup_id": "DCBO-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "CVI",
+      "setup_id": "CVI-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "CRWD",
+      "setup_id": "CRWD-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "CPIX",
+      "setup_id": "CPIX-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "CDNA",
+      "setup_id": "CDNA-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "CAI",
+      "setup_id": "CAI-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "BRBI",
+      "setup_id": "BRBI-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "BOX",
+      "setup_id": "BOX-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "BNC",
+      "setup_id": "BNC-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "AVTR",
+      "setup_id": "AVTR-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "ASST",
+      "setup_id": "ASST-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "ASBP",
+      "setup_id": "ASBP-20261023",
+      "from": "",
+      "to": "READY_CANDIDATE",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "ASAN",
+      "setup_id": "ASAN-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "APPN",
+      "setup_id": "APPN-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "AMWL",
+      "setup_id": "AMWL-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
+    {
+      "when": "2026-10-23T23:53:58+00:00",
+      "stage": 2,
+      "symbol": "AMPL",
+      "setup_id": "AMPL-20261023",
+      "from": "",
+      "to": "FORMING",
+      "reason": "Automated recommendation only; approval unchanged"
+    },
     {
       "when": "2026-10-23T23:12:24+00:00",
       "stage": 2,
@@ -8314,5 +9594,5 @@
       "reason": "New union-of-ranks winner"
     }
   ],
-  "updatedAt": "2026-10-23T23:12:24+00:00"
+  "updatedAt": "2026-10-23T23:53:58+00:00"
 }
