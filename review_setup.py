@@ -118,7 +118,9 @@ def review_setup(state_path: Path, latest_path: Path, *, symbol: str, setup_id: 
     public_state["history"] = [{k: v for k, v in entry.items() if k not in bad_fields}
                                for entry in state["history"]]
     public_state["updatedAt"] = reviewed_at
-    # Preserve scan timestamps and revision: this is a review, NOT a new scan.
+    # Bump data revision so already-open dashboards reload the human decision.
+    # The successful market scan timestamp is unchanged, so no false scan alert.
+    public["revision"] = int(public.get("revision") or 0) + 1
     public["review_updated_at"] = reviewed_at
     _write_json(state_path, state)
     _write_json(latest_path, public)
