@@ -335,7 +335,7 @@ function renderUpdatedTime(){
  const element=byId('updatedAt');
  const last=serverMeta?.last_success;
  if(CLOUD_MODE){
-  const complete=serverMeta?.phase==='success' && !!last;
+  const complete=serverOnline&&serverMeta?.phase==='success'&&!!last&&serverMeta?.last_scan_universe_mode==='us';
   element.textContent=complete
     ? tl('✓ 最後成功掃描：','✓ Last successful scan: ')+formatScanDateTime(last)
     : tl('尚未發布成功的全市場掃描','No verified full-market scan published');
@@ -654,17 +654,22 @@ function mergeDatasets(remote,local){
 }
 function refreshServerUi(){
  if(CLOUD_MODE){
-  byId('serverBadge').textContent=tl('● 雲端已發布資料','● Cloud published data');
-  byId('sourceBadge').textContent=tl('● 收市日線 · 非即時','● EOD quotes · Not live');
+  const m=serverMeta||{};
+  const ready=serverOnline&&m.phase==='success'&&!!m.last_success&&m.last_scan_universe_mode==='us';
+  byId('serverBadge').textContent=!serverOnline
+   ?tl('○ 雲端資料連線失敗','○ Cloud data unavailable')
+   :ready?tl('● 全美股掃描已發布','● Verified US scan published')
+        :tl('◷ 等待首次合格掃描','◷ Awaiting verified scan');
+  byId('sourceBadge').textContent=ready
+   ?tl('● 收市日線 · 非即時','● EOD quotes · Not live')
+   :tl('● 收市掃描模式 · 非即時','● EOD scan mode · Not live');
   byId('scanBtn').style.display='none';
   byId('importBtn').style.display='none';
   byId('addBtn').style.display='none';
   byId('syncBtn').disabled=!serverOnline;
   byId('syncBtn').textContent=tl('⟳ 重新讀取雲端資料','⟳ Refresh cloud data');
-  const m=serverMeta||{};
   renderUpdatedTime();
   renderCloudNewScanNotice();
-  const ready=m.phase==='success' && m.last_success;
   byId('scanNote').textContent=ready?tl(`雲端只讀模式 · 資料截至 ${m.as_of_date||'—'} · 股票池 ${m.universe_size||'—'} · 覆蓋率 ${m.market_coverage_pct??'—'}% · 如無新資料則沿用上次成功結果。`,`Cloud read-only · EOD ${m.as_of_date||'—'} · Universe ${m.universe_size||'—'} · Coverage ${m.market_coverage_pct??'—'}% · Last valid results stay visible if the next scan fails.`):tl('尚未發布首次合格的全市場掃描結果。','No complete eligible US-wide scan has been published yet.');
   return;
  }
