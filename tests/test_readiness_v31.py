@@ -76,7 +76,7 @@ def test_ready_requires_explicit_human_review(tmp_path):
                  review_timestamp="2026-10-24T01:00:00+00:00")
     cloud=json.loads(latest_path.read_text())
     assert cloud["metadata"]["last_success"] == "2026-10-23T23:12:25+00:00"
-    assert cloud["revision"] == 123
+    assert cloud["revision"] == 124
     assert cloud["state"]["2"][0]["setup_status"] == "READY"
     assert cloud["state"]["3"][0]["status"] == "WATCH"
     assert cloud["state"]["3"][0]["breakout_level"] == 42.0
