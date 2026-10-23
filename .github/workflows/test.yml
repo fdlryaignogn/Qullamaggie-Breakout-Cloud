@@ -9,6 +9,8 @@ on:
       - 'site/**'
       - '.github/workflows/test.yml'
   workflow_dispatch:
+  pull_request:
+    branches: [main]
 permissions:
   contents: read
 jobs:
