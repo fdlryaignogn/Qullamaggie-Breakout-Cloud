@@ -289,6 +289,7 @@ byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(
 // Same-origin browser-to-Python API. Standalone HTML still works offline.
 let serverOnline=false,serverRevision=0,serverMeta={},syncBusy=false,syncPending=false,scanActive=false,bootstrapping=false;
 let cloudSnapshotSeen=false,cloudNewScanNotice=null;
+const CLOUD_LAST_SEEN_SCAN_KEY='qulla_cloud_last_seen_success';
 const CLOUD_REFRESH_INTERVAL_MS=30*60*1000;
 function renderCloudNewScanNotice(){
  const banner=byId('cloudUpdateBanner');
@@ -737,8 +738,16 @@ async function loadServer(){
   const incomingMeta=payload.metadata||{};
   if(CLOUD_MODE){
    const nextSuccessfulScan=incomingMeta.phase==='success'?(incomingMeta.last_success||null):null;
-   if(cloudSnapshotSeen&&nextSuccessfulScan&&nextSuccessfulScan!==previousSuccessfulScan){
+   let lastSeenSuccessfulScan=null;
+   try{lastSeenSuccessfulScan=localStorage.getItem(CLOUD_LAST_SEEN_SCAN_KEY);}catch(e){}
+   if(nextSuccessfulScan&&(
+    cloudSnapshotSeen?nextSuccessfulScan!==previousSuccessfulScan
+      :lastSeenSuccessfulScan!==nextSuccessfulScan)){
+    // Also notify on the first page open after a scan completed while the app was closed.
     cloudNewScanNotice={last_success:nextSuccessfulScan,as_of_date:incomingMeta.as_of_date||null};
+   }
+   if(nextSuccessfulScan){
+    try{localStorage.setItem(CLOUD_LAST_SEEN_SCAN_KEY,nextSuccessfulScan);}catch(e){}
    }
    cloudSnapshotSeen=true;
   }
