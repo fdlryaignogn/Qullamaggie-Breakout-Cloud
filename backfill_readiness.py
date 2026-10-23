@@ -60,6 +60,7 @@ def backfill() -> int:
     public_state["history"]=[{k:v for k,v in row.items() if k not in bad_fields}
                              for row in updated["history"]]
     public_state["updatedAt"]=updated["updatedAt"]
+    published["revision"] = int(published.get("revision") or 0) + 1
     published["readiness_updated_at"]=datetime.now(timezone.utc).isoformat(timespec="seconds")
     # Preserve last_success and as_of_date: no fabricated new scan notification.
     temp=LATEST.with_suffix(".json.tmp")
