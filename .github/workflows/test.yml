@@ -6,6 +6,7 @@ on:
       - '*.py'
       - 'requirements.txt'
       - 'tests/**'
+      - 'site/**'
       - '.github/workflows/test.yml'
   workflow_dispatch:
 permissions:
@@ -26,3 +27,17 @@ jobs:
           python -m pip install pytest
       - name: Run tests without publishing market data
         run: python -m pytest -q tests
+      - name: Check cloud dashboard JavaScript syntax
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path('site/index.html').read_text(encoding='utf-8')
+          js = re.findall(r'<script(?:\\s[^>]*)?>(.*?)</script>', html, re.DOTALL)
+          assert len(js) == 1, "Expected exactly one embedded dashboard script"
+          Path('/tmp/qullamaggie-dashboard.js').write_text(js[0], encoding='utf-8')
+          assert 'CLOUD_REFRESH_INTERVAL_MS=30*60*1000' in js[0]
+          assert 'CLOUD_LAST_SEEN_SCAN_KEY' in js[0]
+          assert 'cloudUpdateBanner' in html
+          PY
+          node --check /tmp/qullamaggie-dashboard.js
