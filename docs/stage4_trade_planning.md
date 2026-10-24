@@ -37,7 +37,7 @@ All fields are entered or confirmed by the human (no live pricing):
 - Estimated total risk = `shares * per_share_risk + fees`; capital required
   = `shares * filled_entry + fees` **when shares > 0**. With zero shares,
   both estimated risk and required cash are zero (no planned transaction).
-  Optional reward/risk R = `(target - filled_entry) / per_share_risk`.
+  Optional **net** reward/risk R = `(shares * (target - filled_entry) - fees) / (shares * per_share_risk + fees)` when shares > 0; it is undefined for 0 shares. This is still only a scenario, not realized net R.
 - Missing, invalid, NaN, reverse-stop, impossible fee budget or non-integral
   lot inputs **fail closed**, rather than generating a size. A positive but
   inadequate budget may legitimately return **zero shares**.
