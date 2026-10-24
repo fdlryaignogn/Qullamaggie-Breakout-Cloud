@@ -38,4 +38,4 @@ def test_server_side_review_workflow_remains_permissioned():
     assert "GITHUB_ACTOR" in script
     assert 'if decision == "READY" and not confirmed:' in script
     assert 'if row.get("readiness_recommendation") != "READY_CANDIDATE":' in script
-    assert "Confirmed" not in script or True  # no simulated broker executions
+    assert "TRIGGERED" not in script  # review never simulates a filled trade
