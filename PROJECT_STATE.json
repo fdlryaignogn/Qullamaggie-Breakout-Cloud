@@ -48,20 +48,20 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_snapshot_audit_in_pr",
-      "deployment": "main_branch_pr10_merged; EOD audit pending PR checks",
+      "status": "stage3_eod_audit_pr13_ci_passed_pending_merge",
+      "deployment": "main_branch_source_previous_release; current PR not yet merged or live-verified",
       "last_change": "Stage 3 dashboard chart-source provenance and stale response guards; read-only EOD snapshot audit using published adjusted 1d charts",
-      "next_action": "Run PR CI (Python/JS/audit), review read-only results, merge after checks, then re-verify main data and deployment",
+      "next_action": "Merge PR #13 after CI; check Pages deployment; create a safe same-session persisted-metric backfill for historical READY watches if needed",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
-        "status": "pending_new_pr_ci",
-        "paths": [
-          "tests/test_stage3_eod_audit.py",
-          "review-auth/tests/stage3_eod.test.mjs"
-        ],
-        "published_snapshot_audit": "pending",
-        "user_interface": "source_verified_live_site_inaccessible"
+        "status": "github_actions_pass",
+        "github_actions_run_id": 40090318663,
+        "python_pytest": "48 passed",
+        "node_review_auth_tests": "passed",
+        "dashboard_js_syntax": "passed",
+        "published_snapshot_audit": "pass",
+        "local_browser_render": "not_verified"
       },
       "published_scan": {
         "as_of_date": "2026-10-23",
@@ -71,7 +71,17 @@
       "latest_merged_pr": 10,
       "latest_merge_commit": "00f3a642c1bda5b3927e9b232ed2e2d6dd201f35",
       "pending_feature_branch": "feature/stage3-eod-published-audit",
-      "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified."
+      "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
+      "latest_audit_pr": 13,
+      "eod_publication_audit": {
+        "as_of_date": "2026-10-23",
+        "watches": 3,
+        "persisted_match": 0,
+        "derived_not_persisted": 3,
+        "metric_mismatch": 0,
+        "chart_unavailable": 0,
+        "source": "CI run 40090318663; no file writes"
+      }
     }
   },
   "strategy_registry": {
