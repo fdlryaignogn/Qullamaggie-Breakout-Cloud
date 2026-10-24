@@ -7,7 +7,8 @@ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8')
 const from=html.indexOf('function eodFromPublishedBars(');
 const to=html.indexOf('function scheduleStage3Eod(',from);
 assert.ok(from>=0&&to>from);
-const calc=vm.runInNewContext(html.slice(from,to)+'\neodFromPublishedBars');
+const helpers=vm.runInNewContext(html.slice(from,to)+'\n({calc:eodFromPublishedBars,verified:eodFromVerifiedChart})');
+const {calc,verified}=helpers;
 function chart({lastClose=100.5,priorClose=99.5,lastHigh=102,lastLow=98,lastVol=200}={}){
  const bars=[];
  for(let i=0;i<41;i++){
@@ -51,6 +52,25 @@ test('approved stage3 UI shows compact EOD columns, no invented intraday action'
  assert.ok(html.includes('function scheduleStage3Eod()'));
  assert.ok(html.includes("if(stage===3)scheduleStage3Eod()"));
  assert.ok(html.includes("if(watch.status!=='WATCH')continue"));
- assert.ok(html.includes("if(chart.as_of!==asOf)return"));
+ assert.ok(html.includes("if(serverMeta?.as_of_date!==asOf)return"));
+ assert.ok(html.includes("eodFromVerifiedChart(chart,watch,asOf)"));
  assert.ok(html.includes('CLOUD_MODE&&reviewAuthenticated()&&stage===2'));
+});
+
+test('published chart provenance is enforced before deriving WATCH values',()=>{
+ const bars=chart(),asOf=bars.at(-1).date;
+ const watch={symbol:'ABC',setup_id:'ABC-1',breakout_level:100,status:'WATCH'};
+ const payload={symbol:'ABC',as_of:asOf,interval:'1d',adjusted:true,bars};
+ assert.equal(verified(payload,watch,asOf).eod_event,'EOD_CROSS');
+ for(const changed of [
+   {symbol:'OTHER'}, {as_of:'2026-09-01'}, {interval:'5m'}, {adjusted:false},
+   {adjusted:null}, {bars:[]}
+ ]){
+   assert.equal(verified({...payload,...changed},watch,asOf),null);
+ }
+ assert.equal(verified(payload,{...watch,symbol:'OTHER'},asOf),null);
+});
+test('cached EOD columns are displayed only for current published session',()=>{
+ assert.ok(html.includes("cached?.eod_as_of===serverMeta?.as_of_date"));
+ assert.ok(html.includes("if(serverMeta?.as_of_date!==asOf)return"));
 });

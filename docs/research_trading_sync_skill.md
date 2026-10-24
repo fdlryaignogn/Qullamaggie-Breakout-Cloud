@@ -43,3 +43,9 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - Only manually approved Stage-2 READY setups are followed as Stage-3 WATCH. A daily close crossing the pivot is an `EOD_CROSS` descriptive observation, **not** an intraday TRIGGERED event, fill or order.
 - A post-scan manual READY review may hydrate EOD metrics from the verified same-session public daily-chart cache. It must not alter the scan's `as_of_date` / `last_success`, fetch fresh prices, approve additional setups, infer stops/fills, or fabricate a fresh scan notification.
 - Research Lab may consume versioned EOD observations with explicit session date, missing-data flags and source commit, but must not treat these observations as realized trading performance.
+
+## EOD publication audit
+- The Trading System can run `python stage3_eod_audit.py --strict` against a saved, successful `site/data/latest.json` snapshot and same-session adjusted 1d chart files.
+- Audit results distinguish `PERSISTED_MATCH`, `DERIVED_NOT_PERSISTED`, `METRIC_MISMATCH`, and `CHART_UNAVAILABLE`; they are descriptive validation flags, not trading signals or Research Lab approval states.
+- Browser fallback EOD metrics must verify chart symbol, as-of date, 1d interval, and adjusted-data provenance. An obsolete asynchronous chart response cannot replace newer scan data.
+- The audit neither downloads prices nor writes state; it does not prove GitHub Pages is accessible or a new market session has been scanned.
