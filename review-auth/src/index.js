@@ -84,11 +84,13 @@ async function checkReviewer(session) {
   const actor = await who.json();
   if (String(actor.id) !== String(session.id) || actor.login.toLowerCase() !== session.login.toLowerCase())
     throw httpError(403, "IDENTITY_MISMATCH");
-  const repoRes = await githubApi("/repos/" + REPO, session.t);
-  if (!repoRes.ok) throw httpError(403, "REPOSITORY_NOT_AUTHORIZED");
-  const repo = await repoRes.json();
-  const permissions = repo.permissions || {};
-  if (!(permissions.push || permissions.maintain || permissions.admin))
+  // The collaborator-permission endpoint exposes the *person's* real role,
+  // independent of the App's limited OAuth token capability. Metadata:read.
+  const permissionsRes = await githubApi("/repos/" + REPO +
+    "/collaborators/" + encodeURIComponent(actor.login) + "/permission", session.t);
+  if (!permissionsRes.ok) throw httpError(403, "REPOSITORY_NOT_AUTHORIZED");
+  const permissions = await permissionsRes.json();
+  if (!["write","admin"].includes(String(permissions.permission || "").toLowerCase()))
     throw httpError(403, "REVIEWER_WRITE_PERMISSION_REQUIRED");
   return actor.login;
 }
