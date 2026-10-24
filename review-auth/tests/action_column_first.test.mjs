@@ -28,3 +28,11 @@ test('all stage tables place action cells first while retaining stock columns an
 test('the first column remains sticky during horizontal scrolling',()=>{
   assert.ok(html.includes('th:first-child,td:first-child{position:sticky;left:0'));
 });
+
+test('table header freezes during vertical scrolling and Action corner stays above it',()=>{
+  assert.ok(html.includes('.table-wrap{width:100%;overflow:auto;max-height:min(72vh,760px)'));
+  assert.ok(html.includes('thead th{'));
+  assert.ok(html.includes('position:sticky;top:0;z-index:3;background:#151f33'));
+  assert.ok(html.includes('thead th:first-child{z-index:5}'));
+  assert.ok(html.includes('id="tableWrap" tabindex="0" role="region"'));
+});
