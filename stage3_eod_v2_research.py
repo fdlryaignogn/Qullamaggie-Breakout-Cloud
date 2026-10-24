@@ -76,7 +76,7 @@ def _review_eligibility(parent: dict, as_of: str) -> tuple[bool, str, str | None
             return False, "REVIEW_TIMESTAMP_NO_TIMEZONE", None
         end = datetime.combine(date.fromisoformat(as_of), time(23, 59, 59), NY)
         if stamp.astimezone(NY) > end:
-            return False, "HUMAN_APPROVAL_AFTER_EOD", stamp.isoformat()
+            return False, "HUMAN_APPROVAL_AFTER_EOD", None
         earliest = max(
             stamp.astimezone(NY),
             datetime.combine(date.fromisoformat(as_of), time(16, 0), NY)
@@ -96,7 +96,7 @@ def analyze_published_snapshot(snapshot_path: Path, *,
     snapshot = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
     metadata = snapshot.get("metadata") or {}
     as_of = metadata.get("as_of_date")
-    if metadata.get("phase") != "success" or not isinstance(as_of, str):
+    if metadata.get("phase") != "success" or not metadata.get("last_success") or not isinstance(as_of, str):
         raise ValueError("Requires verified successful, dated EOD snapshot")
     try:
         if date.fromisoformat(as_of).isoformat() != as_of:
@@ -149,7 +149,8 @@ def analyze_published_snapshot(snapshot_path: Path, *,
                     "eod_atr14", "eod_adr20_pct")):
                     raise ValueError("Saved EOD fields disagree with daily chart")
             label = classify_eod_research(
-                {**metric, "breakout_level": pivot},
+                {**metric, "eod_distance_pct": 100 * (float(frame.close.iloc[-1]) / pivot - 1),
+                 "breakout_level": pivot},
                 near_below_pct=near_below_pct, strong_rvol20=strong_rvol20)
             row.update({"classification": label, "eod_event": metric["eod_event"],
                         "eod_close": metric["eod_close"],
