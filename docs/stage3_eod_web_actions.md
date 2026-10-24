@@ -12,8 +12,7 @@ modify localStorage or send a broker order.
 | KEEP_WATCH | WATCH → WATCH | Keep tracking the manually approved READY setup and save a review reason |
 | NO_TRADE | WATCH → NO_TRADE | Human decided not to trade this setup; terminal for that setup |
 | ARCHIVE | WATCH → ARCHIVED | Human closed Stage 3 tracking; terminal for that setup |
-| CONFIRM_EOD_TRIGGER | WATCH → TRIGGERED | Human confirms validated EOD close-cross **after** all mandatory conditions pass; terminal for this setup, **not an order or fill** |
-| CONFIRM_POST_APPROVAL | WATCH → TRIGGERED | Human confirms a **later** completed EOD holds above approved pivot after READY; distinct from first breakout; no order/fill |
+| CONFIRM_TRIGGER | WATCH → TRIGGERED | **One human action**; GitHub auto-classifies FIRST_EOD_CROSS or POST_APPROVAL_HOLD from the verified EOD chart; never an order or fill |
 
 These are manual **EOD management or signal confirmation actions**, never buy/sell orders or fills.
 Both terminal options and EOD TRIGGERED require an explicit checkbox and a 1–500 character public
@@ -71,7 +70,7 @@ GitHub Actions run and matching public data.
 ## EOD TRIGGER requirements and UI checklist (manual only)
 
 The Action modal shows each mandatory item with a pass/fail reason, followed by
-volume and risk context. The `CONFIRM_EOD_TRIGGER` option is disabled when
+volume and risk context. The `CONFIRM_TRIGGER` **submit** is disabled when
 the browser's advisory checklist fails; the GitHub backend independently
 recomputes the full conditions and rejects unqualified submissions:
 
@@ -83,8 +82,10 @@ recomputes the full conditions and rejects unqualified submissions:
 5. Original chart matches symbol, adjusted **1d** interval and exact session,
    with no future bar at the tail; fresh saved EOD metric fields must
    agree with recalculation.
-6. The previous daily close was at/below pivot and the just-completed
-   daily close is strictly above it (`EOD_CROSS`).
+6. The verified daily bars show **exactly one** eligible EOD pattern:
+   previous close ≤ pivot and current completed close > pivot (`EOD_CROSS`),
+   **or** previous close > pivot and current completed close > pivot
+   (`ABOVE_PIVOT`). These patterns are mutually exclusive.
 
 **Context only:** current volume relative to 20 *prior* sessions, ATR14, ADR20
 and hypothetical risk/ATR. Do not silently impose unvalidated volume,
@@ -104,37 +105,54 @@ a failed point-in-time approval check and cannot be manually backdated to
 Historical win-rate/expectancy and parameter exploration continue separately
 under Research Lab.
 
-## Two independent EOD confirmations (owner-approved, 2026-10-25)
+## One Trigger action with two automatically audited EOD subtypes (2026-10-25)
 
-The user may manually choose one of two `WATCH -> TRIGGERED` paths:
+The web interface has **one** `CONFIRM_TRIGGER` action. Users do not choose
+a subtype. The GitHub backend independently compares original adjusted
+daily OHLCV with the saved pivot and checks point-in-time READY approval:
 
-- `CONFIRM_EOD_TRIGGER` / `FIRST_EOD_CROSS`: approved READY **by 16:00 New York on the current completed session**, previous EOD close at/below saved pivot, latest EOD close above pivot (`EOD_CROSS`). The signal is not a fill.
-- `CONFIRM_POST_APPROVAL` / `POST_APPROVAL_HOLD`: READY was approved **by the latest completed session's 16:00 New York close**, and the latest EOD close **and preceding EOD close** are both above the saved pivot (`ABOVE_PIVOT`). This is explicitly a **later post-approval confirmation**, never the original breakout and never a retroactive entry.
+- **FIRST_EOD_CROSS / EOD_CLOSE_CROSS_MANUAL_V1:** previous daily close ≤
+  Pivot and latest completed close > Pivot; READY was approved by
+  **16:00 New York** on that latest EOD session.
+- **POST_APPROVAL_HOLD / EOD_POST_APPROVAL_MANUAL_V1:** previous daily
+  close > Pivot and latest completed close > Pivot; READY was approved
+  by **16:00 New York** on that latest EOD session.
 
-Both are separately shown in the web Action select. Each has its own visible pass/fail checklist and GitHub independently recalculates it from the original same-session adjusted daily chart plus approval timestamp. The post-approval path has no minimum number of holding days, entry-price inference, fixed RVOL multiplier, or live order submission.
+A preceding close cannot simultaneously be ≤ and > the pivot. Thus the
+two types are **mutually exclusive**, and if neither pattern exists a
+manual trigger cannot be submitted. `CONFIRM_TRIGGER` stores
+`stage3_manual_action=CONFIRM_TRIGGER` and separately saves the server's
+`eod_trigger_confirmation_type`, `trigger_rule`, actual EOD session,
+observed closing price, READY approval timestamp and GitHub reviewer.
+The prior two backend validator names are for regression compatibility
+only; they are no longer public choices in the dashboard, gateway or
+GitHub Actions workflow.
 
-Example: Friday initial EOD breakout, Saturday READY approval, Monday EOD still above pivot -> Monday `CONFIRM_POST_APPROVAL` may be manually confirmed. Friday's breakout itself remains ineligible. Saturday READY + Friday snapshot alone never qualifies. A Monday READY approved after **16:00 New York** cannot confirm Monday EOD; the next completed session must be assessed.
+The snapshot remains EOD-only: no intraday event time, entry/fill price,
+broker order or retroactive trading performance is implied. No
+experimental volume multiplier is promoted into a mandatory production rule.
 
-Data persisted on human confirmation includes `trigger_rule` (distinct mode), `eod_trigger_confirmation_type`, original READY approval timestamp, *latest* as-of date and close, actor and audit history. No intraday `trigger_time`, simulated fill, broker order or auto-trigger is created.
+Example: Friday initial daily breakout, Saturday READY approval, Monday
+EOD holding above pivot may be `CONFIRM_TRIGGER`ed as
+`POST_APPROVAL_HOLD` **for Monday**, without backdating Friday's signal.
+If Monday closes below the pivot, neither type applies.
 
-This is a user-approved operational distinction between the timing of EOD observation and subsequent manual confirmation, not a Research Lab performance claim or auto-promoted experimental strategy filter.
+## One inspectable Trigger with blocked-submission reasons (2026-10-25)
 
-## Visible but not actionable Trigger checks (2026-10-25)
+`CONFIRM_TRIGGER` is **selectable for inspection** even when checks fail,
+but **submission is blocked** until all required checks pass. The modal
+shows the automatically detected subtype, its relevant checklist, failed
+reasons, current EOD session and READY approval timestamp. Unknown
+EOD patterns are explicitly reported as ineligible.
 
-Both `CONFIRM_EOD_TRIGGER` and `CONFIRM_POST_APPROVAL` remain **selectable in the
-Action menu**, even when their requirements are unmet. Selecting either action
-shows the independent mandatory checklist, EOD as-of session, and the READY
-approval timestamp with the failed requirements clearly described. This is a
-**diagnostic selection only**; the GitHub submission button is disabled for a
-non-qualifying Trigger, and the server again refuses any bypass attempts.
+The GitHub backend revalidates original adjusted daily bars, the
+published same-session EOD fields and the approval timestamp. It will
+reject stale submissions and cannot be bypassed by changing browser data.
 
-The published 2026-10-23 sample demonstrates why this is necessary: NIQ,
-RBRK and RPD had a fresh daily `EOD_CROSS` that Friday but READY approval
-was given on Saturday 2026-10-24. First cross fails the pre-close approval
-gate. Post-approval hold fails the pre-close approval gate **and** requires a
-new completed EOD with both closes above the pivot. The next possible EOD
-session is Monday 2026-10-26, subject to a successful scan and price behavior.
+The published 2026-10-23 NIQ/RBRK/RPD EOD cross precedes 2026-10-24 READY
+approval, therefore the single Trigger cannot be confirmed for Friday.
+A fresh, later completed EOD observation may qualify when approved by
+that session's close and still above the saved pivot.
 
-A disabled **submit** action must never be interpreted as an actual accepted
-trigger, order, or trade; ordinary KEEP_WATCH, NO_TRADE, ARCHIVE workflows
-remain available to authenticated human reviewers.
+Selecting Trigger does not itself record a signal, order or trade. The
+existing KEEP_WATCH, NO_TRADE and ARCHIVE actions are unchanged.
