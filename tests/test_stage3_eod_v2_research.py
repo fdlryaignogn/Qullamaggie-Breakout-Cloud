@@ -93,6 +93,7 @@ def test_approval_after_asof_never_becomes_historical_signal(tmp_path):
     assert row["classification"] == "STRONG_EOD_BREAKOUT"  # research-only hypothetical label
     assert row["point_in_time_eligible"] is False
     assert row["eligibility_reason"] == "HUMAN_APPROVAL_AFTER_EOD"
+    assert row["earliest_research_available_at"] is None
     assert report["point_in_time_eligible_count"] == 0
 
 
