@@ -48,25 +48,30 @@
       ]
     },
     "trading_system": {
-      "status": "eod_only_pr10_ci_passed_pending_merge",
-      "deployment": "not_verified",
-      "last_change": "PR #10: post-approval EOD WATCH annotations hydrated from validated same-session daily chart cache; no intraday scanning or trade execution",
-      "next_action": "Reconcile with Research Lab main, merge PR #10 after fresh checks, and verify successful EOD WATCH publication",
+      "status": "stage3_eod_only_pr10_merged",
+      "deployment": "source_merged_to_main_public_site_not_verified",
+      "last_change": "PR #10 merged: manually approved READY setup receives EOD WATCH metrics from same-session verified daily chart cache; no intraday signals or orders",
+      "next_action": "Verify main-branch CI and GitHub Pages; confirm latest EOD WATCH metrics after next valid cloud scan; then design EOD breakout classification proposal for Research Lab validation",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
-        "status": "passed_previous_feature_head; latest_ci_pending",
-        "github_actions_run_id": 40080060584,
+        "status": "passed_pull_request_ci",
+        "github_actions_run_id": 40089078961,
+        "github_actions_link": "https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/actions/runs/40089078961",
         "python_tests": "passed",
         "review_auth_node_tests": "passed",
         "dashboard_js_syntax": "passed",
-        "additional_test_file": "tests/test_stage3_postreview_eod.py",
+        "added_tests": "tests/test_stage3_postreview_eod.py",
+        "main_branch_ci": "not_verified",
         "local_rerun": false
       },
       "published_scan": {
         "as_of_date": "2026-10-23",
-        "live_eod_refresh": "not_verified"
-      }
+        "live_eod_refresh": "not_verified",
+        "stage3_watch_count_at_last_verified_scan": 3
+      },
+      "latest_merged_pr": 10,
+      "latest_merge_commit": "00f3a642c1bda5b3927e9b232ed2e2d6dd201f35"
     }
   },
   "strategy_registry": {
