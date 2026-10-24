@@ -217,3 +217,21 @@ test('single Trigger action automatically shows only matching first/hold checkli
  assert.ok(modal.includes('stage3DecisionStatus'));
  assert.ok(modal.includes('currentEodEvent()'));
 });
+test('browser cutoff matches backend exact 16:00:00 New York rule',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const start=html.indexOf('function stage3TriggerChecklist(row,mode=');
+ const end=html.indexOf('function stage3TriggerChecklistHtml(',start);
+ const parent={symbol:'ABC',setup_id:'ABC-1',setup_status:'READY',
+  manual_reviewer:'human',manual_reviewed_at:'2026-10-23T20:00:00+00:00'};
+ const row={symbol:'ABC',setup_id:'ABC-1',breakout_level:100,
+  eod_data_status:'FRESH',eod_as_of:'2026-10-23'};
+ const event={eod_as_of:'2026-10-23',eod_event:'EOD_CROSS',
+  eod_prev_close:99,eod_close:101};
+ const c={serverMeta:{phase:'success',last_success:'2026-10-23T23:00:00Z',
+  as_of_date:'2026-10-23'},state:{'2':[parent]},
+  stage3CurrentEod:()=>event,tl:a=>a,fmtNum:String,pct:String,Intl,Date,Number};
+ const check=vm.runInNewContext(html.slice(start,end)+'\nstage3TriggerChecklist',c);
+ assert.equal(check(row).requiredOK,true);
+ parent.manual_reviewed_at='2026-10-23T20:00:01+00:00';
+ assert.equal(check(row).requiredOK,false);
+});
