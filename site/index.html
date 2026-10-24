@@ -64,6 +64,28 @@
 .cloud-update-banner__close{align-self:flex-start;background:transparent;border:1px solid #4d857b;color:#d6f8ec;border-radius:8px;padding:5px 10px;font-size:12px;white-space:nowrap}
 .cloud-update-banner__close:hover{background:#245347}
 @media(max-width:600px){.cloud-update-banner{margin:12px 4px 0;padding:11px}.cloud-update-banner__body{gap:8px}}
+
+/* Stage-2 review queues are visual EOD categories, not approval/trigger states. */
+.review-queues{margin:0 0 17px;padding:15px;border:1px solid var(--line);border-radius:13px;background:var(--surface2)}
+.review-queues[hidden]{display:none!important}
+.review-queues-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:11px}
+.review-queues-heading strong{font-size:13px;color:var(--text)}
+.review-queues-heading p{font-size:11px;color:var(--muted);margin:5px 0 0;max-width:790px;line-height:1.6}
+.review-queues-reset{font-size:11px;color:var(--accent);background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer}
+.review-queues-reset[hidden]{display:none!important}
+.review-queues-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.review-queue-card{width:100%;min-width:0;text-align:left;display:flex;flex-direction:column;gap:7px;padding:13px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:11px;cursor:pointer}
+.review-queue-card:hover,.review-queue-card:focus-visible{border-color:var(--accent);outline:none}
+.review-queue-card[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--surface3)}
+.review-queue-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.review-queue-name{font-size:13px;font-weight:780}
+.review-queue-count{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+.review-queue-desc{font-size:11px;line-height:1.5;color:var(--muted)}
+.review-queue-symbols{font-size:11px;font-weight:620;line-height:1.85;color:var(--text);overflow-wrap:anywhere}
+.review-queue-symbols .review-queue-ticker{display:inline-block;margin:0 7px 3px 0}
+.review-queue-symbols small{font-size:10px;color:var(--muted);font-weight:500}
+.review-queue-foot{margin-top:auto;font-size:10px;color:var(--accent)}
+@media(max-width:900px){.review-queues-cards{grid-template-columns:1fr}}
 /* Public data stays read-only. Authenticated review sends a GitHub API request.
    Do not turn on legacy browser editing in the cloud. */
 #addBtn,#importBtn,#scanBtn,button[data-act]:not([data-act="review"]){display:none!important}
@@ -116,6 +138,11 @@
   </nav>
   <main class="panel" id="tablePanel" role="tabpanel">
     <div class="panel-info"><div><h2 id="panelTitle">第一輪：強勢股動能篩選</h2><p id="panelDesc">比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。</p></div><span class="workflow" id="workflow">◇ 每日更新，歷史保留</span></div>
+    <section id="reviewQueues" class="review-queues" aria-label="Stage 2 review groups" hidden>
+      <div class="review-queues-heading"><div><strong id="reviewQueuesTitle"></strong><p id="reviewQueuesDesc"></p></div>
+        <button id="reviewQueuesReset" class="review-queues-reset" type="button" hidden></button></div>
+      <div class="review-queues-cards" id="reviewQueuesCards"></div>
+    </section>
     <div class="toolbar"><div class="filters"><div class="searchbox"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="7.1"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="搜尋代號、Setup ID、備註…" aria-label="搜尋股票"></div><select class="filter-select" id="statusFilter" aria-label="篩選狀態"><option value="">全部狀態</option></select></div><div class="head-actions"><button type="button" class="outline-btn" id="templateBtn">↓ CSV 範本</button><button type="button" class="outline-btn" id="exportCsvBtn">↓ 匯出表格</button><button type="button" class="solid-btn" id="addBtn">＋ 加入股票</button></div></div>
     <div class="table-wrap" id="tableWrap"><table id="stocksTable"><thead id="thead"></thead><tbody id="tbody"></tbody></table><div class="empty" id="empty" hidden></div></div>
     <div class="status-note" id="scanNote" style="color:var(--accent)">掃描器：正在檢查連線…</div>
@@ -158,7 +185,7 @@ const stages={
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Singapore'});
 const nowIso=()=>new Date().toISOString();
-const ui={stage:1,sortBy:'',sortDir:-1,query:'',filter:''};
+const ui={stage:1,sortBy:'',sortDir:-1,query:'',filter:'',reviewGroup:''};
 const blank=()=>({'1':[],'2':[],'3':[],history:[],updatedAt:null});
 let state=blank();
 try {const prev=JSON.parse(localStorage.getItem(STORE_KEY));if(prev&&typeof prev==='object'){for(const k of ['1','2','3'])state[k]=Array.isArray(prev[k])?prev[k]:[];state.history=Array.isArray(prev.history)?prev.history:[];state.updatedAt=prev.updatedAt||null;}}catch(e){console.warn('Local storage unavailable',e)}
@@ -221,21 +248,87 @@ function cellValue(row,key,stage){const v=row[key];if(key==='symbol'){let sub=st
   if(v===null||v===undefined||String(v)==='')return '<span class="muted">—</span>';
   return `<span class="ellipsis" title="${esc(v)}">${esc(v)}</span>`;
 }
+
+// EOD REVIEW QUEUES, NOT actual intraday breakouts or automated READY approvals.
+// Price is the last adjusted daily close used in setup evidence; base_high is
+// the saved (pre-session) consolidation ceiling. No future candles are used.
+function stage2ReviewClose(row){
+ const value=String(row?.moving_average_context||'');
+ const match=value.match(/(?:^|[,;\s])close\s*=\s*([0-9]+(?:\.[0-9]+)?)/i);
+ return match?Number(match[1]):NaN;
+}
+function stage2ReviewDistance(row){
+ const close=stage2ReviewClose(row),high=Number(row?.base_high);
+ if(!Number.isFinite(close)||close<=0||!Number.isFinite(high)||high<=0)return null;
+ return close>high ? -100*(close/high-1) : 100*(high/close-1);
+}
+function stage2ReviewGroup(row){
+ if(!row||row.readiness_recommendation!=='READY_CANDIDATE'||
+    !['FORMING','DEVELOPING','NEW'].includes(String(row.setup_status||'').toUpperCase()))return '';
+ const gap=stage2ReviewDistance(row);
+ if(gap===null)return 'observe';
+ if(gap<0)return 'above';
+ return gap<=3+1e-9?'near':'observe';
+}
+function renderStage2ReviewGroups(){
+ const panel=byId('reviewQueues');
+ panel.hidden=ui.stage!==2;
+ if(panel.hidden)return;
+ const queues={above:[],near:[],observe:[]};
+ for(const row of state['2']){
+  const category=stage2ReviewGroup(row);
+  if(category)queues[category].push(row);
+ }
+ const n=queues.above.length+queues.near.length+queues.observe.length;
+ byId('reviewQueuesTitle').textContent=tl('待人工覆核的 READY 候選：'+n+' 隻','Review-ready candidates awaiting approval: '+n);
+ byId('reviewQueuesDesc').textContent=tl(
+  '按已發佈的日線收市價與整理高點分組；接近 = 尚未高於高點且相距 ≤3%。高於高點不代表確認突破或已買入，三組都需要人工檢查 K 線。',
+  'Grouped by published EOD close versus saved base high; near = at or up to 3% below. Above is NOT a confirmed breakout or trade. All three require chart review.'
+ );
+ const reset=byId('reviewQueuesReset');
+ reset.hidden=!ui.reviewGroup;
+ reset.textContent=tl('↶ 顯示全部第二輪股票','↶ Show all Stage 2 stocks');
+ const defs=[
+  ['above',tl('已高於整理高點','Above base high'),tl('可能已越過關鍵價；覆核突破真偽與是否過度延伸。','Check if breakout is genuine or extended.')],
+  ['near',tl('接近突破','Near base high'),tl('收市價在高點以下 0–3% 內；優先檢查收縮及買入關鍵位。','Close at or within 3% below base high; review contraction and pivot.')],
+  ['observe',tl('需要進一步觀察','Further observation'),tl('距離高點超過 3%，或欠缺可比較價格；不應提前視為觸發。','More than 3% below base high or no comparable price; not a trigger.')]
+ ];
+ byId('reviewQueuesCards').innerHTML=defs.map(([key,title,desc])=>{
+  const rows=queues[key].slice().sort((a,b)=>{
+   const x=Math.abs(stage2ReviewDistance(a)??Infinity),y=Math.abs(stage2ReviewDistance(b)??Infinity);
+   return x-y||String(a.symbol).localeCompare(String(b.symbol));
+  });
+  const symbols=rows.length?rows.map(row=>{
+   const gap=stage2ReviewDistance(row);
+   const distance=gap===null?'':key==='above'?'+'+Math.abs(gap).toFixed(2)+'%':gap.toFixed(2)+'%';
+   return '<span class="review-queue-ticker">'+esc(row.symbol||'—')+
+    (distance?' <small>'+esc(distance)+'</small>':'')+'</span>';
+  }).join(''):tl('目前沒有候選','No candidates');
+  return '<button type="button" class="review-queue-card" data-review-group="'+key+
+   '" aria-pressed="'+String(ui.reviewGroup===key)+'">'+
+   '<span class="review-queue-top"><span class="review-queue-name">'+esc(title)+
+   '</span><span class="review-queue-count">'+rows.length+'</span></span>'+
+   '<span class="review-queue-desc">'+esc(desc)+'</span>'+
+   '<span class="review-queue-symbols">'+symbols+'</span>'+
+   '<span class="review-queue-foot">'+tl('點擊只顯示本組 →','Click to filter this group →')+'</span></button>';
+ }).join('');
+}
+
 function sortRows(rows){const stage=ui.stage;if(!ui.sortBy){if(stage===1)return rows.sort((a,b)=>Number(b.return_3m||-Infinity)-Number(a.return_3m||-Infinity));if(stage===2){const rank={READY:0,FORMING:1,DEVELOPING:1,NEW:2,INSUFFICIENT_DATA:3,REJECT:4,INVALIDATED:5,ARCHIVED:6};return rows.sort((a,b)=>(rank[statusOf(a,2)]??7)-(rank[statusOf(b,2)]??7)||((b.readiness_recommendation==='READY_CANDIDATE')-(a.readiness_recommendation==='READY_CANDIDATE'))||(Number(b.readiness_score)||0)-(Number(a.readiness_score)||0))}const rank={TRIGGERED:0,WATCH:1,NO_TRADE:2,INVALIDATED:3,ARCHIVED:4};return rows.sort((a,b)=>(rank[statusOf(a,3)]??5)-(rank[statusOf(b,3)]??5))}
  return rows.sort((a,b)=>{let x=a[ui.sortBy]??'',y=b[ui.sortBy]??'';const nx=Number(x),ny=Number(y);const v=String(x).trim()!==''&&String(y).trim()!==''&&Number.isFinite(nx)&&Number.isFinite(ny)?nx-ny:String(x).localeCompare(String(y),lang==='en'?'en':'zh-Hant',{numeric:true});return v*ui.sortDir})}
 function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  for(let s=1;s<=3;s++){byId('count'+s).textContent=state[s].length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
- byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note);renderUpdatedTime();
+ byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note);renderUpdatedTime();renderStage2ReviewGroups();
  const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
  byId('thead').innerHTML='<tr>'+config.columns.map(([key,name])=>`<th class="clickable" data-sort="${esc(key)}" title="${esc(key.startsWith('rank_pct_')?tl('由最高升幅開始的排名百分比：數值越小，排名越強。例如 1.5% = 排名前 1.5%。按一下可排序。','Top-ranked share of eligible stocks: lower is stronger. Example: 1.5% means top 1.5%. Click to sort.'):t('點擊排序'))}">${esc(t(name))}${ui.sortBy===key?(ui.sortDir===1?' ↑':' ↓'):''}</th>`).join('')+'<th>'+t('操作')+'</th></tr>';
- let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
+ let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;if(stage===2&&ui.reviewGroup&&stage2ReviewGroup(r)!==ui.reviewGroup)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
  byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
  byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
  if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewAuthenticated()&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';return `<tr>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}<td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}${reviewAction}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td></tr>`}).join('')}
  else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
  byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
 }
-function switchTab(stage){ui.stage=stage;ui.query='';ui.filter='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';render();}
+function switchTab(stage){ui.stage=stage;ui.query='';ui.filter='';ui.reviewGroup='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';render();}
 const modal={close(){byId('overlay').classList.remove('visible');byId('modalMain').innerHTML='';byId('modalFoot').innerHTML='';},open(title,subtitle,body,footer){byId('modalTitle').textContent=title;byId('modalSubtitle').textContent=subtitle||'';byId('modalMain').innerHTML=body;byId('modalFoot').innerHTML=footer;byId('overlay').classList.add('visible');}};
 function fieldHtml(def,value,stage,edit=false){const [key,label,type,req]=def,readonly=edit&&(['symbol','setup_id'].includes(key));let control='';const val=String(value??'');const required=req?'required':'';const place=type==='number'?'placeholder="'+t('例如 35.5')+'"':'';if(type==='select'||type==='select-yes'){
  const opts=type==='select-yes'?['','YES','NO']:(stage===2&&key==='setup_status'?stages[2].statuses:stages[stage].statuses);control=`<select id="f_${esc(key)}" name="${esc(key)}">${opts.map(s=>`<option value="${esc(s)}" ${s===val?'selected':''}>${esc(s||t('未設定'))}</option>`).join('')}</select>`;
@@ -301,6 +394,17 @@ function help(){
  byId('okHelp').onclick=modal.close;
 }
 for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchTab(Number(b.dataset.stage)));
+
+byId('reviewQueuesCards').addEventListener('click',event=>{
+ const card=event.target.closest('button[data-review-group]');
+ if(!card)return;
+ ui.reviewGroup=ui.reviewGroup===card.dataset.reviewGroup?'':card.dataset.reviewGroup;
+ ui.filter='';ui.query='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';
+ render();
+});
+byId('reviewQueuesReset').addEventListener('click',()=>{
+ ui.reviewGroup='';ui.filter='';ui.query='';byId('search').value='';render();
+});
 byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});byId('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render()});
 byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewAuthenticated()){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
 byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLanguage('en');
