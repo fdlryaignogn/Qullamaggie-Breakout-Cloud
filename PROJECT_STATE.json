@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_v2_experimental_research_merged",
-      "deployment": "merged_to_main_site_data_updated; published_site_http_not_verified",
-      "last_change": "PR #15 merged: Stage 3 EOD V2 experimental read-only labels with point-in-time human READY approval gate; production behavior unchanged",
-      "next_action": "Research Lab: reconstruct historical as-of frozen pivots/approvals and representative cases; assess win rate, net expectancy R, profit factor, max drawdown, costs and slippage before any production proposal. Separately verify GitHub Pages and next EOD scan.",
+      "status": "stage3_eod_web_actions_pr_pending_ci",
+      "deployment": "feature_branch_only_not_live_verified",
+      "last_change": "Added cloud Stage3 read-only EOD details and authenticated KEEP_WATCH, NO_TRADE, ARCHIVE actions via GitHub workflow and GitHub App gateway support",
+      "next_action": "Run full GitHub PR CI and correct failures; merge only with passing tests; independently verify cloud runtime and Actions access after deploy",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -71,7 +71,7 @@
       },
       "latest_merged_pr": 15,
       "latest_merge_commit": "df2c3ec357c48d395c8a97ba8ebad8f2a2270064",
-      "pending_feature_branch": null,
+      "pending_feature_branch": "feature/stage3-eod-web-actions",
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": null,
+      "pending_pr": "not_created",
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -130,6 +130,35 @@
         "merge_commit": "df2c3ec357c48d395c8a97ba8ebad8f2a2270064",
         "published_site_browser": "not_verified_http_inaccessible",
         "performance_results": "not_available"
+      },
+      "web_stage3_actions": {
+        "scope": "EOD_ONLY",
+        "enabled_in_public_website": "source_pending_merge",
+        "actions": [
+          "KEEP_WATCH",
+          "NO_TRADE",
+          "ARCHIVE"
+        ],
+        "excluded": [
+          "TRIGGERED",
+          "AUTO_BUY",
+          "AUTO_SELL",
+          "CHANGE_READY",
+          "EDIT_PIVOT"
+        ],
+        "html": "site/index.html",
+        "backend": "stage3_review.py",
+        "workflow": ".github/workflows/review-stage3.yml",
+        "oauth_route": "/stage3/dispatch",
+        "oauth_gateway_config": "currently_disabled",
+        "authentication": "GitHub App when explicitly enabled and deployed; otherwise transient fine-grained PAT",
+        "tests": {
+          "status": "pending_ci",
+          "backend": "tests/test_stage3_review.py",
+          "gateway": "review-auth/tests/stage3_eod_actions.test.mjs"
+        },
+        "public_page": "not_verified",
+        "latest_commit": "538b79950399a3e57f94f0e14e2403617120ed67"
       }
     },
     "historical_superstocks_product_research": {
