@@ -245,3 +245,95 @@ def test_current_day_after_close_review_is_not_a_fresh_cross(tmp_path):
                   prior_close=99.5,last_close=100.5)
     with pytest.raises(ValueError,match="APPROVED_BY_CLOSE"):
         act(t,p,expected_as_of_date="2026-10-26")
+
+
+# The public Stage-3 UI now exposes ONE canonical human Trigger. Its subtype
+# is determined from source daily prices, never selected by the reviewer.
+def test_unified_confirm_trigger_classifies_verified_fresh_eod_cross(tmp_path):
+    t, p, _ = fixture(tmp_path, review_at="2026-10-23T19:00:00+00:00",
+                      prior_close=99.5, last_close=100.5)
+    original = json.loads(p.read_text())
+    result = act(t, p, action="CONFIRM_TRIGGER")
+    saved = json.loads(p.read_text())
+    row = saved["state"]["3"][0]
+    assert result["to"] == "TRIGGERED"
+    assert row["stage3_manual_action"] == "CONFIRM_TRIGGER"
+    assert row["eod_trigger_confirmation_type"] == "FIRST_EOD_CROSS"
+    assert row["trigger_rule"] == EOD_RULE
+    assert saved["state"]["history"][0]["action"] == "CONFIRM_TRIGGER"
+    assert saved["metadata"] == original["metadata"]
+    assert not {"trigger_time", "fill_price", "entry_price", "order_id"} & set(row)
+    with pytest.raises(ValueError, match="WATCH"):
+        act(t, p, action="CONFIRM_TRIGGER", expected_revision=121)
+
+
+def test_unified_confirm_trigger_auto_classifies_monday_post_approval_hold(tmp_path):
+    t, p, _ = fixture(tmp_path, as_of="2026-10-26",
+                      review_at="2026-10-24T05:56:07+00:00",
+                      prior_close=101, last_close=102)
+    before = json.loads(p.read_text())
+    result = act(t, p, action="CONFIRM_TRIGGER",
+                 expected_as_of_date="2026-10-26")
+    row = json.loads(p.read_text())["state"]["3"][0]
+    assert result["to"] == "TRIGGERED"
+    assert row["stage3_manual_action"] == "CONFIRM_TRIGGER"
+    assert row["eod_trigger_confirmation_type"] == "POST_APPROVAL_HOLD"
+    assert row["trigger_rule"] == POST_APPROVAL_RULE
+    assert row["eod_trigger_as_of"] == "2026-10-26"
+    assert row["eod_trigger_evidence"]["ready_approved_at"] == \
+           "2026-10-24T05:56:07+00:00"
+    assert before["metadata"] == json.loads(p.read_text())["metadata"]
+
+
+@pytest.mark.parametrize("previous,current", [
+    (101, 99), (99, 99), (100, 100), (99.5, 99.9),
+])
+def test_unified_trigger_cannot_confirm_unqualified_daily_pattern(
+    tmp_path, previous, current
+):
+    t, p, _ = fixture(tmp_path, prior_close=previous, last_close=current)
+    old = t.read_bytes(), p.read_bytes()
+    assessment = assess_eod_trigger(
+        json.loads(t.read_text())["2"][0],
+        json.loads(t.read_text())["3"][0],
+        json.loads(p.read_text())["metadata"], tmp_path / "charts",
+        action="CONFIRM_TRIGGER"
+    )
+    assert assessment["allowed"] is False
+    assert assessment["confirmation_type"] is None
+    assert assessment["rule"] is None
+    assert any(c["code"] == "EOD_ELIGIBLE_PATTERN" and not c["pass"]
+               for c in assessment["checks"])
+    with pytest.raises(ValueError, match="EOD_ELIGIBLE_PATTERN"):
+        act(t, p, action="CONFIRM_TRIGGER")
+    assert (t.read_bytes(), p.read_bytes()) == old
+
+
+def test_unified_trigger_does_not_backdate_friday_after_saturday_ready(tmp_path):
+    t, p, _ = fixture(tmp_path, review_at="2026-10-24T05:56:07+00:00",
+                      prior_close=99.5, last_close=100.5)
+    old = t.read_bytes(), p.read_bytes()
+    with pytest.raises(ValueError, match="APPROVED_BY_CLOSE"):
+        act(t, p, action="CONFIRM_TRIGGER")
+    assert (t.read_bytes(), p.read_bytes()) == old
+
+
+def test_unified_trigger_requires_explicit_human_confirmation(tmp_path):
+    t, p, _ = fixture(tmp_path)
+    old = t.read_bytes(), p.read_bytes()
+    with pytest.raises(ValueError, match="confirmation"):
+        act(t, p, action="CONFIRM_TRIGGER", confirmed=False)
+    assert (t.read_bytes(), p.read_bytes()) == old
+
+
+def test_unified_trigger_rejects_tampered_persisted_event(tmp_path):
+    t, p, _ = fixture(tmp_path)
+    private, public = json.loads(t.read_text()), json.loads(p.read_text())
+    private["3"][0]["eod_event"] = "ABOVE_PIVOT"
+    public["state"]["3"][0]["eod_event"] = "ABOVE_PIVOT"
+    t.write_text(json.dumps(private))
+    p.write_text(json.dumps(public))
+    old = t.read_bytes(), p.read_bytes()
+    with pytest.raises(ValueError, match="SAVED_EOD_MATCH"):
+        act(t, p, action="CONFIRM_TRIGGER")
+    assert (t.read_bytes(), p.read_bytes()) == old

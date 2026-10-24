@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
 ACTIONS = {"KEEP_WATCH": "WATCH", "NO_TRADE": "NO_TRADE", "ARCHIVE": "ARCHIVED",
+           "CONFIRM_TRIGGER": "TRIGGERED",
            "CONFIRM_EOD_TRIGGER": "TRIGGERED",
            "CONFIRM_POST_APPROVAL": "TRIGGERED"}
 
@@ -74,7 +75,7 @@ def apply_stage3_action(state_path: Path, latest_path: Path, *, symbol: str, set
     # The backend validates original adjusted daily bars and human approval
     # again; browser checkboxes and cached EOD fields are never authoritative.
     trigger_assessment = None
-    if action in ("CONFIRM_EOD_TRIGGER", "CONFIRM_POST_APPROVAL"):
+    if action in ("CONFIRM_TRIGGER", "CONFIRM_EOD_TRIGGER", "CONFIRM_POST_APPROVAL"):
         from stage3_trigger_checks import assess_eod_trigger
         trigger_assessment = assess_eod_trigger(
             parents[0], row, meta, latest_path.parent / "charts", action=action)

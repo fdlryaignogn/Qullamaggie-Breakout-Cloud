@@ -21,7 +21,12 @@ from stage3_eod import eod_observation
 NY = ZoneInfo("America/New_York")
 EOD_RULE = "EOD_CLOSE_CROSS_MANUAL_V1"
 POST_APPROVAL_RULE = "EOD_POST_APPROVAL_MANUAL_V1"
-TRIGGER_ACTIONS = {"CONFIRM_EOD_TRIGGER": EOD_RULE,
+# The website and GitHub Actions offer one canonical action. The two former
+# internal names remain supported by the validator for historical regression
+# tests and audited compatibility; a fresh confirmation still has only one
+# valid EOD event type for a given completed session.
+TRIGGER_ACTIONS = {"CONFIRM_TRIGGER": None,
+                   "CONFIRM_EOD_TRIGGER": EOD_RULE,
                    "CONFIRM_POST_APPROVAL": POST_APPROVAL_RULE}
 EVIDENCE_FIELDS = (
     "eod_event", "eod_close", "eod_prev_close", "eod_distance_pct",
@@ -113,9 +118,15 @@ def assess_eod_trigger(parent: dict, watch: dict, metadata: dict,
     if action == "CONFIRM_EOD_TRIGGER":
         checks.append(_check("EOD_CLOSE_CROSS", cross,
                              "First upward EOD close-cross after READY approval"))
-    else:
+    elif action == "CONFIRM_POST_APPROVAL":
         checks.append(_check("POST_APPROVAL_HOLD", above,
                              "Latest completed EOD still above pivot; previous close also above"))
+    else:
+        # Mutually exclusive daily close conditions: the preceding close is
+        # either <= pivot (new cross) or > pivot (still above), not both.
+        # Do not trust a caller-supplied classification or browser selection.
+        checks.append(_check("EOD_ELIGIBLE_PATTERN", cross or above,
+                             "Completed close-cross OR completed post-approval hold above saved pivot"))
 
     # Volume and risk fields are reference information, not invented hard gates.
     ratio = evidence.get("eod_volume_ratio") if evidence else None
@@ -123,8 +134,16 @@ def assess_eod_trigger(parent: dict, watch: dict, metadata: dict,
     adr = evidence.get("eod_adr20_pct") if evidence else None
     risk = evidence.get("eod_ref_risk_atr") if evidence else None
     ready = all(item["pass"] for item in checks if item["required"])
-    return {"rule": TRIGGER_ACTIONS[action], "action": action,
-            "confirmation_type": "FIRST_EOD_CROSS" if action == "CONFIRM_EOD_TRIGGER" else "POST_APPROVAL_HOLD",
+    if action == "CONFIRM_TRIGGER":
+        rule = EOD_RULE if cross else POST_APPROVAL_RULE if above else None
+        confirmation_type = ("FIRST_EOD_CROSS" if cross else
+                             "POST_APPROVAL_HOLD" if above else None)
+    else:
+        rule = TRIGGER_ACTIONS[action]
+        confirmation_type = ("FIRST_EOD_CROSS" if action == "CONFIRM_EOD_TRIGGER"
+                             else "POST_APPROVAL_HOLD")
+    return {"rule": rule, "action": action,
+            "confirmation_type": confirmation_type,
             "allowed": ready, "as_of_date": as_of,
             "checks": checks, "evidence": evidence,
             "context": {"rvol20": ratio, "atr14": atr, "adr20_pct": adr,
