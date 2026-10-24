@@ -1,6 +1,6 @@
 # Stage 4: Post-Trigger Trade Planning & Fundamental Review
 
-**Ownership:** Trading System. **Scope:** read-only EOD, manual planning; no broker orders or fills. **Status:** PR implementation; browser and SEC live feed not independently verified.
+**Ownership:** Trading System. **Scope:** read-only EOD, manual planning; no broker orders or fills. **Status:** merged to main via PR #20 (2026-10-25); 108 Python / 50 Node checks passed in PR CI; live browser and live SEC refresh **not independently verified**.
 
 ## UI and upstream contract
 
