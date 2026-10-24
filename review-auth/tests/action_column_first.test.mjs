@@ -9,7 +9,7 @@ assert.ok(renderStart>=0 && renderEnd>renderStart);
 const render=html.slice(renderStart,renderEnd);
 
 test('all stage tables put Action header before every data column',()=>{
-  const header=render.indexOf('innerHTML=\'<tr><th scope="col">\'+t(\'操作\')');
+  const header=render.indexOf('innerHTML=\'<tr><th scope="col" title="\'');
   const fields=render.indexOf('config.columns.map(([key,name])');
   assert.ok(header>=0 && fields>header);
   assert.ok(!render.includes(".join('')+'<th>'+t('操作')"));
