@@ -94,7 +94,7 @@ test('human EOD trigger dispatch demands confirmation and pinned snapshot',async
 });
 test('Stage3 Action shows required pass/fail evidence and blocks unqualified triggers',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
- assert.ok(html.includes('function stage3TriggerChecklist(row)'));
+ assert.ok(html.includes('function stage3TriggerChecklist(row,mode='));
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
  assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
  assert.ok(html.includes("!checks.requiredOK"));
@@ -106,7 +106,7 @@ test('Stage3 Action shows required pass/fail evidence and blocks unqualified tri
 
 test('Stage 3 browser checklist computes pass/fail and does not gate on volume multiplier',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
- const start=html.indexOf('function stage3TriggerChecklist(row){');
+ const start=html.indexOf('function stage3TriggerChecklist(row,mode=');
  const end=html.indexOf('function openStage3Action(row){',start);
  assert.ok(start>=0&&end>start);
  const parent={symbol:'ABC',setup_id:'ABC-1',setup_status:'READY',
