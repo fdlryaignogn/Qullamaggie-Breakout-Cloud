@@ -13,6 +13,7 @@ modify localStorage or send a broker order.
 | NO_TRADE | WATCH → NO_TRADE | Human decided not to trade this setup; terminal for that setup |
 | ARCHIVE | WATCH → ARCHIVED | Human closed Stage 3 tracking; terminal for that setup |
 | CONFIRM_EOD_TRIGGER | WATCH → TRIGGERED | Human confirms validated EOD close-cross **after** all mandatory conditions pass; terminal for this setup, **not an order or fill** |
+| CONFIRM_POST_APPROVAL | WATCH → TRIGGERED | Human confirms a **later** completed EOD holds above approved pivot after READY; distinct from first breakout; no order/fill |
 
 These are manual **EOD management or signal confirmation actions**, never buy/sell orders or fills.
 Both terminal options and EOD TRIGGERED require an explicit checkbox and a 1–500 character public
