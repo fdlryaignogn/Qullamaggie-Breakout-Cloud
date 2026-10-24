@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_web_actions_pr16_ci_passed_pending_merge",
-      "deployment": "feature_branch_only_not_live_verified",
-      "last_change": "Added cloud Stage3 read-only EOD details and authenticated KEEP_WATCH, NO_TRADE, ARCHIVE actions via GitHub workflow and GitHub App gateway support",
-      "next_action": "Merge PR #16 after latest CI; verify main contains Stage3 review workflow, safe buttons and audit logic; verify public Pages and first real reviewer action externally",
+      "status": "stage3_eod_web_actions_pr16_merged",
+      "deployment": "main_source_merged; live_pages_browser_and_action_flow_unverified",
+      "last_change": "PR #16 merged Stage 3 EOD read-only details and authenticated WATCH / NO_TRADE / ARCHIVED cloud Action controls with audited GitHub workflow and optimistic revision validation",
+      "next_action": "Verify deployed Pages actually shows EOD details and Action buttons; use authenticated reviewer to submit a real KEEP_WATCH test with public reason if desired, and verify GitHub Action publication. Keep research V2 experimental until Research Lab validates it.",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -69,9 +69,9 @@
         "live_eod_refresh": "not_verified",
         "stage3_watch_count_at_last_verified_scan": 3
       },
-      "latest_merged_pr": 15,
-      "latest_merge_commit": "df2c3ec357c48d395c8a97ba8ebad8f2a2270064",
-      "pending_feature_branch": "feature/stage3-eod-web-actions",
+      "latest_merged_pr": 16,
+      "latest_merge_commit": "5286e9e4d5b03ad9ba56c65d9addbf0937a07bd3",
+      "pending_feature_branch": null,
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": 16,
+      "pending_pr": null,
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -133,7 +133,7 @@
       },
       "web_stage3_actions": {
         "scope": "EOD_ONLY",
-        "enabled_in_public_website": "source_pending_merge",
+        "enabled_in_public_website": "merged_to_main_not_live_verified",
         "actions": [
           "KEEP_WATCH",
           "NO_TRADE",
@@ -150,19 +150,22 @@
         "backend": "stage3_review.py",
         "workflow": ".github/workflows/review-stage3.yml",
         "oauth_route": "/stage3/dispatch",
-        "oauth_gateway_config": "currently_disabled",
+        "oauth_gateway_config": "disabled_in_site/auth-config.json",
         "authentication": "GitHub App when explicitly enabled and deployed; otherwise transient fine-grained PAT",
         "tests": {
-          "status": "pr_ci_passed",
-          "github_actions_run_id": 40107870497,
+          "status": "PR_CI_passed",
+          "github_actions_run_id": 40107993686,
           "python_pytest": "80 passed",
           "node_tests": "34 passed",
           "stage3_eod_audit": "passed",
           "experimental_v2_smoke": "passed",
-          "dashboard_js_syntax": "passed"
+          "dashboard_js_syntax": "passed",
+          "main_push_ci": "not_verified"
         },
-        "public_page": "not_verified",
-        "latest_commit": "a6a0a46cdba32aca610e9b06aa027fc8e73db738"
+        "public_page": "browser_verification_unavailable",
+        "latest_commit": "a6a0a46cdba32aca610e9b06aa027fc8e73db738",
+        "latest_merge_commit": "5286e9e4d5b03ad9ba56c65d9addbf0937a07bd3",
+        "authenticated_submission": "not_exercised_live"
       }
     },
     "historical_superstocks_product_research": {
