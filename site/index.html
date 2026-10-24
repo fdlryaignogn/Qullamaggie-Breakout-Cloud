@@ -7,7 +7,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="./icons/app-192.png">
 <link rel="apple-touch-icon" href="./icons/app-192.png">
-<title>Qullamaggie Breakout｜三輪股票監察台</title>
+<title>Qullamaggie Breakout｜四輪股票監察台</title>
 <style>
   /* V2.7: 3M/6M half-ticker hover with synchronized right-hand dual axes. */
   .topbar{position:sticky;top:0;z-index:30;background:rgba(10,16,30,.97);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);padding-inline:10px;box-shadow:0 8px 24px rgba(0,0,0,.15)}
@@ -30,7 +30,10 @@
   .top-actions,.actions,.head-actions,.cell-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.cell-actions{max-width:126px;gap:3px 7px;align-content:center}.cell-actions .link-btn{white-space:normal;text-align:left;line-height:1.25}.outline-btn,.solid-btn,.subtle-btn{border-radius:9px;min-height:36px;border:1px solid var(--line);padding:8px 13px;display:inline-flex;gap:8px;align-items:center;justify-content:center;font-size:12px;font-weight:650;white-space:nowrap;background:#162239;color:var(--text);transition:.16s}.outline-btn:hover,.subtle-btn:hover{background:#23314b;border-color:#415574}.solid-btn{background:var(--accent);border-color:var(--accent);color:#072725}.solid-btn:hover{background:var(--accent-hover)}.subtle-btn{background:transparent;color:var(--muted)}.small-btn{min-height:29px;padding:5px 10px;font-size:11px}.icon{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0} .live-dot{height:7px;width:7px;border-radius:100%;background:var(--amber);box-shadow:0 0 0 4px #f2c67b14}
   .language-picker{display:inline-flex;padding:3px;border:1px solid #34465f;border-radius:9px;background:#111d31;white-space:nowrap;gap:2px}.language-option{background:transparent;color:var(--muted);border:0;padding:5px 11px;border-radius:6px;min-height:28px;font-size:12px;font-weight:750;transition:background .15s,color .15s}.language-option[aria-pressed="true"]{background:#29574f;color:#96fbe1;box-shadow:0 1px 5px #0004}.language-option:hover{color:var(--text)}
   .intro{padding:36px 0 26px;display:flex;gap:24px;justify-content:space-between;align-items:end}.eyebrow{color:var(--accent);font-weight:750;font-size:11px;letter-spacing:.17em}.intro h1{font-size:clamp(27px,3.3vw,39px);letter-spacing:-.04em;margin:7px 0 8px;line-height:1.18;font-weight:780}.intro p{margin:0;color:var(--muted);font-size:13px;max-width:700px}.metadata{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:11px;white-space:nowrap}.metadata .pill{border:1px solid var(--line);border-radius:100px;padding:5px 11px;background:#121d30}
-  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);gap:8px}.tab{position:relative;background:none;border:0;border-radius:10px 10px 0 0;color:var(--muted);padding:17px 18px 18px;text-align:left;display:flex;gap:13px;align-items:center;min-width:0}.tab:hover{background:#17223788}.tab[aria-selected=true]{background:#18263a;color:var(--text)}.tab[aria-selected=true]:after{content:"";height:3px;position:absolute;bottom:-1px;left:0;right:0;border-radius:3px 3px 0 0;background:var(--accent)}.tab-n{width:35px;height:35px;border:1px solid #33445e;border-radius:10px;display:grid;place-items:center;color:var(--accent);font-weight:850;letter-spacing:-.04em;background:#111d30}.tab-title{font-size:13px;font-weight:700}.tab-desc{font-size:11px;color:var(--muted);margin-top:2px}.tab-count{margin-left:auto;background:#23324a;min-width:24px;height:22px;padding:0 6px;display:grid;place-items:center;border-radius:6px;font-size:11px;color:#bfd0e8;font-weight:700}
+  .tabbar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid var(--line);gap:8px}.tab{position:relative;background:none;border:0;border-radius:10px 10px 0 0;color:var(--muted);padding:17px 18px 18px;text-align:left;display:flex;gap:13px;align-items:center;min-width:0}.tab:hover{background:#17223788}.tab[aria-selected=true]{background:#18263a;color:var(--text)}.tab[aria-selected=true]:after{content:"";height:3px;position:absolute;bottom:-1px;left:0;right:0;border-radius:3px 3px 0 0;background:var(--accent)}.tab-n{width:35px;height:35px;border:1px solid #33445e;border-radius:10px;display:grid;place-items:center;color:var(--accent);font-weight:850;letter-spacing:-.04em;background:#111d30}.tab-title{font-size:13px;font-weight:700}.tab-desc{font-size:11px;color:var(--muted);margin-top:2px}.tab-count{margin-left:auto;background:#23324a;min-width:24px;height:22px;padding:0 6px;display:grid;place-items:center;border-radius:6px;font-size:11px;color:#bfd0e8;font-weight:700}
+  .tabbar a.tab{text-decoration:none}.tabbar a.tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+  @media(max-width:850px){.tabbar{gap:2px}.tab{padding:11px 8px;gap:7px}.tab-n{width:29px;height:29px;flex-shrink:0}.tab-title{font-size:11px}.tab-desc{font-size:9px}.tab-count{display:none}}
+  @media(max-width:500px){.tabbar{grid-template-columns:repeat(4,minmax(0,1fr))}.tab{flex-direction:column;align-items:center;padding:9px 4px;text-align:center}.tab-title{font-size:10px;line-height:1.3}.tab-desc{display:none}}
   .panel{border:1px solid var(--line);border-top:0;background:#101a2c;border-radius:0 0 14px 14px;min-height:445px;box-shadow:var(--shadow)}.panel-info{display:flex;justify-content:space-between;align-items:start;gap:15px;padding:24px 24px 18px}.panel-info h2{font-size:18px;margin:0 0 5px;letter-spacing:-.025em}.panel-info p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}.workflow{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#a6decf;background:#183835;border:1px solid #285950;border-radius:7px;padding:7px 10px;white-space:nowrap}.toolbar{padding:0 24px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.searchbox{width:265px;max-width:100%;position:relative}.searchbox input{padding:9px 13px 9px 36px;width:100%;border:1px solid #30415c;background:#101c31;color:var(--text);outline:none;border-radius:9px;font-size:12px;height:36px}.searchbox svg{position:absolute;left:12px;top:10px;color:var(--muted)}.filter-select{height:36px;min-width:125px;background:#101c31;border:1px solid #30415c;border-radius:9px;padding:0 11px;color:#c8d5e8;font-size:12px}.status-note{padding:8px 24px 12px;color:var(--muted2);font-size:11px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line-soft)}
   
 /* Floating scroll rail is immediately BELOW the frozen column labels, in
@@ -154,6 +157,7 @@
     <button class="tab" role="tab" aria-selected="true" aria-controls="tablePanel" data-stage="1"><span class="tab-n">01</span><span><div class="tab-title">第一輪 · 動能篩選</div><div class="tab-desc">Momentum screening</div></span><span class="tab-count" id="count1">0</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="2"><span class="tab-n">02</span><span><div class="tab-title">第二輪 · 整理形態</div><div class="tab-desc">Setup qualification</div></span><span class="tab-count" id="count2">0</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="3"><span class="tab-n">03</span><span><div class="tab-title">第三輪 · 突破訊號</div><div class="tab-desc">EOD watch & review</div></span><span class="tab-count" id="count3">0</span></button>
+    <a class="tab" href="./stage4.html" aria-label="第四輪交易計劃 / Stage 4 Trade Planning"><span class="tab-n">04</span><span><div class="tab-title">第四輪 · 交易計劃</div><div class="tab-desc">Risk & fundamentals</div></span><span class="tab-count" id="count4">0</span></a>
   </nav>
   <main class="panel" id="tablePanel" role="tabpanel">
     <div class="panel-info"><div><h2 id="panelTitle">第一輪：強勢股動能篩選</h2><p id="panelDesc">比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。</p></div><span class="workflow" id="workflow">◇ 每日更新，歷史保留</span></div>
@@ -288,7 +292,8 @@ function columnFullTitle(stage,key,name){
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Singapore'});
 const nowIso=()=>new Date().toISOString();
-const ui={stage:1,sortBy:'',sortDir:-1,query:'',filter:'',reviewGroup:''};
+const stageFromHash=/^#stage-[123]$/.test(location.hash)?Number(location.hash.slice(-1)):1;
+const ui={stage:stageFromHash,sortBy:'',sortDir:-1,query:'',filter:'',reviewGroup:''};
 const blank=()=>({'1':[],'2':[],'3':[],history:[],updatedAt:null});
 let state=blank();
 try {const prev=JSON.parse(localStorage.getItem(STORE_KEY));if(prev&&typeof prev==='object'){for(const k of ['1','2','3'])state[k]=Array.isArray(prev[k])?prev[k]:[];state.history=Array.isArray(prev.history)?prev.history:[];state.updatedAt=prev.updatedAt||null;}}catch(e){console.warn('Local storage unavailable',e)}
@@ -305,7 +310,8 @@ const t=value=>lang==='en'?(EN_TEXT[value]||value):value;
 const tl=(zh,en)=>lang==='en'?en:zh;
 function applyLanguage(){
  document.documentElement.lang=lang==='en'?'en':'zh-Hant';
- document.title=lang==='en'?'Qullamaggie Breakout | Three-Stage Stock Dashboard':'Qullamaggie Breakout｜三輪股票監察台';
+ document.title=lang==='en'?'Qullamaggie Breakout | Four-Stage Stock Dashboard':'Qullamaggie Breakout｜四輪股票監察台';
+ const link4=document.querySelector('.tabbar a[href="./stage4.html"]');if(link4){link4.querySelector('.tab-title').textContent=tl('第四輪 · 交易計劃','Stage 4 · Trade Plan');link4.querySelector('.tab-desc').textContent=tl('風險、基本面與申報','Risk & fundamentals');}
  Object.entries(STATIC_EN).forEach(([selector,en])=>{const el=document.querySelector(selector);if(el)el.innerHTML=lang==='en'?en:STATIC_ZH[selector]});
  byId('langZh').setAttribute('aria-pressed',String(lang==='zh'));
  byId('langEn').setAttribute('aria-pressed',String(lang==='en'));
@@ -477,6 +483,7 @@ function wireTopTableScrollbar(){
  }
 }
 function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
+ byId('count4').textContent=state['3'].filter(r=>r.status==='TRIGGERED').length;
  for(let s=1;s<=3;s++){byId('count'+s).textContent=state[s].length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
  byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note)+(stage===3?tl(' 日線 Cross 不代表盤中確認或成交；風險參考不是實際止損建議。','EOD Cross is not an intraday trigger or fill; risk figures are hypothetical references.'):'');renderUpdatedTime();renderStage2ReviewGroups();
  const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
@@ -490,7 +497,7 @@ function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  syncTopTableScrollbar();
  if(stage===3)scheduleStage3Eod();
 }
-function switchTab(stage){ui.stage=stage;ui.query='';ui.filter='';ui.reviewGroup='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';render();}
+function switchTab(stage){if(![1,2,3].includes(stage))return;location.hash='stage-'+stage;ui.stage=stage;ui.query='';ui.filter='';ui.reviewGroup='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';render();}
 const modal={close(){byId('overlay').classList.remove('visible');byId('modalMain').innerHTML='';byId('modalFoot').innerHTML='';},open(title,subtitle,body,footer){byId('modalTitle').textContent=title;byId('modalSubtitle').textContent=subtitle||'';byId('modalMain').innerHTML=body;byId('modalFoot').innerHTML=footer;byId('overlay').classList.add('visible');}};
 function fieldHtml(def,value,stage,edit=false){const [key,label,type,req]=def,readonly=edit&&(['symbol','setup_id'].includes(key));let control='';const val=String(value??'');const required=req?'required':'';const place=type==='number'?'placeholder="'+t('例如 35.5')+'"':'';if(type==='select'||type==='select-yes'){
  const opts=type==='select-yes'?['','YES','NO']:(stage===2&&key==='setup_status'?stages[2].statuses:stages[stage].statuses);control=`<select id="f_${esc(key)}" name="${esc(key)}">${opts.map(s=>`<option value="${esc(s)}" ${s===val?'selected':''}>${esc(s||t('未設定'))}</option>`).join('')}</select>`;
@@ -555,7 +562,7 @@ function help(){
  modal.open(t('資料來源與使用說明'),t('三輪 Skill 對應的本地監察網頁'),tl(guideZh,guideEn),`<span class="helper">Skills: 01_momentum_screen / 02_setup_qualification / 03_breakout_execution</span><button class="solid-btn" id="okHelp">${t('我明白了')}</button>`);
  byId('okHelp').onclick=modal.close;
 }
-for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchTab(Number(b.dataset.stage)));
+for(const b of document.querySelectorAll('.tab[data-stage]'))b.addEventListener('click',()=>switchTab(Number(b.dataset.stage)));
 
 byId('reviewQueuesCards').addEventListener('click',event=>{
  const card=event.target.closest('button[data-review-group]');
