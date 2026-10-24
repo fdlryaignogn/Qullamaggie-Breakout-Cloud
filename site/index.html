@@ -268,7 +268,7 @@ function stage2ReviewGroup(row){
  const gap=stage2ReviewDistance(row);
  if(gap===null)return 'observe';
  if(gap<0)return 'above';
- return gap<=3?'near':'observe';
+ return gap<=3+1e-9?'near':'observe';
 }
 function renderStage2ReviewGroups(){
  const panel=byId('reviewQueues');
