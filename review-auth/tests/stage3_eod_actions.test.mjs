@@ -97,9 +97,10 @@ test('Stage3 Action shows required pass/fail evidence and blocks unqualified tri
  assert.ok(html.includes('function stage3TriggerChecklist(row,mode='));
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
  assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
- assert.ok(html.includes("!checks.requiredOK"));
- assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK"));
- assert.ok(html.includes("k==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK"));
+ assert.ok(html.includes("function stage3ActionAvailability("));
+ assert.ok(html.includes("!stage3ActionAvailability(action,checks,lateChecks).canSubmit"));
+ assert.ok(html.includes("submit.disabled=true"));
+ assert.ok(html.includes("stage3DecisionStatus"));
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
  assert.ok(html.includes('READY 後首次 EOD 突破'));
  assert.ok(html.includes('READY 後延後確認'));
