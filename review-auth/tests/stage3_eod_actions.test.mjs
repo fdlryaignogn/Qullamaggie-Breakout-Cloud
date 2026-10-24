@@ -79,16 +79,16 @@ test('cloud dashboard exposes read-only EOD details and authenticated review onl
 test('human EOD trigger dispatch demands confirmation and pinned snapshot',async()=>{
  const {dispatch,req,requests}=harness();
  await assert.rejects(
-  dispatch(req({...base,action:'CONFIRM_EOD_TRIGGER',confirmed:false}),{}),
+  dispatch(req({...base,action:'CONFIRM_TRIGGER',confirmed:false}),{}),
   e=>e.status===400
  );
  const response=await dispatch(
-  req({...base,action:'CONFIRM_EOD_TRIGGER',confirmed:true}),{}
+  req({...base,action:'CONFIRM_TRIGGER',confirmed:true}),{}
  );
  assert.equal(response.status,202);
  assert.equal(requests.length,1);
  const body=JSON.parse(requests[0].opts.body);
- assert.equal(body.inputs.action,'CONFIRM_EOD_TRIGGER');
+ assert.equal(body.inputs.action,'CONFIRM_TRIGGER');
  assert.equal(body.inputs.confirmed,'true');
  assert.equal(body.inputs.expected_as_of_date,'2026-10-23');
 });
@@ -98,12 +98,16 @@ test('Stage3 Action shows required pass/fail evidence and blocks unqualified tri
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
  assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
  assert.ok(html.includes("function stage3ActionAvailability("));
- assert.ok(html.includes("!stage3ActionAvailability(action,checks,lateChecks).canSubmit"));
+ assert.ok(html.includes("!stage3ActionAvailability(action,checks,lateChecks,currentEodEvent()).canSubmit"));
  assert.ok(html.includes("submit.disabled=true"));
  assert.ok(html.includes("stage3DecisionStatus"));
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
- assert.ok(html.includes('READY 後首次 EOD 突破'));
- assert.ok(html.includes('READY 後延後確認'));
+ assert.ok(html.includes("['CONFIRM_TRIGGER',tl('確認 TRIGGERED（自動判斷突破類型）'"));
+ const start=html.indexOf('function openStage3Action(row){');
+ const modal=html.slice(start,html.indexOf('function openReviewForm(',start));
+ assert.equal((modal.match(/\['CONFIRM_TRIGGER',tl\(/g)||[]).length,1);
+ assert.ok(!modal.includes("['CONFIRM_EOD_TRIGGER',tl("));
+ assert.ok(!modal.includes("['CONFIRM_POST_APPROVAL',tl("));
 });
 
 test('Stage 3 browser checklist computes pass/fail and does not gate on volume multiplier',()=>{
@@ -137,14 +141,15 @@ test('Stage 3 browser checklist computes pass/fail and does not gate on volume m
  assert.equal(decide(row).requiredOK,false);
 });
 
-test('delayed confirmation requires explicit authorization and confirmation',async()=>{
+test('only canonical CONFIRM_TRIGGER is dispatched; prior aliases are not public options',async()=>{
  const {dispatch,req,requests}=harness();
- await assert.rejects(dispatch(req({...base,action:'CONFIRM_POST_APPROVAL',confirmed:false}),{}),e=>e.status===400);
- const response=await dispatch(req({...base,action:'CONFIRM_POST_APPROVAL',confirmed:true}),{});
+ for(const action of ['CONFIRM_EOD_TRIGGER','CONFIRM_POST_APPROVAL']){
+  await assert.rejects(dispatch(req({...base,action,confirmed:true}),{}),e=>e.status===400);
+ }
+ const response=await dispatch(req({...base,action:'CONFIRM_TRIGGER',confirmed:true}),{});
  assert.equal(response.status,202);
- const body=JSON.parse(requests[0].opts.body);
- assert.equal(body.inputs.action,'CONFIRM_POST_APPROVAL');
- assert.equal(body.inputs.confirmed,'true');
+ assert.equal(JSON.parse(requests[0].opts.body).inputs.action,'CONFIRM_TRIGGER');
+ assert.equal(requests.length,1);
 });
 
 test('Saturday READY approval allows Monday above-pivot, but not older Friday observation',()=>{
@@ -175,34 +180,40 @@ test('Saturday READY approval allows Monday above-pivot, but not older Friday ob
  assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
 });
 
-test('Both EOD Trigger choices remain selectable for requirements inspection but submission is blocked',()=>{
+test('single Trigger action automatically shows only matching first/hold checklist',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
  const start=html.indexOf('function stage3ActionAvailability(');
  const end=html.indexOf('function openStage3Action(row){',start);
- assert.ok(start>=0 && end>start);
- const check=vm.runInNewContext(html.slice(start,end)+'\nstage3ActionAvailability');
- const failFirst={requiredOK:false,checks:[
-  {label:'READY approved by close',description:'Approval after EOD',pass:false,required:true},
-  {label:'Daily close-cross',description:'Price crossed',pass:true,required:true}
- ]};
- const failLater={requiredOK:false,checks:[
-  {label:'READY approved by close',description:'Approval after EOD',pass:false,required:true},
-  {label:'Post-approval close',description:'Await new EOD hold',pass:false,required:true}
- ]};
- assert.equal(check('CONFIRM_EOD_TRIGGER',failFirst,failLater).canSubmit,false);
- assert.equal(check('CONFIRM_POST_APPROVAL',failFirst,failLater).canSubmit,false);
- assert.equal(check('CONFIRM_POST_APPROVAL',failFirst,failLater).failed.length,2);
- assert.equal(check('KEEP_WATCH',failFirst,failLater).canSubmit,true);
- assert.equal(check('NO_TRADE',failFirst,failLater).canSubmit,true);
- const eligible={requiredOK:true,checks:[{label:'EOD valid',pass:true,required:true}]};
- assert.equal(check('CONFIRM_EOD_TRIGGER',eligible,failLater).canSubmit,true);
- assert.equal(check('CONFIRM_POST_APPROVAL',failFirst,eligible).canSubmit,true);
+ assert.ok(start>=0&&end>start);
+ const decide=vm.runInNewContext(html.slice(start,end)+'\nstage3ActionAvailability',{tl:z=>z});
+ const first={requiredOK:true,mode:'CONFIRM_EOD_TRIGGER',checks:[
+  {label:'First EOD close-cross',pass:true,required:true}]};
+ const hold={requiredOK:true,mode:'CONFIRM_POST_APPROVAL',checks:[
+  {label:'Post approval hold',pass:true,required:true}]};
+ let result=decide('CONFIRM_TRIGGER',first,hold,'EOD_CROSS');
+ assert.equal(result.canSubmit,true);
+ assert.equal(result.pattern,'FIRST_EOD_CROSS');
+ assert.equal(result.report.mode,'CONFIRM_EOD_TRIGGER');
+ result=decide('CONFIRM_TRIGGER',first,hold,'ABOVE_PIVOT');
+ assert.equal(result.canSubmit,true);
+ assert.equal(result.pattern,'POST_APPROVAL_HOLD');
+ assert.equal(result.report.mode,'CONFIRM_POST_APPROVAL');
+ result=decide('CONFIRM_TRIGGER',first,hold,'BELOW_PIVOT');
+ assert.equal(result.canSubmit,false);
+ assert.equal(result.pattern,null);
+ assert.equal(result.failed.length,1);
+ const block={requiredOK:false,mode:'CONFIRM_POST_APPROVAL',checks:[
+  {label:'READY approval too late',pass:false,required:true}]};
+ result=decide('CONFIRM_TRIGGER',first,block,'ABOVE_PIVOT');
+ assert.equal(result.canSubmit,false);
+ assert.equal(result.failed[0].label,'READY approval too late');
+ assert.equal(decide('KEEP_WATCH',first,block,'BELOW_PIVOT').canSubmit,true);
  const modalStart=html.indexOf('function openStage3Action(row){');
- const modalEnd=html.indexOf('function openReviewForm(',modalStart);
- const modal=html.slice(modalStart,modalEnd);
- assert.ok(modal.includes("options.map(([k,v])=>'<option value="));
- assert.ok(!modal.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled'"));
- assert.ok(modal.includes('stage3DecisionStatus'));
+ const modal=html.slice(modalStart,html.indexOf('function openReviewForm(',modalStart));
+ assert.ok(modal.includes("['CONFIRM_TRIGGER',tl("));
+ assert.ok(!modal.includes("['CONFIRM_EOD_TRIGGER',tl("));
+ assert.ok(!modal.includes("['CONFIRM_POST_APPROVAL',tl("));
  assert.ok(modal.includes('submit.disabled=true'));
- assert.ok(modal.includes('!stage3ActionAvailability(action,checks,lateChecks).canSubmit'));
+ assert.ok(modal.includes('stage3DecisionStatus'));
+ assert.ok(modal.includes('currentEodEvent()'));
 });
