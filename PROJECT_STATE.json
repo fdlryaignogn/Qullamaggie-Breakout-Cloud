@@ -12,10 +12,38 @@
   },
   "workstreams": {
     "research_lab": {
-      "status": "coordination_only",
-      "deployment": "not_verified",
-      "last_change": "Cross-thread coordination files established",
-      "next_action": "Inspect existing lab source and implement versioned research data interfaces"
+      "status": "implementation_in_review",
+      "deployment": "not_deployed",
+      "page": "site/research.html",
+      "branch": "feature/research-lab-v0-1",
+      "features": [
+        "local case annotations",
+        "CSV candlestick preview with as-of cutoff",
+        "win rate / expectancy net R / profit factor / max drawdown",
+        "JSON backup and restore",
+        "navigation link from site/index.html"
+      ],
+      "limitations": [
+        "localStorage is device-specific, not cloud-synced",
+        "no integrated historical data feed",
+        "no production strategy changes",
+        "not yet linked from main dashboard"
+      ],
+      "tests": {
+        "status": "static_checks_passed_browser_not_run",
+        "checks": {
+          "hasHTML": true,
+          "hasScript": true,
+          "hasClosing": true,
+          "hasLocalStorage": true,
+          "hasCutoff": true,
+          "hasEscape": true,
+          "hasRStats": true,
+          "hasCSV": true
+        },
+        "notes": "No headless browser verification available in this tool session; CSV parsing is basic and does not support quoted commas."
+      },
+      "next_action": "Merge PR after review, then verify deployed GitHub Pages research.html and main dashboard navigation"
     },
     "trading_system": {
       "status": "not_audited_in_this_turn",
