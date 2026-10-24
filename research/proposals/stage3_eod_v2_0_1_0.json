@@ -4,7 +4,7 @@
   "stage": 3,
   "approval_status": "EXPERIMENTAL",
   "production_enabled": false,
-  "source_commit": "b390ee710fc1d44ba05d8d7116fa4e4149766805",
+  "source_commit": "c7a3c80e630fe8f734d77219c4ff0132a5cc207f",
   "rule_owner": "Trading System (research-only proposal to Research Lab)",
   "data_source": "existing published adjusted 1d chart with completed as-of session",
   "parameters": {
