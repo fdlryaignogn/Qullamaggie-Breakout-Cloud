@@ -32,8 +32,8 @@ function mockGitHub({permission=true,dispatch=204}={}){
     if(url.pathname==="/login/oauth/access_token")
       return Response.json({access_token:"ghu_test-github-token-secret",expires_in:28800});
     if(url.pathname==="/user")return Response.json({login:"fdlryaignogn",id:145678});
-    if(url.pathname==="/repos/fdlryaignogn/Qullamaggie-Breakout-Cloud")
-      return Response.json({permissions:{push:permission}});
+    if(url.pathname==="/repos/fdlryaignogn/Qullamaggie-Breakout-Cloud/collaborators/fdlryaignogn/permission")
+      return Response.json({permission:permission?"admin":"read"});
     if(url.pathname.endsWith("/dispatches"))return new Response(null,{status:dispatch});
     return new Response(null,{status:404});
   };
