@@ -182,6 +182,55 @@ const stages={
   ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['watch_date','監察日期','date'],['trade_date','交易日','date'],['setup_status','來源 Setup 狀態','text'],['breakout_level','突破關鍵價','number'],['opening_range_minutes','Opening range 分鐘','number'],['opening_range_high','開盤區間高點','number'],['trigger_price','觸發價格','number'],['trigger_time','觸發時間','text'],['trigger_rule','突破確認規則','textarea'],['entry_plan','入場計劃','textarea'],['initial_stop','初始止損','number'],['risk_per_share','每股風險','number'],['atr_adr_context','ATR / ADR 參考','text'],['suggested_max_shares','建議最大股數','number'],['status','觸發狀態','select'],['triggered_at','觸發記錄時間','text'],['status_reason','狀態原因','textarea'],['rationale','其他依據 / 注意事項','textarea'],['last_reviewed_at','最後覆核日','date']
   ],columns:[['symbol','股票 / Setup'],['watch_date','監察日'],['status','突破狀態'],['breakout_level','突破價'],['opening_range_minutes','開盤區間'],['opening_range_high','區間高點'],['trigger_price','觸發價'],['trigger_time','觸發時間'],['initial_stop','初始止損'],['risk_per_share','每股風險'],['suggested_max_shares','最大股數'],['last_reviewed_at','最近覆核']]}
 };
+
+// Compact display headings only; original field keys, export names and sort behavior stay intact.
+// Hover the frozen headings for the complete localized field name.
+const COLUMN_ABBREVIATIONS={
+  symbol:'Ticker',
+  as_of_date:'Date',
+  return_1m:'1M Ret%',
+  rank_pct_1m:'1M Rank%',
+  return_3m:'3M Ret%',
+  rank_pct_3m:'3M Rank%',
+  return_6m:'6M Ret%',
+  rank_pct_6m:'6M Rank%',
+  selected_windows:'Windows',
+  status:'Status',
+  last_screened_date:'Scanned',
+  setup_status:'Setup',
+  prior_advance_pct:'63D Gain%',
+  prior_advance_min_pct:'Min Gain%',
+  prior_advance_ref_pass:'Ref?',
+  readiness_recommendation:'Rec.',
+  readiness_score:'Score',
+  base_start:'Base Dt',
+  base_length_days:'Base Days',
+  base_high:'Base Hi',
+  base_low:'Base Lo',
+  pullback_pct:'PB%',
+  higher_lows:'HL?',
+  volatility_contraction:'VC?',
+  ready_since:'READY Dt',
+  last_reviewed_at:'Reviewed',
+  watch_date:'Watch Dt',
+  breakout_level:'BO Level',
+  opening_range_minutes:'OR Min',
+  opening_range_high:'OR High',
+  trigger_price:'Trig Px',
+  trigger_time:'Trig Time',
+  initial_stop:'Stop',
+  risk_per_share:'Risk/Sh',
+  suggested_max_shares:'Max Sh'
+};
+function columnFullTitle(stage,key,name){
+ const field=stages[stage].fields.find(f=>f[0]===key);
+ const full=t(field?field[1]:name);
+ if(key.startsWith('rank_pct_')){
+  return full+' — '+tl('數值越小代表排名越強；1.5% = 前 1.5%。點擊標題可排序。',
+                       'Lower percentage means stronger rank; 1.5% = top 1.5%. Click header to sort.');
+ }
+ return full;
+}
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Singapore'});
 const nowIso=()=>new Date().toISOString();
@@ -320,7 +369,7 @@ function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  for(let s=1;s<=3;s++){byId('count'+s).textContent=state[s].length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
  byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note);renderUpdatedTime();renderStage2ReviewGroups();
  const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
- byId('thead').innerHTML='<tr><th scope="col">'+t('操作')+'</th>'+config.columns.map(([key,name])=>`<th class="clickable" data-sort="${esc(key)}" title="${esc(key.startsWith('rank_pct_')?tl('由最高升幅開始的排名百分比：數值越小，排名越強。例如 1.5% = 排名前 1.5%。按一下可排序。','Top-ranked share of eligible stocks: lower is stronger. Example: 1.5% means top 1.5%. Click to sort.'):t('點擊排序'))}">${esc(t(name))}${ui.sortBy===key?(ui.sortDir===1?' ↑':' ↓'):''}</th>`).join('')+'</tr>';
+ byId('thead').innerHTML='<tr><th scope="col" title="'+esc(t('操作'))+'" aria-label="'+esc(t('操作'))+'">Act</th>'+config.columns.map(([key,name])=>`<th class="clickable" scope="col" data-sort="${esc(key)}" title="${esc(columnFullTitle(stage,key,name))}" aria-label="${esc(columnFullTitle(stage,key,name))}" tabindex="0">${esc(COLUMN_ABBREVIATIONS[key]||t(name))}${ui.sortBy===key?(ui.sortDir===1?' ↑':' ↓'):''}</th>`).join('')+'</tr>';
  let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;if(stage===2&&ui.reviewGroup&&stage2ReviewGroup(r)!==ui.reviewGroup)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
  byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
  byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
@@ -405,7 +454,9 @@ byId('reviewQueuesCards').addEventListener('click',event=>{
 byId('reviewQueuesReset').addEventListener('click',()=>{
  ui.reviewGroup='';ui.filter='';ui.query='';byId('search').value='';render();
 });
-byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});byId('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render()});
+byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});function sortByHeader(th){if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render();}
+byId('thead').addEventListener('click',e=>sortByHeader(e.target.closest('[data-sort]')));
+byId('thead').addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const th=e.target.closest('[data-sort]');if(!th)return;e.preventDefault();sortByHeader(th);});
 byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewAuthenticated()){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
 byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLanguage('en');
 byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(true);byId('exportCsvBtn').onclick=()=>exportCSV(false);byId('importBtn').onclick=()=>byId('fileInput').click();byId('fileInput').addEventListener('change',e=>importFile(e.target.files[0]));byId('exportAllBtn').onclick=()=>{download(`qullamaggie_all_stages_${today()}.json`,JSON.stringify({...state,exported_at:nowIso(),version:1},null,2),'application/json;charset=utf-8');toast(t('已備份三輪資料與狀態歷史。'))};byId('helpBtn').onclick=help;byId('versionBtn').onclick=showVersionDetails;byId('closeModal').onclick=modal.close;byId('overlay').addEventListener('click',e=>{if(e.target===byId('overlay'))modal.close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.close();hidePricePopup()}});
