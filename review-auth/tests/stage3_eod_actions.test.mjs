@@ -144,3 +144,31 @@ test('delayed confirmation requires explicit authorization and confirmation',asy
  assert.equal(body.inputs.action,'CONFIRM_POST_APPROVAL');
  assert.equal(body.inputs.confirmed,'true');
 });
+
+test('Saturday READY approval allows Monday above-pivot, but not older Friday observation',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const start=html.indexOf('function stage3TriggerChecklist(row,mode=');
+ const end=html.indexOf('function openStage3Action(row){',start);
+ assert.ok(start>0&&end>start);
+ const parent={symbol:'ABC',setup_id:'ABC-1',setup_status:'READY',
+  manual_reviewer:'human',manual_reviewed_at:'2026-10-24T05:56:07+00:00'};
+ const row={symbol:'ABC',setup_id:'ABC-1',status:'WATCH',
+  breakout_level:100,eod_as_of:'2026-10-26',eod_data_status:'FRESH'};
+ const observation={eod_as_of:'2026-10-26',eod_event:'ABOVE_PIVOT',
+  eod_prev_close:101,eod_close:102,eod_volume_ratio:.8};
+ const meta={phase:'success',last_success:'2026-10-26T23:00:00Z',as_of_date:'2026-10-26'};
+ const ctx={serverMeta:meta,state:{'2':[parent]},stage3CurrentEod:()=>observation,
+  tl:v=>v,fmtNum:String,pct:String};
+ const check=vm.runInNewContext(html.slice(start,end)+'\nstage3TriggerChecklist',ctx);
+ assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,true);
+ assert.equal(check(row,'CONFIRM_EOD_TRIGGER').requiredOK,false);
+ meta.as_of_date='2026-10-23';
+ row.eod_as_of='2026-10-23';
+ observation.eod_as_of='2026-10-23';
+ assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
+ meta.as_of_date='2026-10-26';
+ row.eod_as_of='2026-10-26';
+ observation.eod_as_of='2026-10-26';
+ parent.manual_reviewed_at='2026-10-26T21:00:00+00:00';
+ assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
+});
