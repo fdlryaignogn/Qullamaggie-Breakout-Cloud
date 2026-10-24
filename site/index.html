@@ -328,7 +328,8 @@ function newSetupId(symbol){const prefix=String(symbol).toUpperCase()+'-'+today(
 function pct(v,signed=false){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);if(!Number.isFinite(n))return esc(v);return (signed&&n>0?'+':'')+n.toLocaleString('en-US',{maximumFractionDigits:2})+'%'}
 function fmtNum(v){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);return Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:4}):esc(v)}
 function cellValue(row,key,stage){
- const derived=stage===3 ? stage3EodMetrics.get(row.setup_id) : null;
+ const cached=stage===3 ? stage3EodMetrics.get(row.setup_id) : null;
+ const derived=cached?.eod_as_of===serverMeta?.as_of_date ? cached : null;
  const current=row?.eod_as_of===serverMeta?.as_of_date && row.eod_data_status==='FRESH' ? row : derived;
  if(stage===3 && key.startsWith('eod_')){
   const v=current?.[key];
@@ -731,6 +732,12 @@ function eodFromPublishedBars(bars,pivot,asOf){
  }
  return obj;
 }
+// Never derive EOD values from a chart for another symbol, session, or interval.
+function eodFromVerifiedChart(chart,watch,asOf){
+ if(!chart||chart.symbol!==watch.symbol||chart.as_of!==asOf||
+    chart.interval!=='1d'||chart.adjusted!==true)return null;
+ return eodFromPublishedBars(chart.bars,watch.breakout_level,asOf);
+}
 function scheduleStage3Eod(){
  if(ui.stage!==3||!serverMeta?.as_of_date)return;
  const asOf=serverMeta.as_of_date;
@@ -741,8 +748,8 @@ function scheduleStage3Eod(){
   if(stage3EodPending.has(key)||stage3EodMetrics.has(watch.setup_id)&&stage3EodMetrics.get(watch.setup_id).eod_as_of===asOf)continue;
   stage3EodPending.add(key);
   chartPayload(watch.symbol).then(chart=>{
-   if(chart.as_of!==asOf)return;
-   const details=eodFromPublishedBars(chart.bars,watch.breakout_level,asOf);
+   if(serverMeta?.as_of_date!==asOf)return; // Ignore responses from an older scan.
+   const details=eodFromVerifiedChart(chart,watch,asOf);
    if(details&&state['3'].some(w=>w.setup_id===watch.setup_id)){
     stage3EodMetrics.set(watch.setup_id,details);
     if(ui.stage===3)render();
