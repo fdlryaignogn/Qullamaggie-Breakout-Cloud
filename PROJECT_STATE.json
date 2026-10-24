@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_manual_trigger_pr17_merged",
-      "deployment": "main_source_merged_live_public_pages_and_real_action_not_verified",
-      "last_change": "Merged PR #17: Stage3 EOD pass/fail checklist, optional RVOL/ATR/ADR risk references, authenticated manual CONFIRM_EOD_TRIGGER with fresh daily close-cross and point-in-time READY checks",
-      "next_action": "Verify live Pages actually serves new interface; next authorized user action should be tested on a genuinely eligible recent EOD close-cross, not retroactive October 23 NIQ/RBRK/RPD events",
+      "status": "stage3_two_path_eod_pr18_ci_passed_pending_merge",
+      "deployment": "feature_branch_green_ci_live_site_not_verified",
+      "last_change": "Owner-approved two EOD manual confirmation paths: fresh close-cross and latest-day post-approval hold above pivot, with separate backend and browser eligibility checks",
+      "next_action": "Merge PR #18 after latest CI, verify updated main; check deployed Dashboard and eligible authenticated submission when a fresh market session is available",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -71,7 +71,7 @@
       },
       "latest_merged_pr": 17,
       "latest_merge_commit": "a60bec34bdcb741a227d796394dfe0331e3c3f74",
-      "pending_feature_branch": null,
+      "pending_feature_branch": "feature/stage3-post-approval-eod-confirmation",
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": null,
+      "pending_pr": 18,
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -137,6 +137,7 @@
         "actions": [
           "KEEP_WATCH",
           "CONFIRM_EOD_TRIGGER",
+          "CONFIRM_POST_APPROVAL",
           "NO_TRADE",
           "ARCHIVE"
         ],
@@ -156,13 +157,13 @@
         "authentication": "GitHub App when explicitly enabled and deployed; otherwise transient fine-grained PAT",
         "tests": {
           "status": "PR_CI_passed",
-          "github_actions_run_id": 40110155557,
-          "python_pytest": "89 passed",
-          "node_tests": "37 passed",
+          "github_actions_run_id": 40132620017,
+          "python_pytest": "99 passed",
+          "node_tests": "39 passed",
           "strict_eod_audit": "passed",
           "dashboard_js_syntax": "passed",
-          "main_postmerge_ci": "not_verified",
-          "authenticated_action_runtime": "not_exercised"
+          "research_smoke": "passed",
+          "live_action": "not_exercised"
         },
         "public_page": "not_verified",
         "latest_commit": "a6a0a46cdba32aca610e9b06aa027fc8e73db738",
@@ -188,7 +189,11 @@
         "feature_branch": "feature/stage3-eod-confirmed-trigger-checklist",
         "latest_source_commit": "4bd77e9bb79284933742c8aaf189a04cf9c18d6f",
         "no_trade_execution": true,
-        "research_v2_remains_experimental": true
+        "research_v2_remains_experimental": true,
+        "first_rule": "EOD_CLOSE_CROSS_MANUAL_V1",
+        "delayed_rule": "EOD_POST_APPROVAL_MANUAL_V1",
+        "approved_by_latest_eod_close": "16:00 America/New_York, timezone aware",
+        "no_retroactive_entry": true
       }
     },
     "historical_superstocks_product_research": {

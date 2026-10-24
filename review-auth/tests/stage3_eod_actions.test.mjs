@@ -94,18 +94,20 @@ test('human EOD trigger dispatch demands confirmation and pinned snapshot',async
 });
 test('Stage3 Action shows required pass/fail evidence and blocks unqualified triggers',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
- assert.ok(html.includes('function stage3TriggerChecklist(row)'));
+ assert.ok(html.includes('function stage3TriggerChecklist(row,mode='));
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
  assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
  assert.ok(html.includes("!checks.requiredOK"));
- assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled'"));
+ assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK"));
+ assert.ok(html.includes("k==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK"));
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
- assert.ok(html.includes('人工確認 EOD 突破'));
+ assert.ok(html.includes('READY 後首次 EOD 突破'));
+ assert.ok(html.includes('READY 後延後確認'));
 });
 
 test('Stage 3 browser checklist computes pass/fail and does not gate on volume multiplier',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
- const start=html.indexOf('function stage3TriggerChecklist(row){');
+ const start=html.indexOf('function stage3TriggerChecklist(row,mode=');
  const end=html.indexOf('function openStage3Action(row){',start);
  assert.ok(start>=0&&end>start);
  const parent={symbol:'ABC',setup_id:'ABC-1',setup_status:'READY',
@@ -132,4 +134,42 @@ test('Stage 3 browser checklist computes pass/fail and does not gate on volume m
  parent.manual_reviewed_at='2026-10-23T19:00:00+00:00';
  metric.eod_event='ABOVE_PIVOT';
  assert.equal(decide(row).requiredOK,false);
+});
+
+test('delayed confirmation requires explicit authorization and confirmation',async()=>{
+ const {dispatch,req,requests}=harness();
+ await assert.rejects(dispatch(req({...base,action:'CONFIRM_POST_APPROVAL',confirmed:false}),{}),e=>e.status===400);
+ const response=await dispatch(req({...base,action:'CONFIRM_POST_APPROVAL',confirmed:true}),{});
+ assert.equal(response.status,202);
+ const body=JSON.parse(requests[0].opts.body);
+ assert.equal(body.inputs.action,'CONFIRM_POST_APPROVAL');
+ assert.equal(body.inputs.confirmed,'true');
+});
+
+test('Saturday READY approval allows Monday above-pivot, but not older Friday observation',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const start=html.indexOf('function stage3TriggerChecklist(row,mode=');
+ const end=html.indexOf('function openStage3Action(row){',start);
+ assert.ok(start>0&&end>start);
+ const parent={symbol:'ABC',setup_id:'ABC-1',setup_status:'READY',
+  manual_reviewer:'human',manual_reviewed_at:'2026-10-24T05:56:07+00:00'};
+ const row={symbol:'ABC',setup_id:'ABC-1',status:'WATCH',
+  breakout_level:100,eod_as_of:'2026-10-26',eod_data_status:'FRESH'};
+ const observation={eod_as_of:'2026-10-26',eod_event:'ABOVE_PIVOT',
+  eod_prev_close:101,eod_close:102,eod_volume_ratio:.8};
+ const meta={phase:'success',last_success:'2026-10-26T23:00:00Z',as_of_date:'2026-10-26'};
+ const ctx={serverMeta:meta,state:{'2':[parent]},stage3CurrentEod:()=>observation,
+  tl:v=>v,fmtNum:String,pct:String};
+ const check=vm.runInNewContext(html.slice(start,end)+'\nstage3TriggerChecklist',ctx);
+ assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,true);
+ assert.equal(check(row,'CONFIRM_EOD_TRIGGER').requiredOK,false);
+ meta.as_of_date='2026-10-23';
+ row.eod_as_of='2026-10-23';
+ observation.eod_as_of='2026-10-23';
+ assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
+ meta.as_of_date='2026-10-26';
+ row.eod_as_of='2026-10-26';
+ observation.eod_as_of='2026-10-26';
+ parent.manual_reviewed_at='2026-10-26T21:00:00+00:00';
+ assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
 });

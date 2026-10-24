@@ -1363,7 +1363,7 @@ function openStage3Details(row){
 }
 // This is a UI preview; GitHub independently checks original adjusted 1d bars.
 // No experimental volume threshold is used as a live Trigger requirement.
-function stage3TriggerChecklist(row){
+function stage3TriggerChecklist(row,mode="CONFIRM_EOD_TRIGGER"){
  const asOf=serverMeta?.as_of_date;
  const parent=state['2'].find(p=>p.setup_id===row.setup_id&&p.symbol===row.symbol);
  const data=stage3CurrentEod(row);
@@ -1378,15 +1378,15 @@ function stage3TriggerChecklist(row){
  try{
   const date=new Date(parent?.manual_reviewed_at);
   if(approved&&/(?:Z|[+-]\d{2}:\d{2})$/i.test(String(parent.manual_reviewed_at))&&Number.isFinite(date.getTime())&&typeof asOf==='string'){
-   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',
-    year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
+   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
    const get=k=>parts.find(p=>p.type===k)?.value;
    const nyDate=get('year')+'-'+get('month')+'-'+get('day');
-   approvedBySession=nyDate<=asOf;
+   const hm=Number(get('hour'))*60+Number(get('minute'));
+   approvedBySession=nyDate<asOf||(nyDate===asOf&&hm<=16*60);
   }
  }catch(_){}
  add(tl('核准時間不晚於該 EOD 交易日','READY approved by this EOD session'),
-  approvedBySession,tl('不會把事後批准倒填成過去的 Trigger','No retrospectively created trigger'));
+  approvedBySession,tl('必須在當日紐約 16:00 前核准，防止事後倒填','Approval by 16:00 New York, never backdate a signal'));
  const scanOK=serverMeta?.phase==='success'&&!!serverMeta?.last_success&&/^\d{4}-\d{2}-\d{2}$/.test(asOf||'');
  add(tl('有效雲端 EOD 掃描','Published successful EOD scan'),scanOK,
   tl('掃描成功並標明交易日期','Successful completed daily snapshot'));
@@ -1398,8 +1398,15 @@ function stage3TriggerChecklist(row){
   tl('原始日線仍會在 GitHub 後端再次驗證','GitHub will independently recheck original daily bars'));
  const crossed=!!(fresh&&validPivot&&data?.eod_event==='EOD_CROSS'&&
   Number(data.eod_prev_close)<=pivot&&Number(data.eod_close)>pivot);
- add(tl('有效日線收盤突破','Daily close-cross above pivot'),crossed,
-  tl('上一收盤 ≤ 參考價；本日收盤 > 參考價','Prior close at/below pivot, latest close above pivot'));
+ const holding=!!(fresh&&validPivot&&data?.eod_event==='ABOVE_PIVOT'&&
+  Number(data.eod_prev_close)>pivot&&Number(data.eod_close)>pivot);
+ if(mode==='CONFIRM_POST_APPROVAL'){
+  add(tl('核准後仍收在突破價上方','Post-approval close holds above pivot'),holding,
+   tl('前一日及最新 EOD 收盤均高於參考價；這是延後確認，不是首次突破','Previous and current EOD closes above pivot; not an initial cross'));
+ }else{
+  add(tl('有效日線首次收盤突破','First daily close-cross above pivot'),crossed,
+   tl('上一收盤 ≤ 參考價；本日收盤 > 參考價','Prior close at/below pivot, latest close above pivot'));
+ }
  const requiredOK=checks.every(c=>!c.required||c.pass);
  const rv=data?.eod_volume_ratio,atr=data?.eod_atr14,adr=data?.eod_adr20_pct;
  const risk=data?.eod_ref_risk_atr;
@@ -1409,10 +1416,10 @@ function stage3TriggerChecklist(row){
   ['ADR20',adr==null?'—':pct(adr)],
   [tl('參考止損距離 / ATR（非止損單）','Hypothetical risk / ATR (not a stop order)'),risk==null?'—':fmtNum(risk)]
  ];
- return {checks,requiredOK,context,asOf};
+ return {checks,requiredOK,context,asOf,mode};
 }
 function stage3TriggerChecklistHtml(summary){
- return '<div class="review-guide"><strong>'+tl('EOD Trigger 要求檢查','EOD Trigger requirements')+'</strong> · '+
+ return '<div class="review-guide"><strong>'+tl('EOD Trigger 要求檢查',(summary.mode==='CONFIRM_POST_APPROVAL'?'Post-approval confirmation checks':'First EOD breakout checks'))+'</strong> · '+
   (summary.requiredOK?tl('必要條件符合（須 GitHub 再驗證）','Checks met (GitHub verifies again)'):tl('有必要條件未通過，禁止 Trigger','Required checks failed; Trigger disabled'))+'</div>'+
   '<div class="stage3-check-grid">'+summary.checks.map(c=>'<div class="stage3-check-row"><span class="'+(c.pass?'positive':'negative')+'">'+(c.pass?'✓':'✕')+'</span> <strong>'+esc(c.label)+'</strong><small>'+esc(c.description)+'</small></div>').join('')+'</div>'+
   '<p class="review-guide" style="margin:10px 0 5px"><strong>'+tl('參考數據（不設未經驗證的硬性量能門檻）','Context only (no unvalidated volume gate)')+'</strong></p>'+
@@ -1423,18 +1430,20 @@ function openStage3Action(row){
  if(!reviewAuthenticated()||row?.status!=='WATCH')return;
  const date=serverMeta?.as_of_date;
  if(!date||!Number.isSafeInteger(Number(serverRevision))){toast(tl('尚未取得已核實的雲端 EOD 版本','No verified EOD revision is available'),true);return;}
- const checks=stage3TriggerChecklist(row);
+ const checks=stage3TriggerChecklist(row,'CONFIRM_EOD_TRIGGER');
+ const lateChecks=stage3TriggerChecklist(row,'CONFIRM_POST_APPROVAL');
  const options=[
   ['KEEP_WATCH',tl('繼續 WATCH + 記錄人工覆核','Keep WATCH + add review note')],
-  ['CONFIRM_EOD_TRIGGER',tl('TRIGGERED：人工確認 EOD 突破','TRIGGERED: manually confirm EOD breakout')],
+  ['CONFIRM_EOD_TRIGGER',tl('TRIGGERED：READY 後首次 EOD 突破','TRIGGERED: first breakout after READY')],
+  ['CONFIRM_POST_APPROVAL',tl('TRIGGERED：READY 後延後確認（持續站上突破價）','TRIGGERED: later confirmation above pivot')],
   ['NO_TRADE',tl('NO_TRADE：本個 Setup 不交易','NO_TRADE: skip this setup')],
   ['ARCHIVE',tl('ARCHIVED：結束第三輪追蹤','ARCHIVED: close this watch')]
  ];
  modal.open(tl('Stage 3 · 人工 EOD Action','Stage 3 · Manual EOD action'),
   esc(row.symbol+' · '+row.setup_id+' · EOD '+date),
   '<p class="review-guide">'+tl('僅處理已核准 READY 的 WATCH。執行後會寫入 GitHub，公開保留審核者、時間及原因。NO_TRADE / ARCHIVED 為結束狀態，不能由此介面重新啟動。','Only a human-approved READY WATCH can be changed. GitHub stores the reviewer, time and reason. NO_TRADE / ARCHIVED are terminal for this setup.')+'</p>'+
-  stage3TriggerChecklistHtml(checks)+
-  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action','Choose action')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'"'+(k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled':'')+'>'+v+'</option>').join('')+'</select></div>'+
+  '<div id="stage3Checklist">'+stage3TriggerChecklistHtml(checks)+'</div>'+
+  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action','Choose action')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'"'+((k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK)||(k==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK)?' disabled':'')+'>'+v+'</option>').join('')+'</select></div>'+
   '<div class="field" style="margin-top:12px"><label for="stage3Reason">'+tl('人工原因（公開，必填）','Reason (public, required)')+'</label><textarea id="stage3Reason" maxlength="500" placeholder="'+tl('僅描述日線結構、EOD 訊號及不交易理由；勿填帳戶資料。','EOD observations only; do not enter account details.')+'"></textarea></div>'+
   '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；TRIGGERED 只表示 EOD 突破訊號，沒有盤中觸發時間、成交或自動下單。','I understand TRIGGERED only records an EOD breakout signal, not an intraday trigger, fill or order.')+'</span></label>'+
   '<p class="review-status">'+tl('若雲端資料已被更新，GitHub 會拒絕舊版本操作。','GitHub rejects requests against a stale published revision.')+'</p>'+
@@ -1442,12 +1451,17 @@ function openStage3Action(row){
   '<button type="button" class="outline-btn" id="stage3Cancel">'+tl('取消','Cancel')+'</button>'+
   '<button type="button" class="solid-btn" id="stage3Submit">'+tl('提交 GitHub Action','Submit GitHub action')+'</button>');
  const decision=byId('stage3Decision'),confirm=byId('stage3Confirm'),confirmWrap=byId('stage3ConfirmWrap');
- decision.onchange=()=>{confirmWrap.hidden=decision.value==='KEEP_WATCH';confirm.checked=false;};
+ decision.onchange=()=>{
+  confirmWrap.hidden=decision.value==='KEEP_WATCH';confirm.checked=false;
+  byId('stage3Checklist').innerHTML=stage3TriggerChecklistHtml(
+   decision.value==='CONFIRM_POST_APPROVAL'?lateChecks:checks);
+ };
  decision.onchange();
  byId('stage3Cancel').onclick=modal.close;
  byId('stage3Submit').onclick=async()=>{
   const action=decision.value,reason=byId('stage3Reason').value.trim();
-  if(action==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK){
+  if((action==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK)||
+     (action==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK)){
    byId('stage3SubmitError').textContent=tl('EOD Trigger 必要條件未通過，請檢查上方逐項結果','EOD Trigger blocked by the failed requirements above');
    return;
   }

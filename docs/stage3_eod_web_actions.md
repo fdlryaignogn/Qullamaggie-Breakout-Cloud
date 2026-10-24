@@ -13,6 +13,7 @@ modify localStorage or send a broker order.
 | NO_TRADE | WATCH → NO_TRADE | Human decided not to trade this setup; terminal for that setup |
 | ARCHIVE | WATCH → ARCHIVED | Human closed Stage 3 tracking; terminal for that setup |
 | CONFIRM_EOD_TRIGGER | WATCH → TRIGGERED | Human confirms validated EOD close-cross **after** all mandatory conditions pass; terminal for this setup, **not an order or fill** |
+| CONFIRM_POST_APPROVAL | WATCH → TRIGGERED | Human confirms a **later** completed EOD holds above approved pivot after READY; distinct from first breakout; no order/fill |
 
 These are manual **EOD management or signal confirmation actions**, never buy/sell orders or fills.
 Both terminal options and EOD TRIGGERED require an explicit checkbox and a 1–500 character public
@@ -102,3 +103,18 @@ a failed point-in-time approval check and cannot be manually backdated to
 
 Historical win-rate/expectancy and parameter exploration continue separately
 under Research Lab.
+
+## Two independent EOD confirmations (owner-approved, 2026-10-25)
+
+The user may manually choose one of two `WATCH -> TRIGGERED` paths:
+
+- `CONFIRM_EOD_TRIGGER` / `FIRST_EOD_CROSS`: approved READY **by 16:00 New York on the current completed session**, previous EOD close at/below saved pivot, latest EOD close above pivot (`EOD_CROSS`). The signal is not a fill.
+- `CONFIRM_POST_APPROVAL` / `POST_APPROVAL_HOLD`: READY was approved **by the latest completed session's 16:00 New York close**, and the latest EOD close **and preceding EOD close** are both above the saved pivot (`ABOVE_PIVOT`). This is explicitly a **later post-approval confirmation**, never the original breakout and never a retroactive entry.
+
+Both are separately shown in the web Action select. Each has its own visible pass/fail checklist and GitHub independently recalculates it from the original same-session adjusted daily chart plus approval timestamp. The post-approval path has no minimum number of holding days, entry-price inference, fixed RVOL multiplier, or live order submission.
+
+Example: Friday initial EOD breakout, Saturday READY approval, Monday EOD still above pivot -> Monday `CONFIRM_POST_APPROVAL` may be manually confirmed. Friday's breakout itself remains ineligible. Saturday READY + Friday snapshot alone never qualifies. A Monday READY approved after **16:00 New York** cannot confirm Monday EOD; the next completed session must be assessed.
+
+Data persisted on human confirmation includes `trigger_rule` (distinct mode), `eod_trigger_confirmation_type`, original READY approval timestamp, *latest* as-of date and close, actor and audit history. No intraday `trigger_time`, simulated fill, broker order or auto-trigger is created.
+
+This is a user-approved operational distinction between the timing of EOD observation and subsequent manual confirmation, not a Research Lab performance claim or auto-promoted experimental strategy filter.

@@ -19,12 +19,13 @@ on:
           - NO_TRADE
           - ARCHIVE
           - CONFIRM_EOD_TRIGGER
+          - CONFIRM_POST_APPROVAL
       review_reason:
         description: "Public reason; never enter account details"
         required: true
         type: string
       confirmed:
-        description: "Confirm NO_TRADE, ARCHIVE or EOD TRIGGERED action"
+        description: "Confirm terminal action, first EOD Trigger or post-approval confirmation"
         required: true
         type: boolean
         default: false

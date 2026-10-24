@@ -215,7 +215,7 @@ async function dispatchStage3(request, env) {
  if(!/^[A-Z][A-Z0-9.\-]{0,14}$/.test(symbol) ||
     !/^[A-Z][A-Z0-9.\-]{0,14}-[0-9]{8}(?:-[0-9]+)?$/.test(setup) ||
     !setup.startsWith(symbol+"-") ||
-    !["KEEP_WATCH","NO_TRADE","ARCHIVE","CONFIRM_EOD_TRIGGER"].includes(action) ||
+    !["KEEP_WATCH","NO_TRADE","ARCHIVE","CONFIRM_EOD_TRIGGER","CONFIRM_POST_APPROVAL"].includes(action) ||
     !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
     !/^(?:0|[1-9]\d{0,15})$/.test(revision) ||
     reason.length<1||reason.length>500||/[\u0000-\u001f\u007f]/.test(reason) ||

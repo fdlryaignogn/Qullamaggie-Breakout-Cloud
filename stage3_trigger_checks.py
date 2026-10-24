@@ -2,7 +2,8 @@
 
 No experiment-specific 1.5x volume/3% proximity thresholds are imposed here.
 All checks concern completed EOD data, an already approved READY parent and
-a verifiable fresh upward close-cross. Triggered != executed or filled.
+a verifiable daily close-cross or a post-approval daily hold above pivot.
+Triggered != executed or filled.
 """
 from __future__ import annotations
 
@@ -19,6 +20,9 @@ from stage3_eod import eod_observation
 
 NY = ZoneInfo("America/New_York")
 EOD_RULE = "EOD_CLOSE_CROSS_MANUAL_V1"
+POST_APPROVAL_RULE = "EOD_POST_APPROVAL_MANUAL_V1"
+TRIGGER_ACTIONS = {"CONFIRM_EOD_TRIGGER": EOD_RULE,
+                   "CONFIRM_POST_APPROVAL": POST_APPROVAL_RULE}
 EVIDENCE_FIELDS = (
     "eod_event", "eod_close", "eod_prev_close", "eod_distance_pct",
     "eod_volume_ratio", "eod_atr14", "eod_adr20_pct", "eod_ref_stop",
@@ -32,8 +36,10 @@ def _check(code: str, ok: bool, description: str, required: bool = True) -> dict
 
 
 def assess_eod_trigger(parent: dict, watch: dict, metadata: dict,
-                       charts_dir: Path) -> dict:
+                       charts_dir: Path, *, action: str = "CONFIRM_EOD_TRIGGER") -> dict:
     """Fail-closed mandatory conditions, separated from optional context fields."""
+    if action not in TRIGGER_ACTIONS:
+        raise ValueError("Unsupported manual EOD confirmation action")
     as_of = metadata.get("as_of_date")
     symbol = watch.get("symbol")
     parent_match = bool(parent and parent.get("setup_id") == watch.get("setup_id")
@@ -57,11 +63,13 @@ def assess_eod_trigger(parent: dict, watch: dict, metadata: dict,
     except (TypeError, ValueError, OverflowError):
         valid_session = False
         session = None
+    # A review after the 16:00 New York close cannot authorize that same
+    # session's EOD observation, even if its calendar date still matches.
     asof_approved = bool(approved and valid_session and
                         timestamp.astimezone(NY) <= datetime.combine(
-                            session, time(23, 59, 59), NY))
-    checks.append(_check("APPROVED_BY_SESSION", asof_approved,
-                         "READY approval no later than this EOD session (NY date)"))
+                            session, time(16, 0), NY))
+    checks.append(_check("APPROVED_BY_CLOSE", asof_approved,
+                         "READY was approved by 16:00 New York on this EOD date"))
     valid_snapshot = bool(valid_session and metadata.get("phase") == "success"
                           and metadata.get("last_success"))
     checks.append(_check("PUBLISHED_EOD", valid_snapshot, "Published completed EOD snapshot"))
@@ -99,15 +107,25 @@ def assess_eod_trigger(parent: dict, watch: dict, metadata: dict,
     cross = bool(evidence and evidence.get("eod_event") == "EOD_CROSS"
                  and evidence["eod_close"] > pivot
                  and evidence["eod_prev_close"] <= pivot)
-    checks.append(_check("EOD_CLOSE_CROSS", cross,
-                         "Previous close <= pivot and completed close > pivot"))
+    above = bool(evidence and evidence.get("eod_event") == "ABOVE_PIVOT"
+                 and evidence["eod_prev_close"] > pivot
+                 and evidence["eod_close"] > pivot)
+    if action == "CONFIRM_EOD_TRIGGER":
+        checks.append(_check("EOD_CLOSE_CROSS", cross,
+                             "First upward EOD close-cross after READY approval"))
+    else:
+        checks.append(_check("POST_APPROVAL_HOLD", above,
+                             "Latest completed EOD still above pivot; previous close also above"))
+
     # Volume and risk fields are reference information, not invented hard gates.
     ratio = evidence.get("eod_volume_ratio") if evidence else None
     atr = evidence.get("eod_atr14") if evidence else None
     adr = evidence.get("eod_adr20_pct") if evidence else None
     risk = evidence.get("eod_ref_risk_atr") if evidence else None
     ready = all(item["pass"] for item in checks if item["required"])
-    return {"rule": EOD_RULE, "allowed": ready, "as_of_date": as_of,
+    return {"rule": TRIGGER_ACTIONS[action], "action": action,
+            "confirmation_type": "FIRST_EOD_CROSS" if action == "CONFIRM_EOD_TRIGGER" else "POST_APPROVAL_HOLD",
+            "allowed": ready, "as_of_date": as_of,
             "checks": checks, "evidence": evidence,
             "context": {"rvol20": ratio, "atr14": atr, "adr20_pct": adr,
                         "reference_risk_atr": risk,

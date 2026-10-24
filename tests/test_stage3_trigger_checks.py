@@ -8,12 +8,12 @@ import pytest
 
 from stage3_eod import eod_observation
 from stage3_review import apply_stage3_action
-from stage3_trigger_checks import assess_eod_trigger, EOD_RULE
+from stage3_trigger_checks import assess_eod_trigger, EOD_RULE, POST_APPROVAL_RULE
 
 
 def fixture(tmp_path, *, review_at="2026-10-23T19:00:00+00:00",
-            prior_close=99.5, last_close=100.5, volume=200):
-    as_of = "2026-10-23"
+            prior_close=99.5, last_close=100.5, volume=200,
+            as_of="2026-10-23"):
     ix = pd.bdate_range(end=as_of, periods=40)
     df = pd.DataFrame({
         "open": [99.5]*40, "high": [101.0]*40, "low": [98.0]*40,
@@ -38,7 +38,7 @@ def fixture(tmp_path, *, review_at="2026-10-23T19:00:00+00:00",
     tracking = {"1":[],"2":[parent],"3":[watch],"history":[]}
     published = {"revision":120,"running":False,
                  "metadata":{"phase":"success","as_of_date":as_of,
-                             "last_success":"2026-10-23T23:12:25Z"},
+                             "last_success":as_of+"T23:12:25Z"},
                  "state":copy.deepcopy(tracking)}
     t = tmp_path/"tracking.json"
     p = tmp_path/"latest.json"
@@ -155,3 +155,93 @@ def test_trigger_requires_explicit_confirmation(tmp_path):
     with pytest.raises(ValueError,match="confirmation"):
         act(t,p,confirmed=False)
     assert (t.read_bytes(),p.read_bytes())==before
+
+
+def test_weekend_ready_approval_allows_monday_post_approval_hold(tmp_path):
+    # Friday 23rd closed above 100; READY was approved Saturday; the Monday
+    # 26th close independently remains above the pivot. Do not backdate it.
+    t,p,_=fixture(tmp_path,as_of="2026-10-26",
+                 review_at="2026-10-24T05:56:07+00:00",
+                 prior_close=101,last_close=102)
+    meta=json.loads(p.read_text())["metadata"]
+    private=json.loads(t.read_text())
+    parent,watch=private["2"][0],private["3"][0]
+    assessment=assess_eod_trigger(
+        parent,watch,meta,tmp_path/"charts",action="CONFIRM_POST_APPROVAL")
+    assert assessment["allowed"] is True
+    assert assessment["rule"]==POST_APPROVAL_RULE
+    assert assessment["confirmation_type"]=="POST_APPROVAL_HOLD"
+    assert not assess_eod_trigger(parent,watch,meta,tmp_path/"charts")["allowed"]
+    result=act(t,p,action="CONFIRM_POST_APPROVAL",expected_as_of_date="2026-10-26")
+    assert result["to"]=="TRIGGERED"
+    saved=json.loads(p.read_text())
+    row=saved["state"]["3"][0]
+    assert row["eod_trigger_as_of"]=="2026-10-26"
+    assert row["eod_trigger_confirmation_type"]=="POST_APPROVAL_HOLD"
+    assert row["trigger_rule"]==POST_APPROVAL_RULE
+    assert row["eod_trigger_evidence"]["eod_event"]=="ABOVE_PIVOT"
+    assert row["eod_trigger_evidence"]["ready_approved_at"]=="2026-10-24T05:56:07+00:00"
+    assert "trigger_time" not in row and "fill_price" not in row
+    assert saved["metadata"]==meta
+    with pytest.raises(ValueError,match="WATCH"):
+        act(t,p,action="CONFIRM_POST_APPROVAL",expected_as_of_date="2026-10-26",
+            expected_revision=121)
+
+
+@pytest.mark.parametrize("review_at",[
+    "2026-10-26T21:00:00+00:00",  # Monday 5pm NY, after EOD close
+    "2026-10-27T02:00:00+00:00",  # Monday 10pm NY
+    "2026-10-26T14:00:00",        # naive approval
+])
+def test_post_approval_rejects_review_later_than_eod_close(tmp_path,review_at):
+    t,p,_=fixture(tmp_path,as_of="2026-10-26",review_at=review_at,
+                 prior_close=101,last_close=102)
+    original=t.read_bytes(),p.read_bytes()
+    with pytest.raises(ValueError,match="APPROVED_BY_CLOSE"):
+        act(t,p,action="CONFIRM_POST_APPROVAL",expected_as_of_date="2026-10-26")
+    assert (t.read_bytes(),p.read_bytes())==original
+
+
+def test_post_approval_cannot_claim_prior_friday_signal(tmp_path):
+    t,p,_=fixture(tmp_path,review_at="2026-10-24T05:56:07+00:00",
+                  prior_close=101,last_close=101)
+    with pytest.raises(ValueError,match="APPROVED_BY_CLOSE"):
+        act(t,p,action="CONFIRM_POST_APPROVAL")
+
+
+@pytest.mark.parametrize("previous,current",[
+    (101,99.5),  # Fell back below pivot
+    (99.5,100.5),# Fresh cross, belongs in first-cross workflow
+    (99,99),     # Has not cleared pivot
+])
+def test_post_approval_requires_both_closes_above_pivot(tmp_path,previous,current):
+    t,p,_=fixture(tmp_path,as_of="2026-10-26",
+                 review_at="2026-10-24T05:56:07+00:00",
+                 prior_close=previous,last_close=current)
+    original=t.read_bytes(),p.read_bytes()
+    with pytest.raises(ValueError,match="POST_APPROVAL_HOLD"):
+        act(t,p,action="CONFIRM_POST_APPROVAL",expected_as_of_date="2026-10-26")
+    assert (t.read_bytes(),p.read_bytes())==original
+
+
+def test_post_approval_requires_explicit_confirmation_and_rechecks_source(tmp_path):
+    t,p,chart=fixture(tmp_path,as_of="2026-10-26",
+        review_at="2026-10-24T05:56:07+00:00",prior_close=101,last_close=102)
+    original=t.read_bytes(),p.read_bytes()
+    with pytest.raises(ValueError,match="confirmation"):
+        act(t,p,action="CONFIRM_POST_APPROVAL",expected_as_of_date="2026-10-26",
+            confirmed=False)
+    assert (t.read_bytes(),p.read_bytes())==original
+    chart["adjusted"]=False
+    (tmp_path/"charts"/"ABC.json").write_text(json.dumps(chart))
+    with pytest.raises(ValueError,match="VERIFIED_DAILY_CHART"):
+        act(t,p,action="CONFIRM_POST_APPROVAL",expected_as_of_date="2026-10-26")
+    assert (t.read_bytes(),p.read_bytes())==original
+
+
+def test_current_day_after_close_review_is_not_a_fresh_cross(tmp_path):
+    t,p,_=fixture(tmp_path,as_of="2026-10-26",
+                  review_at="2026-10-26T21:00:00+00:00",
+                  prior_close=99.5,last_close=100.5)
+    with pytest.raises(ValueError,match="APPROVED_BY_CLOSE"):
+        act(t,p,expected_as_of_date="2026-10-26")
