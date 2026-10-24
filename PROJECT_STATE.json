@@ -91,6 +91,20 @@
         "open_prs": 0,
         "last_closed_pr": 14
       }
+    },
+    "historical_superstocks_product_research": {
+      "status": "plan_committed_pilot_not_started",
+      "scope": "research_only",
+      "plan": "docs/historical_superstocks_product_research_plan.md",
+      "plan_commit": "bbbc8ff4b20200123a46f3f193ab14f28ac57fb2",
+      "sample_target": 20,
+      "outputs": "Google Sheets planned; not created",
+      "tests": {
+        "status": "documentation_only",
+        "checks": "JSON parse of project state; no code tests applicable"
+      },
+      "deployment": "none",
+      "next_action": "Confirm historical data availability and source provenance; prepare 20-case pilot and controls"
     }
   },
   "strategy_registry": {
