@@ -89,3 +89,13 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - Both Trigger modes must stay selectable **for inspection** when the required checklist fails; they show specific failed checks and approval/EOD timestamps. Submission stays disabled unless that mode is eligible. The server repeats all guards, without allowing backdated events.
 - For the 2026-10-23 EOD snapshot, NIQ/RBRK/RPD were approved on 2026-10-24; neither first-cross nor post-approval hold qualifies on that older EOD. Next EOD may qualify only after publication of a new completed session and verified price evidence.
 - No change to research parameters, trade execution, or Stage 1/Stage 2 rules.
+
+## Stage 4 Post-Trigger Trading System boundary (2026-10-25)
+
+- Owner requested a **fourth tab** for post-Trigger trade planning and fundamental/evidence review; this Trading System feature is independent of Research Lab's historical tests. See `docs/stage4_trade_planning.md`.
+- Stage 4 consumes only persisted Stage 3 `TRIGGERED` with authentic manual review, never Watch or `EOD_CROSS` inferred retrospectively. It cannot change Stage 1, Stage 2, Stage 3 or publish trades.
+- The calculator is strictly user-entered hypothetical entry/stop/risk/equity/cash/slippage/fee/lot planning, with risk- and cash-capped position size. Broker connectivity, automatic orders and realized P&L are absent. Account amounts stay in tab memory, not in public GitHub JSON.
+- Official SEC companyfacts annual XBRL fields and recent Form 4 **filing counts** may be populated for confirmed tickers from an opt-in, identified SEC collection workflow; missing values remain `UNAVAILABLE`, not zero. SEC automation needs the `SEC_USER_AGENT` repository secret with a real contact before use.
+- SEC 13F is delayed quarter-end *holdings*, **not verified current institutional buying**. Form 4 presence is **not verified insider buying**; purchase requires inspecting transaction code P and acquisition details. The public UI must show unverified statuses until separately evidenced, never automatically infer purchases or recommendations.
+- Optional manually cited institutional/insider observations are labeled unverified and stored in this browser only, not cross-device or authoritative cloud. These notes have no effect on triggers or positions.
+- Future Research Lab handoff of any actual approved signal/entry must preserve as-of evidence dates, authorization time, source, fees and slippage rather than fabricating fills.
