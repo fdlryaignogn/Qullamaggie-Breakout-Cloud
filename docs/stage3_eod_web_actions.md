@@ -12,9 +12,10 @@ modify localStorage or send a broker order.
 | KEEP_WATCH | WATCH → WATCH | Keep tracking the manually approved READY setup and save a review reason |
 | NO_TRADE | WATCH → NO_TRADE | Human decided not to trade this setup; terminal for that setup |
 | ARCHIVE | WATCH → ARCHIVED | Human closed Stage 3 tracking; terminal for that setup |
+| CONFIRM_EOD_TRIGGER | WATCH → TRIGGERED | Human confirms validated EOD close-cross **after** all mandatory conditions pass; terminal for this setup, **not an order or fill** |
 
-These are manual **EOD management actions**, not buy/sell, triggers or fills.
-Both terminal options require an explicit checkbox and a 1–500 character public
+These are manual **EOD management or signal confirmation actions**, never buy/sell orders or fills.
+Both terminal options and EOD TRIGGERED require an explicit checkbox and a 1–500 character public
 reason. For structural invalidation of the underlying setup, use the existing
 Stage 2 `INVALIDATED` review flow, which also invalidates its Stage 3 WATCH.
 
@@ -65,3 +66,39 @@ A source merge or passing unit test alone does not prove the public Dashboard
 has reloaded or that an authenticated Action was exercised live. Only claim
 runtime/deployment success after independently verifying a real published
 GitHub Actions run and matching public data.
+
+## EOD TRIGGER requirements and UI checklist (manual only)
+
+The Action modal shows each mandatory item with a pass/fail reason, followed by
+volume and risk context. The `CONFIRM_EOD_TRIGGER` option is disabled when
+the browser's advisory checklist fails; the GitHub backend independently
+recomputes the full conditions and rejects unqualified submissions:
+
+1. Matching Stage-2 setup still `READY`, with named manual reviewer.
+2. Timezone-aware READY approval was made on or before the completed
+   EOD trading session (New York calendar day); no retrospective signals.
+3. Snapshot phase `success` and pinned `metadata.as_of_date`.
+4. Approved breakout pivot is finite and positive.
+5. Original chart matches symbol, adjusted **1d** interval and exact session,
+   with no future bar at the tail; fresh saved EOD metric fields must
+   agree with recalculation.
+6. The previous daily close was at/below pivot and the just-completed
+   daily close is strictly above it (`EOD_CROSS`).
+
+**Context only:** current volume relative to 20 *prior* sessions, ATR14, ADR20
+and hypothetical risk/ATR. Do not silently impose unvalidated volume,
+liquidity, stop or opening-range thresholds from research experiments.
+
+Upon manual confirmation, `TRIGGERED` stores the EOD session, rule
+`EOD_CLOSE_CROSS_MANUAL_V1`, historical observed **closing price**, actual
+human confirmation timestamp, observer and auditable evidence. It does not
+invent an intraday trigger time, transaction price, order ID or fill.
+The former WATCH cannot be confirmed twice or automatically reverted.
+
+The 2026-10-23 NIQ/RBRK/RPD examples have historical `EOD_CROSS`, but their
+human READY approval was on **October 24** New York time. They must show
+a failed point-in-time approval check and cannot be manually backdated to
+`TRIGGERED` for the October 23 trading session.
+
+Historical win-rate/expectancy and parameter exploration continue separately
+under Research Lab.
