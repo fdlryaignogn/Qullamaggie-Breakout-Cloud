@@ -138,9 +138,16 @@ def analyze_published_snapshot(snapshot_path: Path, *,
                     or chart.get("interval") != "1d" or chart.get("adjusted") is not True):
                 raise ValueError("Wrong chart provenance")
             frame = clean_frame(pd.DataFrame(chart["bars"]))
+            if frame.empty or frame.index[-1].strftime("%Y-%m-%d") != as_of:
+                raise ValueError("Future or stale chart bars")
             metric = eod_observation(frame, pivot, as_of)
             if metric is None:
                 raise ValueError("No verified same-session OHLCV")
+            if watch.get("eod_as_of") == as_of and watch.get("eod_data_status") == "FRESH":
+                if any(watch.get(k) != metric.get(k) for k in (
+                    "eod_event", "eod_close", "eod_distance_pct", "eod_volume_ratio",
+                    "eod_atr14", "eod_adr20_pct")):
+                    raise ValueError("Saved EOD fields disagree with daily chart")
             label = classify_eod_research(
                 {**metric, "breakout_level": pivot},
                 near_below_pct=near_below_pct, strong_rvol20=strong_rvol20)
