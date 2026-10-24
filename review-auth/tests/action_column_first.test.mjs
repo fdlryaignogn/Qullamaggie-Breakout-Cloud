@@ -18,7 +18,9 @@ test('all stage tables place action cells first while retaining stock columns an
   const row=render.indexOf('return `<tr><td><div class="cell-actions">');
   const fields=render.indexOf("config.columns.map(([key])",row);
   assert.ok(row>=0 && fields>row);
-  assert.ok(render.slice(row,fields).includes('data-act="review"'));
+  // Review button is built into reviewAction before row rendering, then inserted into first cell.
+  assert.ok(render.includes('data-act="review"'));
+  assert.ok(render.slice(row,fields).includes('${reviewAction}'));
   assert.ok(render.slice(row,fields).includes('data-act="edit"'));
   assert.ok(render.slice(row,fields).includes('data-act="remove"'));
   assert.ok(render.includes("reviewAuthenticated()&&stage===2"));
