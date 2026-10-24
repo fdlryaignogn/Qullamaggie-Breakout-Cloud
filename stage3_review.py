@@ -1,6 +1,6 @@
 """Authenticated Stage-3 EOD WATCH action, persisted by GitHub Actions.
 
-Only a human-confirmed valid EOD close-cross may transition WATCH -> TRIGGERED.
+Human-confirmed fresh EOD close-cross or post-approval hold may make WATCH -> TRIGGERED.
 No automatic trigger, trade execution, retrospective scan or Stage-2 approval.
 """
 from __future__ import annotations
@@ -14,7 +14,8 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
 ACTIONS = {"KEEP_WATCH": "WATCH", "NO_TRADE": "NO_TRADE", "ARCHIVE": "ARCHIVED",
-           "CONFIRM_EOD_TRIGGER": "TRIGGERED"}
+           "CONFIRM_EOD_TRIGGER": "TRIGGERED",
+           "CONFIRM_POST_APPROVAL": "TRIGGERED"}
 
 
 def apply_stage3_action(state_path: Path, latest_path: Path, *, symbol: str, setup_id: str,
@@ -73,10 +74,10 @@ def apply_stage3_action(state_path: Path, latest_path: Path, *, symbol: str, set
     # The backend validates original adjusted daily bars and human approval
     # again; browser checkboxes and cached EOD fields are never authoritative.
     trigger_assessment = None
-    if action == "CONFIRM_EOD_TRIGGER":
+    if action in ("CONFIRM_EOD_TRIGGER", "CONFIRM_POST_APPROVAL"):
         from stage3_trigger_checks import assess_eod_trigger
         trigger_assessment = assess_eod_trigger(
-            parents[0], row, meta, latest_path.parent / "charts")
+            parents[0], row, meta, latest_path.parent / "charts", action=action)
         if not trigger_assessment["allowed"]:
             failed = [c["code"] for c in trigger_assessment["checks"]
                       if c["required"] and not c["pass"]]
@@ -85,17 +86,21 @@ def apply_stage3_action(state_path: Path, latest_path: Path, *, symbol: str, set
     decision = ACTIONS[action]
     row["status"] = decision
     row["status_reason"] = note.strip()
-    if action == "CONFIRM_EOD_TRIGGER":
+    if trigger_assessment is not None:
         eod = trigger_assessment["evidence"]
         row["trigger_rule"] = trigger_assessment["rule"]
         row["triggered_at"] = reviewed_at
         row["eod_trigger_as_of"] = expected_as_of_date
+        row["eod_trigger_confirmation_type"] = trigger_assessment["confirmation_type"]
+        row["eod_trigger_approval_at"] = parents[0]["manual_reviewed_at"]
         row["eod_trigger_close"] = eod["eod_close"]
         row["eod_trigger_evidence"] = {
             "pivot": row["breakout_level"],
             "previous_close": eod["eod_prev_close"],
             "eod_close": eod["eod_close"],
             "eod_event": eod["eod_event"],
+            "confirmation_type": trigger_assessment["confirmation_type"],
+            "ready_approved_at": parents[0]["manual_reviewed_at"],
             "rvol20": eod["eod_volume_ratio"],
             "atr14": eod["eod_atr14"],
             "adr20_pct": eod["eod_adr20_pct"],
