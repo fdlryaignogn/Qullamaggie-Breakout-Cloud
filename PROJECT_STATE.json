@@ -48,20 +48,22 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_audit_pr13_merged",
-      "deployment": "source_merged_to_main; public_pages_render_not_verified",
-      "last_change": "Merged PR #13: read-only EOD audit and validated chart provenance plus latest-session guard in dashboard",
-      "next_action": "Confirm GitHub Pages browser rendering; optionally persist old same-session WATCH EOD metrics safely without fabricating a new scan; propose EOD-only signal labels to Research Lab for validation",
+      "status": "stage3_eod_historical_metrics_persisted_pr_pending_ci",
+      "deployment": "github_source_feature_branch; live_site_not_verified",
+      "last_change": "Persisted verified NIQ, RBRK, RPD EOD metrics for 2026-10-23 in tracking and public snapshot without changing original last_success; added deterministic idempotent backfill and fail-closed tests",
+      "next_action": "Complete PR CI, merge to main, verify public JSON if accessible, and verify scheduled EOD updates on next trading session",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
-        "status": "PR_CI_passed",
-        "github_actions_run_id": 40090318663,
-        "python_pytest": "48 passed",
-        "node_tests": "passed",
-        "dashboard_js_syntax": "passed",
-        "read_only_audit": "passed",
-        "main_ci": "not_verified"
+        "status": "pending_pr_ci",
+        "checks": [
+          "pytest",
+          "node reviewer gateway",
+          "dashboard JS syntax",
+          "strict historical snapshot audit",
+          "backfill regression tests"
+        ],
+        "browser": "public_GitHub_Pages_http_unreachable_in_execution_environment"
       },
       "published_scan": {
         "as_of_date": "2026-10-23",
@@ -70,18 +72,21 @@
       },
       "latest_merged_pr": 13,
       "latest_merge_commit": "be1fb018b120e41126c88fcb9f4852b2c43818f6",
-      "pending_feature_branch": null,
+      "pending_feature_branch": "feature/stage3-eod-finalize-publication",
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
         "as_of_date": "2026-10-23",
         "watches": 3,
-        "persisted_match": 0,
-        "derived_not_persisted": 3,
-        "metric_mismatch": 0,
-        "chart_unavailable": 0,
-        "source": "GitHub Actions PR #13, run 40090318663"
-      }
+        "persisted_match_expected": 3,
+        "derived_not_persisted_expected": 0,
+        "metric_mismatch_expected": 0,
+        "chart_unavailable_expected": 0,
+        "revision_expected": 1792797151,
+        "old_last_success_preserved": "2026-10-23T23:12:25+00:00",
+        "live_site": "unverified"
+      },
+      "pending_pr": "to_be_created"
     }
   },
   "strategy_registry": {
