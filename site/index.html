@@ -1377,7 +1377,7 @@ function stage3TriggerChecklist(row){
  let approvedBySession=false;
  try{
   const date=new Date(parent?.manual_reviewed_at);
-  if(approved&&/(?:Z|[+-]\\d{2}:\\d{2})$/i.test(String(parent.manual_reviewed_at))&&Number.isFinite(date.getTime())&&typeof asOf==='string'){
+  if(approved&&/(?:Z|[+-]\d{2}:\d{2})$/i.test(String(parent.manual_reviewed_at))&&Number.isFinite(date.getTime())&&typeof asOf==='string'){
    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',
     year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
    const get=k=>parts.find(p=>p.type===k)?.value;
