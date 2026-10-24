@@ -224,7 +224,8 @@ const COLUMN_ABBREVIATIONS={
 };
 function columnFullTitle(stage,key,name){
  const field=stages[stage].fields.find(f=>f[0]===key);
- const full=t(field?field[1]:name);
+ const label=t(name), detail=t(field?field[1]:name);
+ const full=label===detail?label:label+' ('+detail+')';
  if(key.startsWith('rank_pct_')){
   return full+' — '+tl('數值越小代表排名越強；1.5% = 前 1.5%。點擊標題可排序。',
                        'Lower percentage means stronger rank; 1.5% = top 1.5%. Click header to sort.');
