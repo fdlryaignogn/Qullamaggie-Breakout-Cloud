@@ -48,22 +48,20 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_only_pr10_merged",
-      "deployment": "source_merged_to_main_public_site_not_verified",
-      "last_change": "PR #10 merged: manually approved READY setup receives EOD WATCH metrics from same-session verified daily chart cache; no intraday signals or orders",
-      "next_action": "Verify main-branch CI and GitHub Pages; confirm latest EOD WATCH metrics after next valid cloud scan; then design EOD breakout classification proposal for Research Lab validation",
+      "status": "stage3_eod_snapshot_audit_in_pr",
+      "deployment": "main_branch_pr10_merged; EOD audit pending PR checks",
+      "last_change": "Stage 3 dashboard chart-source provenance and stale response guards; read-only EOD snapshot audit using published adjusted 1d charts",
+      "next_action": "Run PR CI (Python/JS/audit), review read-only results, merge after checks, then re-verify main data and deployment",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
-        "status": "passed_pull_request_ci",
-        "github_actions_run_id": 40089078961,
-        "github_actions_link": "https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/actions/runs/40089078961",
-        "python_tests": "passed",
-        "review_auth_node_tests": "passed",
-        "dashboard_js_syntax": "passed",
-        "added_tests": "tests/test_stage3_postreview_eod.py",
-        "main_branch_ci": "not_verified",
-        "local_rerun": false
+        "status": "pending_new_pr_ci",
+        "paths": [
+          "tests/test_stage3_eod_audit.py",
+          "review-auth/tests/stage3_eod.test.mjs"
+        ],
+        "published_snapshot_audit": "pending",
+        "user_interface": "source_verified_live_site_inaccessible"
       },
       "published_scan": {
         "as_of_date": "2026-10-23",
@@ -71,7 +69,9 @@
         "stage3_watch_count_at_last_verified_scan": 3
       },
       "latest_merged_pr": 10,
-      "latest_merge_commit": "00f3a642c1bda5b3927e9b232ed2e2d6dd201f35"
+      "latest_merge_commit": "00f3a642c1bda5b3927e9b232ed2e2d6dd201f35",
+      "pending_feature_branch": "feature/stage3-eod-published-audit",
+      "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified."
     }
   },
   "strategy_registry": {
