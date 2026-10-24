@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage4_trade_plan_fundamentals_pending_ci",
-      "deployment": "stage4_feature_branch_not_merged_or_deployed",
-      "last_change": "Added a fourth web tab for human-confirmed TRIGGERED, hypothetical risk/cash-capped sizing, dated SEC annual financials and Form4 filing metadata, and institutional/insider evidence with explicit unverified statuses",
-      "next_action": "Open PR, run CI, fix failures and merge on green; then verify live Pages and configure identifying SEC_USER_AGENT secret before claiming live SEC data",
+      "status": "stage4_post_trigger_workbench_pr20_merged",
+      "deployment": "main_source_merged; github_pages_live_visual_and_SEC_feed_unverified",
+      "last_change": "PR #20 merged fourth-stage web tab linked from Stage 3 TRIGGERED with hypothetical risk/cash-constrained position sizing and provenance-aware SEC annual fundamentals & filing evidence",
+      "next_action": "Verify GitHub Pages fourth tab render on mobile/desktop; configure SEC_USER_AGENT repository secret for real read-only SEC data, then manually trigger Stage 4 SEC workflow; validate a genuine TRIGGERED -> Stage 4 data flow",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -69,9 +69,9 @@
         "live_eod_refresh": "not_verified",
         "stage3_watch_count_at_last_verified_scan": 3
       },
-      "latest_merged_pr": 19,
-      "latest_merge_commit": "a23299c4ac9fbf3e177459f3c5c6d8afc922676f",
-      "pending_feature_branch": "feature/stage4-post-trigger-risk-fundamental-workbench",
+      "latest_merged_pr": 20,
+      "latest_merge_commit": "f78726383838bc244acda45825490bec960cf2dd",
+      "pending_feature_branch": null,
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": "to_be_created",
+      "pending_pr": null,
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -203,7 +203,7 @@
         "last_inspected_sample": "NIQ/RBRK/RPD first EOD cross, manual READY 2026-10-24; ineligible for both on 2026-10-23"
       },
       "stage4": {
-        "status": "feature_branch_pending_ci",
+        "status": "merged_to_main_live_not_verified",
         "dashboard_tab": "site/stage4.html",
         "upstream_status": "stage3 TRIGGERED only",
         "source": "site/data/latest.json",
@@ -211,7 +211,7 @@
         "sec_collector": "stage4_sec_fundamentals.py",
         "sec_workflow": ".github/workflows/stage4-sec-fundamentals.yml",
         "public_sec_json": "site/data/stage4_fundamentals.json",
-        "sec_configuration": "requires SEC_USER_AGENT secret identifying project contact; not configured or verified",
+        "sec_configuration": "requires separate SEC_USER_AGENT secret; not configured or independently verified",
         "financial_metrics": [
           "FY_revenue_USD",
           "FY_revenue_YoY_percent",
@@ -222,13 +222,25 @@
         "institutional_13f": "source education and manual research; purchase status UNVERIFIED",
         "manual_evidence": "user-entered local browser only; not cross-device, not verified by system",
         "tests": {
-          "status": "pending_PR_CI",
-          "python": "tests/test_stage4_sec_fundamentals.py",
-          "node": "review-auth/tests/stage4_trade_planning.test.mjs"
+          "status": "PR_CI_passed",
+          "github_actions_run_id": 40141792123,
+          "python_pytest": "108 passed",
+          "node_tests": "50 passed",
+          "stage3_strict_EOD_audit": "passed",
+          "experimental_v2_smoke": "passed",
+          "frontend_js_syntax": "passed",
+          "main_postmerge_ci": "not_verified",
+          "live_browser": "not_verified"
         },
         "browser_verified": false,
         "live_sec_data_verified": false,
-        "next_action": "End-to-end Pages smoke, SEC secret setup, real trigger evidence and verified institutional transaction follow-on"
+        "next_action": "End-to-end Pages smoke, SEC secret setup, real trigger evidence and verified institutional transaction follow-on",
+        "latest_merge_commit": "f78726383838bc244acda45825490bec960cf2dd",
+        "public_page_url": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/stage4.html",
+        "sec_feed": "source_configured_in_workflow_only; no live SEC results claimed",
+        "no_triggered_current_snapshot": true,
+        "current_published_scan_as_of": "2026-10-23",
+        "caveat": "Institutional and insider BUY are not verified by a simple 13F/Form4 filing; Stage4 labels them UNVERIFIED"
       }
     },
     "historical_superstocks_product_research": {
