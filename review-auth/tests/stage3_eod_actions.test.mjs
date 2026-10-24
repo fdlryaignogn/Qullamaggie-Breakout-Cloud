@@ -199,7 +199,7 @@ test('Both EOD Trigger choices remain selectable for requirements inspection but
  const modalStart=html.indexOf('function openStage3Action(row){');
  const modalEnd=html.indexOf('function openReviewForm(',modalStart);
  const modal=html.slice(modalStart,modalEnd);
- assert.ok(modal.includes("'<option value="+k+"'"));
+ assert.ok(modal.includes("options.map(([k,v])=>'<option value=\"+\""));
  assert.ok(!modal.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled'"));
  assert.ok(modal.includes('stage3DecisionStatus'));
  assert.ok(modal.includes('submit.disabled=true'));
