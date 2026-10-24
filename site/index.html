@@ -1363,7 +1363,7 @@ function openStage3Details(row){
 }
 // This is a UI preview; GitHub independently checks original adjusted 1d bars.
 // No experimental volume threshold is used as a live Trigger requirement.
-function stage3TriggerChecklist(row){
+function stage3TriggerChecklist(row,mode="CONFIRM_EOD_TRIGGER"){
  const asOf=serverMeta?.as_of_date;
  const parent=state['2'].find(p=>p.setup_id===row.setup_id&&p.symbol===row.symbol);
  const data=stage3CurrentEod(row);
@@ -1378,15 +1378,15 @@ function stage3TriggerChecklist(row){
  try{
   const date=new Date(parent?.manual_reviewed_at);
   if(approved&&/(?:Z|[+-]\d{2}:\d{2})$/i.test(String(parent.manual_reviewed_at))&&Number.isFinite(date.getTime())&&typeof asOf==='string'){
-   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',
-    year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
+   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
    const get=k=>parts.find(p=>p.type===k)?.value;
    const nyDate=get('year')+'-'+get('month')+'-'+get('day');
-   approvedBySession=nyDate<=asOf;
+   const hm=Number(get('hour'))*60+Number(get('minute'));
+   approvedBySession=nyDate<asOf||(nyDate===asOf&&hm<=16*60);
   }
  }catch(_){}
  add(tl('核准時間不晚於該 EOD 交易日','READY approved by this EOD session'),
-  approvedBySession,tl('不會把事後批准倒填成過去的 Trigger','No retrospectively created trigger'));
+  approvedBySession,tl('必須在當日紐約 16:00 前核准，防止事後倒填','Approval by 16:00 New York, never backdate a signal'));
  const scanOK=serverMeta?.phase==='success'&&!!serverMeta?.last_success&&/^\d{4}-\d{2}-\d{2}$/.test(asOf||'');
  add(tl('有效雲端 EOD 掃描','Published successful EOD scan'),scanOK,
   tl('掃描成功並標明交易日期','Successful completed daily snapshot'));
