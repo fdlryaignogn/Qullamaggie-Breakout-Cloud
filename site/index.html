@@ -33,11 +33,12 @@
   .tabbar{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);gap:8px}.tab{position:relative;background:none;border:0;border-radius:10px 10px 0 0;color:var(--muted);padding:17px 18px 18px;text-align:left;display:flex;gap:13px;align-items:center;min-width:0}.tab:hover{background:#17223788}.tab[aria-selected=true]{background:#18263a;color:var(--text)}.tab[aria-selected=true]:after{content:"";height:3px;position:absolute;bottom:-1px;left:0;right:0;border-radius:3px 3px 0 0;background:var(--accent)}.tab-n{width:35px;height:35px;border:1px solid #33445e;border-radius:10px;display:grid;place-items:center;color:var(--accent);font-weight:850;letter-spacing:-.04em;background:#111d30}.tab-title{font-size:13px;font-weight:700}.tab-desc{font-size:11px;color:var(--muted);margin-top:2px}.tab-count{margin-left:auto;background:#23324a;min-width:24px;height:22px;padding:0 6px;display:grid;place-items:center;border-radius:6px;font-size:11px;color:#bfd0e8;font-weight:700}
   .panel{border:1px solid var(--line);border-top:0;background:#101a2c;border-radius:0 0 14px 14px;min-height:445px;box-shadow:var(--shadow)}.panel-info{display:flex;justify-content:space-between;align-items:start;gap:15px;padding:24px 24px 18px}.panel-info h2{font-size:18px;margin:0 0 5px;letter-spacing:-.025em}.panel-info p{font-size:12px;line-height:1.6;color:var(--muted);margin:0}.workflow{display:inline-flex;align-items:center;gap:7px;font-size:11px;color:#a6decf;background:#183835;border:1px solid #285950;border-radius:7px;padding:7px 10px;white-space:nowrap}.toolbar{padding:0 24px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.filters{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.searchbox{width:265px;max-width:100%;position:relative}.searchbox input{padding:9px 13px 9px 36px;width:100%;border:1px solid #30415c;background:#101c31;color:var(--text);outline:none;border-radius:9px;font-size:12px;height:36px}.searchbox svg{position:absolute;left:12px;top:10px;color:var(--muted)}.filter-select{height:36px;min-width:125px;background:#101c31;border:1px solid #30415c;border-radius:9px;padding:0 11px;color:#c8d5e8;font-size:12px}.status-note{padding:8px 24px 12px;color:var(--muted2);font-size:11px;display:flex;align-items:center;gap:8px;border-top:1px solid var(--line-soft)}
   
-/* Convenient horizontal scrollbar immediately below the panel heading/toolbar.
-   It mirrors the table's native horizontal position and remains visible when
-   its many stock rows require vertical scrolling. */
+/* Floating scroll rail is immediately BELOW the frozen column labels, in
+   reserved header space, and never sinks to the bottom of long stock lists. */
+.table-scroll-host{position:relative}
+.table-wrap.has-top-scroll thead th{padding-bottom:27px}
 .table-top-scroll{width:100%;height:17px;overflow-x:auto;overflow-y:hidden;
-  position:relative;background:#151f33;border-top:1px solid var(--line-soft);
+  position:absolute;top:var(--top-scroll-offset,34px);left:0;z-index:6;background:#151f33;border-top:1px solid var(--line-soft);
   scrollbar-color:#617899 #152037;scrollbar-width:auto;overscroll-behavior-x:contain}
 .table-top-scroll[hidden]{display:none!important}
 .table-top-scroll::-webkit-scrollbar{height:13px}
@@ -157,8 +158,10 @@
       <div class="review-queues-cards" id="reviewQueuesCards"></div>
     </section>
     <div class="toolbar"><div class="filters"><div class="searchbox"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="7.1"/><path d="m16 16 5 5"/></svg><input id="search" type="search" autocomplete="off" placeholder="搜尋代號、Setup ID、備註…" aria-label="搜尋股票"></div><select class="filter-select" id="statusFilter" aria-label="篩選狀態"><option value="">全部狀態</option></select></div><div class="head-actions"><button type="button" class="outline-btn" id="templateBtn">↓ CSV 範本</button><button type="button" class="outline-btn" id="exportCsvBtn">↓ 匯出表格</button><button type="button" class="solid-btn" id="addBtn">＋ 加入股票</button></div></div>
-    <div class="table-top-scroll" id="tableTopScroll" tabindex="0" role="region" aria-label="表格橫向捲動 / Horizontal table scrollbar" hidden><div class="table-top-scroll-inner" id="tableTopScrollInner"></div></div>
+    <div class="table-scroll-host" id="tableScrollHost">
     <div class="table-wrap" id="tableWrap" tabindex="0" role="region" aria-label="Stock table · 股票清單"><table id="stocksTable"><thead id="thead"></thead><tbody id="tbody"></tbody></table><div class="empty" id="empty" hidden></div></div>
+    <div class="table-top-scroll" id="tableTopScroll" tabindex="0" role="region" aria-label="表格橫向捲動 / Horizontal table scrollbar" hidden><div class="table-top-scroll-inner" id="tableTopScrollInner"></div></div>
+    </div>
     <div class="status-note" id="scanNote" style="color:var(--accent)">掃描器：正在檢查連線…</div>
     <div class="status-note" id="note">◈ 所有記錄只儲存於此瀏覽器。匯入新一期資料採合併更新，不會清空其他輪次。</div>
     <div class="footline"><span id="rowCount">共 0 筆記錄</span><span>點擊欄名可排序 · 左右捲動查看所有欄位</span></div>
@@ -385,11 +388,18 @@ function sortRows(rows){const stage=ui.stage;if(!ui.sortBy){if(stage===1)return 
 function syncTopTableScrollbar(){
  const table=byId('stocksTable'), viewport=byId('tableWrap');
  const top=byId('tableTopScroll'),inner=byId('tableTopScrollInner');
- if(!table||!viewport||!top||!inner)return;
+ const host=byId('tableScrollHost'),header=byId('thead');
+ if(!table||!viewport||!top||!inner||!host||!header)return;
  const width=Math.ceil(Math.max(table.scrollWidth,table.getBoundingClientRect().width));
+ const overflow=width>viewport.clientWidth+1;
+ viewport.classList.toggle('has-top-scroll',overflow);
  inner.style.width=width+'px';
- top.hidden=width<=viewport.clientWidth+1;
- if(!top.hidden&&Math.abs(top.scrollLeft-viewport.scrollLeft)>1)top.scrollLeft=viewport.scrollLeft;
+ top.style.width=viewport.clientWidth+'px';
+ top.hidden=!overflow;
+ if(overflow){
+  host.style.setProperty('--top-scroll-offset',Math.max(0,header.getBoundingClientRect().height-17)+'px');
+  if(Math.abs(top.scrollLeft-viewport.scrollLeft)>1)top.scrollLeft=viewport.scrollLeft;
+ }
 }
 function wireTopTableScrollbar(){
  const top=byId('tableTopScroll'),viewport=byId('tableWrap');
