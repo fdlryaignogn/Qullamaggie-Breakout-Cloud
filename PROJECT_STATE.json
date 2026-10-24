@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_eod_v2_experimental_pr15_ci_passed_pending_merge",
+      "status": "stage3_eod_v2_experimental_research_merged",
       "deployment": "merged_to_main_site_data_updated; published_site_http_not_verified",
-      "last_change": "New read-only Stage 3 EOD V2 experimental labels and PIT gate; production scanner and WATCH statuses unchanged",
-      "next_action": "Rerun PR CI for real historical review cutoff assertion, merge only after success; Research Lab to validate on independent point-in-time cohorts before any production promotion",
+      "last_change": "PR #15 merged: Stage 3 EOD V2 experimental read-only labels with point-in-time human READY approval gate; production behavior unchanged",
+      "next_action": "Research Lab: reconstruct historical as-of frozen pivots/approvals and representative cases; assess win rate, net expectancy R, profit factor, max drawdown, costs and slippage before any production proposal. Separately verify GitHub Pages and next EOD scan.",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -69,9 +69,9 @@
         "live_eod_refresh": "not_verified",
         "stage3_watch_count_at_last_verified_scan": 3
       },
-      "latest_merged_pr": 14,
-      "latest_merge_commit": "4d31d3370ba4751b521c2274567b4a6ed1d6588a",
-      "pending_feature_branch": "feature/stage3-eod-v2-research-labels",
+      "latest_merged_pr": 15,
+      "latest_merge_commit": "df2c3ec357c48d395c8a97ba8ebad8f2a2270064",
+      "pending_feature_branch": null,
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": 15,
+      "pending_pr": null,
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -103,16 +103,17 @@
         "review_cutoff": "New York as-of session 23:59:59",
         "reviewed_after_session_baseline": "NIQ/RBRK/RPD have human approvals 2026-10-24, so cannot count as historical 2026-10-23 prospective signals",
         "tests": {
-          "status": "initial_ci_passed_latest_commit_pending",
-          "github_actions_run_id": 40105838181,
+          "status": "PR_CI_passed",
+          "github_actions_run_id": 40105998901,
           "python_tests": "68 passed",
           "node_tests": "30 passed",
-          "strict_eod_audit": "passed",
-          "eod_research_smoke": "passed",
-          "latest_historical_cutoff_assertion": "pending_latest_ci",
-          "dashboard_js_syntax": "passed"
+          "eod_audit": "passed",
+          "experimental_cli_smoke": "passed",
+          "real_historical_pit_exclusion": "passed",
+          "dashboard_js_syntax": "passed",
+          "main_branch_postmerge_ci": "not_verified"
         },
-        "research_validation": "not_started",
+        "research_validation": "not_started_no_point_in_time_outcome_sample",
         "production_impact": "none",
         "historical_baseline": {
           "as_of_date": "2026-10-23",
@@ -125,7 +126,10 @@
           },
           "prospective_signal_count": 0,
           "performance_metrics": "not_tested"
-        }
+        },
+        "merge_commit": "df2c3ec357c48d395c8a97ba8ebad8f2a2270064",
+        "published_site_browser": "not_verified_http_inaccessible",
+        "performance_results": "not_available"
       }
     },
     "historical_superstocks_product_research": {
