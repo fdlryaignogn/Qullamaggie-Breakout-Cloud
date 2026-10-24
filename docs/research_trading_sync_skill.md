@@ -77,3 +77,10 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - Volume ratio, ATR, ADR and hypothetical low/stop are **reference metrics**; this feature does not promote Research Lab's experimental 1.5x / 3% thresholds into mandatory production trading rules.
 - `TRIGGERED` records the daily evidence date, observed close, manual review timestamp and actor under `EOD_CLOSE_CROSS_MANUAL_V1`. There is **no intraday trigger_time or fill/entry execution inferred**. Every action still requires explicit authenticated human consent and an audit history entry.
 - Stage 1 and Stage 2 behavior are unchanged. Retrospective NIQ/RBRK/RPD EOD_CROSS observations dated October 23 remain ineligible for an October 23 triggered event because human approval followed on October 24.
+
+## Two-path manual EOD confirmation contract (2026-10-25)
+
+- Owner approves two separately audited, EOD-only human decisions: `CONFIRM_EOD_TRIGGER` / first upward completed close-cross **after pre-close READY approval**, and `CONFIRM_POST_APPROVAL` / current **post-approval** EOD close still above pivot with the prior completed close also above pivot.
+- The latest EOD session requires READY already approved no later than **16:00 New York**, including full timezone validation. Neither mode can annotate an earlier breakout as an entry, forge a trigger time, imply a fill, or place an order.
+- Each mode has its own pass/fail checklist in the Dashboard; GitHub backend repeats all validations against adjusted same-session daily chart and persisted EOD fields. `CONFIRM_POST_APPROVAL` uses `EOD_POST_APPROVAL_MANUAL_V1` and stores `POST_APPROVAL_HOLD` separately from `EOD_CLOSE_CROSS_MANUAL_V1` / `FIRST_EOD_CROSS`.
+- Research Lab continues to own parameter experiments and historical performance validation. This feature does not promote the experimental V2 volume/proximity thresholds.
