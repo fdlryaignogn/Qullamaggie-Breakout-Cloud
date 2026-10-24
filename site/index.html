@@ -136,11 +136,14 @@ const DASHBOARD_VERSION='3.2-cloud';
 const CLOUD_MODE=true;
 const SCANNER_VERSION='3.1';
 const STORE_KEY='qulla_breakout_dashboard_v1';
-// Never put a GitHub credential into localStorage, sessionStorage, cookies,
-// URL parameters, site JSON, logs, or exported backups.
+// Never put a raw GitHub credential into browser storage, URLs, public data or logs.
+// GitHub App mode stores only a six-hour AES-GCM-sealed reviewer session.
 const REVIEW_REPO='fdlryaignogn/Qullamaggie-Breakout-Cloud';
 const REVIEW_WORKFLOW='review-stage2.yml';
 let reviewToken=null, reviewIdentity=null, reviewPending=null;
+let oauthApi='',oauthEnabled=false,oauthSession=null,oauthExpires=0;
+const OAUTH_SESSION_STORAGE_KEY='qullamaggie_reviewer_oauth_v1';
+const OAUTH_PENDING_STATE_KEY='qullamaggie_oauth_pending_state_v1';
 const stages={
   1:{title:'第一輪：強勢股動能篩選',desc:'比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。',workflow:'◇ 動能掃描 · 最少間隔 24 小時',note:'每期第一輪 CSV 會合併入候選池，不會覆寫第二輪 FORMING 或 READY 的狀態。',statuses:['NEW','ACTIVE','ARCHIVED','INSUFFICIENT_DATA'],fields:[
   ['symbol','股票代號','text',true],['market','市場','text'],['as_of_date','評估日期','date'],['return_1m','1 個月報酬 %','number'],['rank_pct_1m','1M 排名百分位 %','number'],['return_3m','3 個月報酬 %','number'],['rank_pct_3m','3M 排名百分位 %','number'],['return_6m','6 個月報酬 %','number'],['rank_pct_6m','6M 排名百分位 %','number'],['selected_windows','入選區間 (如 1M,3M)','text'],['pass_stage_1','通過第一輪 (YES / NO)','select-yes'],['status','追蹤狀態','select'],['first_seen_date','首次入選日期','date'],['last_screened_date','最近掃描日期','date'],['last_pass_date','最近通過日期','date'],['data_warnings','數據注意事項','textarea']
@@ -228,7 +231,7 @@ function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
  byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
  byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
- if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewToken&&reviewIdentity&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';return `<tr>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}<td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}${reviewAction}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td></tr>`}).join('')}
+ if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewAuthenticated()&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';return `<tr>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}<td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}${reviewAction}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td></tr>`}).join('')}
  else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
  byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
 }
@@ -299,7 +302,7 @@ function help(){
 }
 for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchTab(Number(b.dataset.stage)));
 byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});byId('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render()});
-byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewToken&&reviewIdentity){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
+byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewAuthenticated()){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
 byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLanguage('en');
 byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(true);byId('exportCsvBtn').onclick=()=>exportCSV(false);byId('importBtn').onclick=()=>byId('fileInput').click();byId('fileInput').addEventListener('change',e=>importFile(e.target.files[0]));byId('exportAllBtn').onclick=()=>{download(`qullamaggie_all_stages_${today()}.json`,JSON.stringify({...state,exported_at:nowIso(),version:1},null,2),'application/json;charset=utf-8');toast(t('已備份三輪資料與狀態歷史。'))};byId('helpBtn').onclick=help;byId('versionBtn').onclick=showVersionDetails;byId('closeModal').onclick=modal.close;byId('overlay').addEventListener('click',e=>{if(e.target===byId('overlay'))modal.close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.close();hidePricePopup()}});
 // Same-origin browser-to-Python API. Standalone HTML still works offline.
@@ -830,12 +833,82 @@ async function backendPoll(){
 }
 // This static GitHub Pages dashboard NEVER handles a user's GitHub password.
 // A short-lived fine-grained token is kept only in JS memory until this tab closes.
+// GitHub App mode is activated ONLY after a secure external gateway is configured.
+// A PAT is kept as a fallback while the gateway is not yet deployed.
+function reviewAuthenticated(){return !!(reviewIdentity&&(oauthEnabled?oauthSession&&Date.now()/1000<oauthExpires:reviewToken));}
+function oauthEndSession(){
+ oauthSession=null;oauthExpires=0;reviewIdentity=null;
+ try{localStorage.removeItem(OAUTH_SESSION_STORAGE_KEY);}catch(_){}
+ reviewAuthLabel();render();
+}
+async function oauthRequest(path,method='GET',payload=null){
+ if(!oauthEnabled||!oauthApi||!oauthSession)throw Error(tl('尚未完成 GitHub 登入','GitHub login is required'));
+ const res=await fetch(oauthApi+path,{
+  method,cache:'no-store',headers:{Authorization:'Bearer '+oauthSession,...(payload?{'Content-Type':'application/json'}:{})},
+  ...(payload?{body:JSON.stringify(payload)}:{})
+ });
+ if(res.status===401||res.status===403){oauthEndSession();}
+ if(!res.ok) {
+  let error='HTTP '+res.status;
+  try{error=(await res.json()).error||error;}catch(_){}
+  throw Error(tl('GitHub 核准後端拒絕：','GitHub review gateway denied: ')+error);
+ }
+ return res.json();
+}
+async function initGithubAppAuth(){
+ try{
+  const response=await fetch('./auth-config.json',{cache:'no-store'});
+  if(!response.ok)return;
+  const config=await response.json();
+  if(config.enabled!==true||typeof config.api_base!=='string')return;
+  const target=new URL(config.api_base);
+  if(target.protocol!=='https:'||target.username||target.password||target.search||target.hash||target.pathname!=='/')return;
+  oauthApi=target.origin;oauthEnabled=true;
+  const hash=location.hash.startsWith('#')?new URLSearchParams(location.hash.slice(1)):new URLSearchParams();
+  if(hash.has('ql_auth_token')||hash.has('ql_auth_error')){
+   // Remove secret-bearing hash before rendering status or fetching further resources.
+   history.replaceState(null,'',location.pathname+location.search);
+   const pending=sessionStorage.getItem(OAUTH_PENDING_STATE_KEY);
+   sessionStorage.removeItem(OAUTH_PENDING_STATE_KEY);
+   const incoming=hash.get('ql_auth_token'),nonce=hash.get('ql_auth_state');
+   const expiration=Number(hash.get('ql_auth_expires'));
+   if(incoming&&pending&&nonce===pending&&/^[A-Za-z0-9_.-]{50,5500}$/.test(incoming)&&
+      Number.isFinite(expiration)&&expiration>Date.now()/1000&&expiration<Date.now()/1000+6*3600+60){
+    try{localStorage.setItem(OAUTH_SESSION_STORAGE_KEY,JSON.stringify({session:incoming,expires:expiration}));}
+    catch(_){}
+   }else{
+    showReviewStatus('GitHub 登入未完成，或授權已被拒絕。','GitHub sign-in was not completed or access was denied.');
+   }
+  }
+  let saved;
+  try{saved=JSON.parse(localStorage.getItem(OAUTH_SESSION_STORAGE_KEY)||'null');}catch(_){}
+  if(saved&&saved.session&&Number(saved.expires)>Date.now()/1000){
+   oauthSession=saved.session;oauthExpires=Number(saved.expires);
+   try{
+    const me=await oauthRequest('/auth/me');
+    reviewIdentity=me.login;
+   }catch(_){oauthEndSession();}
+  }else if(saved){oauthEndSession();}
+  reviewAuthLabel();render();
+ }catch(_){
+  // Network/config failure never bypasses access control or discloses secrets.
+  oauthEnabled=false;oauthApi='';
+ }
+}
+function startGithubAppLogin(){
+ if(!oauthEnabled||!oauthApi)return;
+ const bytes=crypto.getRandomValues(new Uint8Array(32));
+ const nonce=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+ sessionStorage.setItem(OAUTH_PENDING_STATE_KEY,nonce);
+ window.location.assign(oauthApi+'/auth/start?state='+nonce);
+}
+
 function reviewAuthLabel(){
  const btn=byId('reviewAuthBtn');
  if(!btn)return;
  btn.textContent=reviewIdentity?tl('🔓 @'+reviewIdentity+' · 審核模式','🔓 @'+reviewIdentity+' · Reviewer'):tl('🔒 管理員核准','🔒 Reviewer access');
  btn.classList.toggle('review-authorized',!!reviewIdentity);
- btn.title=tl('GitHub 在每次送交審核時驗證 Actions 寫入權限。','GitHub checks Actions write permission on every review dispatch.');
+ btn.title=oauthEnabled?tl('GitHub App 登入：每次提交都重新驗證 Repository 寫入權限。','GitHub App login: repository write access is checked on every submission.'):tl('GitHub 在每次送交審核時驗證 Actions 寫入權限。','GitHub checks Actions write permission on every review dispatch.');
 }
 function showReviewStatus(zh,en){
  const el=byId('reviewResult');
@@ -864,11 +937,21 @@ async function githubRequest(path, options={}, token=reviewToken){
 }
 function openReviewAuth(){
  if(!CLOUD_MODE)return;
- if(reviewToken&&reviewIdentity){
+ if(reviewAuthenticated()){
   modal.open(tl('管理員審核模式','Reviewer access'),tl('目前 GitHub 身份：','Connected GitHub account: ')+'@'+reviewIdentity,
-    '<p class="review-guide">'+tl('核准會由 GitHub Actions 檢查提交權限並留下審核記錄。離開或重新整理網頁會清除本次憑證。','Review dispatches are checked by GitHub Actions and audited. Reloading or leaving this page clears the token.')+'</p>',
+    '<p class="review-guide">'+(oauthEnabled?tl('GitHub App 已授權。核准由 GitHub Actions 執行並留下審核紀錄；此加密登入狀態最多有效六小時。','Connected via GitHub App. Each review is audited by GitHub Actions. This encrypted session lasts up to six hours.'):tl('核准會由 GitHub Actions 檢查提交權限並留下審核記錄。重新整理網頁會清除本次憑證。','GitHub Actions verifies reviews. Refreshing clears the PAT.'))+'</p>',
     '<button class="outline-btn" type="button" id="reviewLogout">'+tl('🔒 結束管理員模式','🔒 Leave reviewer mode')+'</button>');
-  byId('reviewLogout').onclick=()=>{reviewToken=null;reviewIdentity=null;modal.close();reviewAuthLabel();render();};
+  byId('reviewLogout').onclick=()=>{if(oauthEnabled)oauthEndSession();else {reviewToken=null;reviewIdentity=null;reviewAuthLabel();render();} modal.close();};
+  return;
+ }
+ if(oauthEnabled){
+  modal.open(tl('管理員登入','Administrator sign in'),
+    tl('GitHub 驗證身份；只有本 Repository 的寫入權限持有人可以核准。','Sign in with GitHub. Only repository collaborators with write access may approve.'),
+    '<p class="review-guide">'+tl('按下方按鈕前往 GitHub 官方授權頁。授權由獨立安全後端處理，不需要複製或貼上 PAT。登入狀態最多保留六小時。','Continue to GitHub to authorize. A secure gateway handles tokens; no PAT is needed. The encrypted session lasts up to six hours.')+'</p>',
+    '<button class="outline-btn" type="button" id="oauthCancel">'+tl('取消','Cancel')+'</button>'+
+    '<button class="solid-btn" type="button" id="oauthSignIn">'+tl('使用 GitHub 登入 ↗','Sign in with GitHub ↗')+'</button>');
+  byId('oauthCancel').onclick=modal.close;
+  byId('oauthSignIn').onclick=startGithubAppLogin;
   return;
  }
  const instructions=tl(
@@ -906,7 +989,7 @@ function openReviewAuth(){
  byId('reviewKey').focus();
 }
 function openReviewForm(row){
- if(!reviewToken||!reviewIdentity||!row?.setup_id)return;
+ if(!reviewAuthenticated()||!row?.setup_id)return;
  const mayApprove=['FORMING','DEVELOPING'].includes(statusOf(row,2))&&row.readiness_recommendation==='READY_CANDIDATE';
  const decisions=[...(mayApprove?['READY']:[]),'FORMING','INVALIDATED'];
  const choices=decisions.map(d=>'<option value="'+d+'">'+({
@@ -941,11 +1024,18 @@ function openReviewForm(row){
   const submit=byId('reviewSubmit');submit.disabled=true;
   byId('reviewSubmitError').textContent=tl('正在提交 GitHub…','Submitting to GitHub…');
   try{
-   await githubRequest('/repos/'+REVIEW_REPO+'/actions/workflows/'+REVIEW_WORKFLOW+'/dispatches',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({ref:'main',inputs:{symbol:row.symbol,setup_id:row.setup_id,
-     decision,confirmed_chart_review:String(confirmed),review_reason:reason}})
-   });
+   if(oauthEnabled){
+    await oauthRequest('/reviews/dispatch','POST',{
+     symbol:row.symbol,setup_id:row.setup_id,decision,
+     confirmed_chart_review:confirmed,review_reason:reason
+    });
+   }else{
+    await githubRequest('/repos/'+REVIEW_REPO+'/actions/workflows/'+REVIEW_WORKFLOW+'/dispatches',{
+     method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({ref:'main',inputs:{symbol:row.symbol,setup_id:row.setup_id,
+      decision,confirmed_chart_review:String(confirmed),review_reason:reason}})
+    });
+   }
    reviewPending={setup_id:row.setup_id,decision,since:Date.now()};
    modal.close();
    showReviewStatus('GitHub 已接受 '+row.symbol+' → '+decision+' 的審核請求；尚待執行及資料發布。',
@@ -973,6 +1063,7 @@ function openReviewForm(row){
 }
 byId('reviewAuthBtn').addEventListener('click',openReviewAuth);
 reviewAuthLabel();
+initGithubAppAuth();
 
 byId('scanBtn').onclick=startScan;
 byId('syncBtn').onclick=async()=>{await loadServer();toast(tl('已同步最新追蹤資料。','Latest tracking records synced.'))};

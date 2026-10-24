@@ -15,7 +15,7 @@ def test_public_view_has_review_entry_and_does_not_offer_legacy_editing():
     assert 'id="count1"' in HTML and 'id="count2"' in HTML and 'id="count3"' in HTML
 
 
-def test_credentials_stay_in_memory_and_github_verifies_dispatch():
+def test_pat_stays_in_memory_and_github_app_nonce_is_not_a_credential():
     script=re.search(r"<script>(.*?)</script>",HTML,re.DOTALL).group(1)
     assert "let reviewToken=null, reviewIdentity=null" in script
     assert "reviewToken=token" in script
@@ -25,7 +25,11 @@ def test_credentials_stay_in_memory_and_github_verifies_dispatch():
     assert "confirmed_chart_review:String(confirmed)" in script
     assert 'https://api.github.com' in script
     assert "localStorage.setItem('reviewToken'" not in script
-    assert 'sessionStorage.setItem(' not in script
+    # OAuth stores a random anti-CSRF nonce, not the raw GitHub credential.
+    assert 'sessionStorage.setItem(OAUTH_PENDING_STATE_KEY,nonce)' in script
+    assert "sessionStorage.setItem('reviewToken'" not in script
+    assert "localStorage.setItem(OAUTH_SESSION_STORAGE_KEY" in script
+    assert "oauthRequest('/reviews/dispatch','POST'" in script
     assert 'fetch(\'/api/state\'' not in script.split("function openReviewForm(row)",1)[1].split("byId('reviewAuthBtn')",1)[0]
     assert "reviewToken=null;reviewIdentity=null" in script
     assert "READY_CANDIDATE" in script
