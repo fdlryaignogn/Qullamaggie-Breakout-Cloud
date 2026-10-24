@@ -29,6 +29,8 @@ on:
         type: string
 permissions:
   contents: write
+  pages: write
+  id-token: write
 concurrency:
   group: qullamaggie-eod-scan
   cancel-in-progress: false
@@ -36,6 +38,9 @@ jobs:
   record-review:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,3 +76,14 @@ jobs:
             git commit -m "Stage 2 authenticated review: ${{ github.run_id }}"
             git push
           fi
+      # Changes pushed by GITHUB_TOKEN do NOT trigger the push-based
+      # publish-site.yml workflow. Deploy the freshly reviewed site here.
+      - name: Configure GitHub Pages after a successful review
+        uses: actions/configure-pages@v5
+      - name: Upload approved public site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Publish updated Stage 2 and Stage 3 to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

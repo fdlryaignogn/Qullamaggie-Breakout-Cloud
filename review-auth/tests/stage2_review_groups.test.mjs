@@ -44,7 +44,10 @@ test('published candidate snapshot is partitioned without duplicates',()=>{
    if(group){assert.ok(Object.hasOwn(groups,group));groups[group]++;candidates++;}
  }
  assert.equal(groups.above+groups.near+groups.observe,candidates);
- if(published.metadata.as_of_date==='2026-10-23'){
+ // The review workflow may approve READY candidates without changing the
+ // as-of date of the last EOD scan. Do not assert immutable live snapshot counts.
+ const stillUnreviewed=published.state['2'].every(x=>x.setup_status==='FORMING');
+ if(published.metadata.as_of_date==='2026-10-23'&&stillUnreviewed){
    assert.deepEqual(groups,{above:4,near:8,observe:6});
    assert.equal(candidates,18);
  }
