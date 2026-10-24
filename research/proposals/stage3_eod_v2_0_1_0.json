@@ -1,0 +1,57 @@
+{
+  "rule_id": "STAGE3_EOD_V2",
+  "version": "0.1.0",
+  "stage": 3,
+  "approval_status": "EXPERIMENTAL",
+  "production_enabled": false,
+  "source_commit": "c7a3c80e630fe8f734d77219c4ff0132a5cc207f",
+  "rule_owner": "Trading System (research-only proposal to Research Lab)",
+  "data_source": "existing published adjusted 1d chart with completed as-of session",
+  "parameters": {
+    "near_below_pivot_pct": 3,
+    "strong_cross_rvol20_min": 1.5,
+    "pivot_source": "manually approved Stage 2 READY breakout_level",
+    "volume_reference": "current daily volume / 20 preceding completed sessions"
+  },
+  "labels": [
+    "WATCH",
+    "NEAR_BREAKOUT",
+    "RECHECK",
+    "EOD_BREAKOUT",
+    "STRONG_EOD_BREAKOUT",
+    "ABOVE_PIVOT",
+    "DATA_UNAVAILABLE"
+  ],
+  "precedence": [
+    "EOD_CROSS AND RVOL20>=1.5 => STRONG_EOD_BREAKOUT",
+    "EOD_CROSS otherwise => EOD_BREAKOUT",
+    "ABOVE_PIVOT => ABOVE_PIVOT",
+    "TOUCH_ONLY or prior_close>pivot and close<=pivot => RECHECK",
+    "BELOW_PIVOT within 3% of pivot => NEAR_BREAKOUT",
+    "Other BELOW_PIVOT => WATCH"
+  ],
+  "human_gate": "Published Stage 2 parent must be READY, approved by identified manual reviewer at or before as-of NY-local date 23:59:59. The earliest research availability is max(16:00 NY, approval timestamp).",
+  "point_in_time_warning": "Retrospective observations approved after the as-of session are INELIGIBLE as historical live signals. Historical pivot provenance requires further validation.",
+  "training_period": null,
+  "validation_period": null,
+  "test_period": null,
+  "sample_count": 0,
+  "win_rate": null,
+  "expectancy_net_R": null,
+  "profit_factor": null,
+  "max_drawdown": null,
+  "assumptions": [
+    "No future OHLCV bars used in current as-of classification",
+    "No intraday bar ordering or trade/fill inference",
+    "RVOL 1.5x and 3% proximity are exploratory parameters, not official Qullamaggie rules",
+    "No realized return or forward performance metric asserted",
+    "Representative data must include delisted/unselected candidates to mitigate survivorship and selection bias",
+    "Human approval and frozen pivot must be reconstructed point-in-time before historical backtest"
+  ],
+  "restrictions": [
+    "Not called by production scanner",
+    "Do not write to tracking_state.json or site/data/latest.json",
+    "Do not move WATCH to TRIGGERED or auto-trade",
+    "No strategy promotion without independent Research Lab validation and explicit owner approval"
+  ]
+}
