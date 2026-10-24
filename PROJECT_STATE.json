@@ -30,22 +30,19 @@
         "not yet linked from main dashboard"
       ],
       "tests": {
-        "status": "static_checks_passed_browser_not_run",
-        "checks": {
-          "hasHTML": true,
-          "hasScript": true,
-          "hasClosing": true,
-          "hasLocalStorage": true,
-          "hasCutoff": true,
-          "hasEscape": true,
-          "hasRStats": true,
-          "hasCSV": true
-        },
-        "notes": "No headless browser verification available in this tool session; CSV parsing is basic and does not support quoted commas."
+        "status": "static_review_only",
+        "checks": [
+          "both menu links exist",
+          "shared localStorage language key",
+          "language controls set same preference",
+          "research data unchanged"
+        ],
+        "browser_tests": "not_run"
       },
-      "next_action": "Verify Pages deployment and browser flows; v0.2 cloud persistence",
+      "next_action": "Verify bilingual UI on deployed Pages, including reload and switching between Trading and Research",
       "merge_commit": "58bd3a1301d40ca4ea724ce4a2d2b0ab29ea284f",
-      "page_url": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/research.html"
+      "page_url": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/research.html",
+      "last_change": "Shared Trading/Research top navigation and zh/en language preference implemented"
     },
     "trading_system": {
       "status": "not_audited_in_this_turn",
