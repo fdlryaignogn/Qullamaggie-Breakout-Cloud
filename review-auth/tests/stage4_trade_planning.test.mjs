@@ -44,7 +44,7 @@ test('risk calculator obeys both cash cap and per-trade risk and fixed fees',()=
  assert.equal(p.shares,9);
  assert.equal(p.totalRisk,55);
  assert.equal(p.cashUsed,910);
- assert.equal(p.targetR,2);
+ assert.ok(Math.abs(p.targetR-(80/55))<1e-10); // net profit 80 / worst-case risk 55
  assert.ok(p.totalRisk<=p.budget&&p.cashUsed<=1000);
 });
 test('risk cap, lot rounding and slippage alter shares properly',()=>{
@@ -70,6 +70,7 @@ test('budget too small yields zero shares not synthetic holdings',()=>{
  assert.equal(p.ok,true);
  assert.equal(p.shares,0);
  assert.equal(p.totalRisk,0);
+ assert.equal(p.targetR,null);
  const noLot=size(scenario({equity:1000,riskPct:.1,cash:1000,entry:100,stop:90,fees:.5}));
  assert.equal(noLot.ok,true);
  assert.equal(noLot.shares,0);
