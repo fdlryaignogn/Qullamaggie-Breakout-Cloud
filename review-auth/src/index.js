@@ -16,9 +16,15 @@ function base64url(bytes) {
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 function unbase64url(value) {
-  if (!/^[A-Za-z0-9_-]+$/.test(value)) throw Error("Invalid encoded data");
-  const binary = atob(value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4));
+  if (!/^[A-Za-z0-9+/_-]+={0,2}$/.test(value)) throw Error("Invalid encoded data");
+  const normalized = value.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/,"");
+  const binary = atob(normalized + "=".repeat((4 - normalized.length % 4) % 4));
   return Uint8Array.from(binary, c => c.charCodeAt(0));
+}
+function secretKeyBytes(env){
+  const key=unbase64url(env.SESSION_KEY);
+  if(key.length!==32)throw Error("SESSION_KEY must be a 32-byte secret");
+  return key;
 }
 function json(body, status = 200, cors = true) {
   return new Response(JSON.stringify(body), { status, headers: {
@@ -42,12 +48,12 @@ function configValid(env) {
   return !!(env.GITHUB_CLIENT_ID && env.GITHUB_CLIENT_SECRET && env.SESSION_KEY);
 }
 async function hmac(env, data) {
-  const key = await crypto.subtle.importKey("raw", unbase64url(env.SESSION_KEY), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const key = await crypto.subtle.importKey("raw", secretKeyBytes(env), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   return base64url(new Uint8Array(await crypto.subtle.sign("HMAC", key, encoder.encode(data))));
 }
 async function seal(env, payload) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const key = await crypto.subtle.importKey("raw", unbase64url(env.SESSION_KEY), "AES-GCM", false, ["encrypt"]);
+  const key = await crypto.subtle.importKey("raw", secretKeyBytes(env), "AES-GCM", false, ["encrypt"]);
   const cipher = await crypto.subtle.encrypt({name:"AES-GCM",iv}, key, encoder.encode(JSON.stringify(payload)));
   return base64url(iv) + "." + base64url(new Uint8Array(cipher));
 }
@@ -56,7 +62,7 @@ async function openSeal(env, sealed) {
   const parts = sealed.split(".");
   if (parts.length !== 2) throw httpError(401, "SESSION_INVALID");
   try {
-    const key = await crypto.subtle.importKey("raw", unbase64url(env.SESSION_KEY), "AES-GCM", false, ["decrypt"]);
+    const key = await crypto.subtle.importKey("raw", secretKeyBytes(env), "AES-GCM", false, ["decrypt"]);
     const plain = await crypto.subtle.decrypt({name:"AES-GCM",iv:unbase64url(parts[0])}, key, unbase64url(parts[1]));
     const payload = JSON.parse(decoder.decode(plain));
     if (payload.v !== 1 || !payload.t || !payload.login || !payload.id ||
