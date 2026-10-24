@@ -11,19 +11,20 @@ on:
         required: true
         type: string
       action:
-        description: "Manual EOD decision (no orders, no TRIGGERED)"
+        description: "Manual EOD decision or verified close-cross confirmation; no orders"
         required: true
         type: choice
         options:
           - KEEP_WATCH
           - NO_TRADE
           - ARCHIVE
+          - CONFIRM_EOD_TRIGGER
       review_reason:
         description: "Public reason; never enter account details"
         required: true
         type: string
       confirmed:
-        description: "Confirm NO_TRADE or ARCHIVE action"
+        description: "Confirm NO_TRADE, ARCHIVE or EOD TRIGGERED action"
         required: true
         type: boolean
         default: false
