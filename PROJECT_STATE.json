@@ -30,19 +30,20 @@
         "not yet linked from main dashboard"
       ],
       "tests": {
-        "status": "static_review_only",
-        "checks": [
-          "both menu links exist",
-          "shared localStorage language key",
-          "language controls set same preference",
-          "research data unchanged"
-        ],
-        "browser_tests": "not_run"
+        "status": "static_checks_passed_browser_not_run",
+        "checks": {
+          "researchBrand": true,
+          "returnLink": true,
+          "englishReturn": true,
+          "sharedLanguageKey": true,
+          "researchBackup": true,
+          "tradingOnlyButtonsAbsent": true
+        }
       },
-      "next_action": "Verify bilingual UI on deployed Pages, including reload and switching between Trading and Research",
+      "next_action": "Verify deployed research header and language toggle on desktop/mobile",
       "merge_commit": "58bd3a1301d40ca4ea724ce4a2d2b0ab29ea284f",
       "page_url": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/research.html",
-      "last_change": "Shared Trading/Research top navigation and zh/en language preference implemented"
+      "last_change": "Research Lab dedicated topbar with bilingual return button and shared language selector"
     },
     "trading_system": {
       "status": "not_audited_in_this_turn",
