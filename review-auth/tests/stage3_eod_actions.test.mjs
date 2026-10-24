@@ -134,3 +134,13 @@ test('Stage 3 browser checklist computes pass/fail and does not gate on volume m
  metric.eod_event='ABOVE_PIVOT';
  assert.equal(decide(row).requiredOK,false);
 });
+
+test('delayed confirmation requires explicit authorization and confirmation',async()=>{
+ const {dispatch,req,requests}=harness();
+ await assert.rejects(dispatch(req({...base,action:'CONFIRM_POST_APPROVAL',confirmed:false}),{}),e=>e.status===400);
+ const response=await dispatch(req({...base,action:'CONFIRM_POST_APPROVAL',confirmed:true}),{});
+ assert.equal(response.status,202);
+ const body=JSON.parse(requests[0].opts.body);
+ assert.equal(body.inputs.action,'CONFIRM_POST_APPROVAL');
+ assert.equal(body.inputs.confirmed,'true');
+});
