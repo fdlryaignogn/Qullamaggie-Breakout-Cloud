@@ -106,6 +106,10 @@
 .review-result{margin-top:12px;padding:11px 15px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);font-size:12px;color:var(--text)}
 .review-result[hidden]{display:none!important}
 .review-result a{margin-left:10px;white-space:nowrap}
+.stage3-check-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin:9px 0 16px}
+.stage3-check-row{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.4;display:flex;gap:5px;align-items:flex-start;flex-wrap:wrap}
+.stage3-check-row strong{font-weight:650}
+.stage3-check-row small{flex:1 0 100%;font-size:11px;color:var(--muted)}
 .review-guide{font-size:12px;line-height:1.75;color:var(--muted);margin-bottom:14px}
 .review-guide strong{color:var(--text)}
 .review-guide a{font-weight:700}
@@ -1357,21 +1361,82 @@ function openStage3Details(row){
  byId('stage3DetailsClose').onclick=modal.close;
  const open=byId('stage3DetailsReview');if(open)open.onclick=()=>reviewAuthenticated()?openStage3Action(row):openReviewAuth();
 }
+// This is a UI preview; GitHub independently checks original adjusted 1d bars.
+// No experimental volume threshold is used as a live Trigger requirement.
+function stage3TriggerChecklist(row){
+ const asOf=serverMeta?.as_of_date;
+ const parent=state['2'].find(p=>p.setup_id===row.setup_id&&p.symbol===row.symbol);
+ const data=stage3CurrentEod(row);
+ const checks=[];
+ const add=(label,pass,description,required=true)=>checks.push({label,pass:!!pass,description,required});
+ const ready=!!parent&&parent.setup_status==='READY';
+ add(tl('第二輪 READY','Stage 2 READY'),ready,tl('僅核准 READY 的 Setup','Only human-approved setups'));
+ const approved=!!(parent?.manual_reviewer&&parent?.manual_reviewed_at);
+ add(tl('人工核准紀錄','Human approval evidence'),approved,
+  tl('須有審核人與帶時區的審核時間','Reviewer and time-zone-aware approval timestamp'));
+ let approvedBySession=false;
+ try{
+  const date=new Date(parent?.manual_reviewed_at);
+  if(approved&&Number.isFinite(date.getTime())&&typeof asOf==='string'){
+   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',
+    year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date);
+   const get=k=>parts.find(p=>p.type===k)?.value;
+   const nyDate=get('year')+'-'+get('month')+'-'+get('day');
+   approvedBySession=nyDate<=asOf;
+  }
+ }catch(_){}
+ add(tl('核准時間不晚於該 EOD 交易日','READY approved by this EOD session'),
+  approvedBySession,tl('不會把事後批准倒填成過去的 Trigger','No retrospectively created trigger'));
+ const scanOK=serverMeta?.phase==='success'&&!!serverMeta?.last_success&&/^\d{4}-\d{2}-\d{2}$/.test(asOf||'');
+ add(tl('有效雲端 EOD 掃描','Published successful EOD scan'),scanOK,
+  tl('掃描成功並標明交易日期','Successful completed daily snapshot'));
+ const pivot=Number(row.breakout_level),validPivot=Number.isFinite(pivot)&&pivot>0;
+ add(tl('突破參考價有效','Approved breakout pivot'),validPivot,
+  tl('使用人工核准的整理區間上緣','Uses saved approved base high'));
+ const fresh=data?.eod_as_of===asOf&&row.eod_as_of===asOf&&row.eod_data_status==='FRESH';
+ add(tl('當日 EOD 數據可用','Current session EOD observation'),fresh,
+  tl('原始日線仍會在 GitHub 後端再次驗證','GitHub will independently recheck original daily bars'));
+ const crossed=!!(fresh&&validPivot&&data?.eod_event==='EOD_CROSS'&&
+  Number(data.eod_prev_close)<=pivot&&Number(data.eod_close)>pivot);
+ add(tl('有效日線收盤突破','Daily close-cross above pivot'),crossed,
+  tl('上一收盤 ≤ 參考價；本日收盤 > 參考價','Prior close at/below pivot, latest close above pivot'));
+ const requiredOK=checks.every(c=>!c.required||c.pass);
+ const rv=data?.eod_volume_ratio,atr=data?.eod_atr14,adr=data?.eod_adr20_pct;
+ const risk=data?.eod_ref_risk_atr;
+ const context=[
+  [tl('成交量比率 RVOL20（不設硬門檻）','RVOL20 (no mandatory multiplier)'),rv==null?'—':fmtNum(rv)+'×'],
+  ['ATR14',atr==null?'—':fmtNum(atr)],
+  ['ADR20',adr==null?'—':pct(adr)],
+  [tl('參考止損距離 / ATR（非止損單）','Hypothetical risk / ATR (not a stop order)'),risk==null?'—':fmtNum(risk)]
+ ];
+ return {checks,requiredOK,context,asOf};
+}
+function stage3TriggerChecklistHtml(summary){
+ return '<div class="review-guide"><strong>'+tl('EOD Trigger 要求檢查','EOD Trigger requirements')+'</strong> · '+
+  (summary.requiredOK?tl('必要條件符合（須 GitHub 再驗證）','Checks met (GitHub verifies again)'):tl('有必要條件未通過，禁止 Trigger','Required checks failed; Trigger disabled'))+'</div>'+
+  '<div class="stage3-check-grid">'+summary.checks.map(c=>'<div class="stage3-check-row"><span class="'+(c.pass?'positive':'negative')+'">'+(c.pass?'✓':'✕')+'</span> <strong>'+esc(c.label)+'</strong><small>'+esc(c.description)+'</small></div>').join('')+'</div>'+
+  '<p class="review-guide" style="margin:10px 0 5px"><strong>'+tl('參考數據（不設未經驗證的硬性量能門檻）','Context only (no unvalidated volume gate)')+'</strong></p>'+
+  '<div class="stage3-check-grid">'+summary.context.map(([label,value])=>'<div class="stage3-check-row"><strong>'+esc(label)+'</strong><span>'+esc(String(value))+'</span></div>').join('')+'</div>';
+}
+
 function openStage3Action(row){
  if(!reviewAuthenticated()||row?.status!=='WATCH')return;
  const date=serverMeta?.as_of_date;
  if(!date||!Number.isSafeInteger(Number(serverRevision))){toast(tl('尚未取得已核實的雲端 EOD 版本','No verified EOD revision is available'),true);return;}
+ const checks=stage3TriggerChecklist(row);
  const options=[
   ['KEEP_WATCH',tl('繼續 WATCH + 記錄人工覆核','Keep WATCH + add review note')],
+  ['CONFIRM_EOD_TRIGGER',tl('TRIGGERED：人工確認 EOD 突破','TRIGGERED: manually confirm EOD breakout')],
   ['NO_TRADE',tl('NO_TRADE：本個 Setup 不交易','NO_TRADE: skip this setup')],
   ['ARCHIVE',tl('ARCHIVED：結束第三輪追蹤','ARCHIVED: close this watch')]
  ];
  modal.open(tl('Stage 3 · 人工 EOD Action','Stage 3 · Manual EOD action'),
   esc(row.symbol+' · '+row.setup_id+' · EOD '+date),
   '<p class="review-guide">'+tl('僅處理已核准 READY 的 WATCH。執行後會寫入 GitHub，公開保留審核者、時間及原因。NO_TRADE / ARCHIVED 為結束狀態，不能由此介面重新啟動。','Only a human-approved READY WATCH can be changed. GitHub stores the reviewer, time and reason. NO_TRADE / ARCHIVED are terminal for this setup.')+'</p>'+
-  '<div class="field"><label for="stage3Decision">'+tl('選擇 Action','Choose action')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div>'+
+  stage3TriggerChecklistHtml(checks)+
+  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action','Choose action')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'"'+(k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled':'')+'>'+v+'</option>').join('')+'</select></div>'+
   '<div class="field" style="margin-top:12px"><label for="stage3Reason">'+tl('人工原因（公開，必填）','Reason (public, required)')+'</label><textarea id="stage3Reason" maxlength="500" placeholder="'+tl('僅描述日線結構、EOD 訊號及不交易理由；勿填帳戶資料。','EOD observations only; do not enter account details.')+'"></textarea></div>'+
-  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；不會自動下單，也不代表已成交。','I confirm this human decision creates no trade or fill.')+'</span></label>'+
+  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；TRIGGERED 只表示 EOD 突破訊號，沒有盤中觸發時間、成交或自動下單。','I understand TRIGGERED only records an EOD breakout signal, not an intraday trigger, fill or order.')+'</span></label>'+
   '<p class="review-status">'+tl('若雲端資料已被更新，GitHub 會拒絕舊版本操作。','GitHub rejects requests against a stale published revision.')+'</p>'+
   '<p class="review-status" id="stage3SubmitError" role="alert"></p>',
   '<button type="button" class="outline-btn" id="stage3Cancel">'+tl('取消','Cancel')+'</button>'+
@@ -1382,6 +1447,10 @@ function openStage3Action(row){
  byId('stage3Cancel').onclick=modal.close;
  byId('stage3Submit').onclick=async()=>{
   const action=decision.value,reason=byId('stage3Reason').value.trim();
+  if(action==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK){
+   byId('stage3SubmitError').textContent=tl('EOD Trigger 必要條件未通過，請檢查上方逐項結果','EOD Trigger blocked by the failed requirements above');
+   return;
+  }
   if(!reason||reason.length>500||/[\u0000-\u001f\u007f]/.test(reason)){
    byId('stage3SubmitError').textContent=tl('請填寫不包含換行或控制字元的 1–500 字原因','Enter a 1–500 character reason without line breaks or control characters');return;
   }
