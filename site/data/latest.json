@@ -1,5 +1,5 @@
 {
-  "revision": 1792797148,
+  "revision": 1792797149,
   "running": false,
   "metadata": {
     "phase": "success",
@@ -6079,10 +6079,10 @@
         "setup_id": "RBRK-20261023",
         "as_of_date": "2026-10-23",
         "first_seen_date": "2026-10-23",
-        "setup_status": "FORMING",
-        "last_reviewed_at": "2026-10-23",
-        "status_reason": "Heuristic candidate; manual chart review required",
-        "_updated_at": "2026-10-23T23:12:24+00:00",
+        "setup_status": "READY",
+        "last_reviewed_at": "2026-10-24",
+        "status_reason": "Human chart review by fdlryaignogn: it pulled back and raised to near previous peak.",
+        "_updated_at": "2026-10-24T05:57:55+00:00",
         "_scanned_at": "2026-10-23T23:53:58+00:00",
         "prior_advance_pct": 46.07,
         "prior_advance_days": 63,
@@ -6110,7 +6110,10 @@
         },
         "readiness_recommendation": "READY_CANDIDATE",
         "readiness_rationale": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
-        "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY."
+        "algorithm_evidence": "5/5 prototype checks; unmet: none. Human review required; no automated READY.",
+        "manual_reviewed_at": "2026-10-24T05:57:55+00:00",
+        "manual_reviewer": "fdlryaignogn",
+        "ready_since": "2026-10-24"
       },
       {
         "symbol": "RCEL",
@@ -6695,9 +6698,42 @@
         "last_reviewed_at": "2026-10-24",
         "status_reason": "Human-approved READY; EOD WATCH only, not a trade trigger",
         "_updated_at": "2026-10-24T05:56:07+00:00"
+      },
+      {
+        "symbol": "RBRK",
+        "setup_id": "RBRK-20261023",
+        "watch_date": "2026-10-24",
+        "trade_date": "2026-10-23",
+        "setup_status": "READY",
+        "breakout_level": 127.9,
+        "status": "WATCH",
+        "last_reviewed_at": "2026-10-24",
+        "status_reason": "Human-approved READY; EOD WATCH only, not a trade trigger",
+        "_updated_at": "2026-10-24T05:57:55+00:00"
       }
     ],
     "history": [
+      {
+        "when": "2026-10-24T05:57:55+00:00",
+        "stage": 2,
+        "symbol": "RBRK",
+        "setup_id": "RBRK-20261023",
+        "from": "FORMING",
+        "to": "READY",
+        "reason": "it pulled back and raised to near previous peak.",
+        "reviewer": "fdlryaignogn",
+        "source": "authenticated GitHub Actions review"
+      },
+      {
+        "when": "2026-10-24T05:57:55+00:00",
+        "stage": 3,
+        "symbol": "RBRK",
+        "setup_id": "RBRK-20261023",
+        "from": "",
+        "to": "WATCH",
+        "reason": "Human READY approval; observation only",
+        "reviewer": "fdlryaignogn"
+      },
       {
         "when": "2026-10-24T05:56:07+00:00",
         "stage": 2,
@@ -9720,8 +9756,8 @@
         "reason": "New union-of-ranks winner"
       }
     ],
-    "updatedAt": "2026-10-24T05:56:07+00:00"
+    "updatedAt": "2026-10-24T05:57:55+00:00"
   },
   "readiness_updated_at": "2026-10-23T23:53:58+00:00",
-  "review_updated_at": "2026-10-24T05:56:07+00:00"
+  "review_updated_at": "2026-10-24T05:57:55+00:00"
 }
