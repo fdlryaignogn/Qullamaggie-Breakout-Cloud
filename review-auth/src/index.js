@@ -194,6 +194,45 @@ async function dispatchReview(request, env) {
   }
   return json({accepted:true,actor,status:"queued"},202);
 }
+// Authorized Stage-3 reviewer action; the GitHub workflow performs final
+// optimistic-revision, READY-parent and WATCH-state validation before writes.
+async function dispatchStage3(request, env) {
+ const session=await authenticate(request,env);
+ const actor=await checkReviewer(session);
+ if ((request.headers.get("Content-Type")||"").split(";")[0].trim()!=="application/json")
+   throw httpError(415,"JSON_REQUIRED");
+ if(Number(request.headers.get("Content-Length")||0)>4096)throw httpError(413,"REQUEST_TOO_LARGE");
+ const raw=await request.text();
+ if(raw.length>4096)throw httpError(413,"REQUEST_TOO_LARGE");
+ let data;try{data=JSON.parse(raw);}catch(_){throw httpError(400,"INVALID_JSON");}
+ const symbol=String(data.symbol||"").trim().toUpperCase();
+ const setup=String(data.setup_id||"").trim();
+ const action=String(data.action||"");
+ const reason=String(data.review_reason||"").trim();
+ const date=String(data.expected_as_of_date||"");
+ const revision=String(data.expected_revision||"");
+ const confirmed=data.confirmed===true;
+ if(!/^[A-Z][A-Z0-9.\-]{0,14}$/.test(symbol) ||
+    !/^[A-Z][A-Z0-9.\-]{0,14}-[0-9]{8}(?:-[0-9]+)?$/.test(setup) ||
+    !setup.startsWith(symbol+"-") ||
+    !["KEEP_WATCH","NO_TRADE","ARCHIVE"].includes(action) ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+    !/^(?:0|[1-9]\d{0,15})$/.test(revision) ||
+    reason.length<1||reason.length>500||/[\u0000-\u001f\u007f]/.test(reason) ||
+    (action!=="KEEP_WATCH"&&!confirmed))
+   throw httpError(400,"INVALID_STAGE3_INPUT");
+ const result=await githubApi("/repos/"+REPO+"/actions/workflows/review-stage3.yml/dispatches",
+   session.t,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+    ref:"main",inputs:{symbol,setup_id:setup,action,review_reason:reason,
+      confirmed:String(confirmed),expected_revision:revision,
+      expected_as_of_date:date}
+   })});
+ if(result.status!==204){
+  if([401,403,404].includes(result.status))throw httpError(403,"GITHUB_ACTIONS_ACCESS_DENIED");
+  throw httpError(502,"WORKFLOW_DISPATCH_FAILED");
+ }
+ return json({accepted:true,actor,status:"queued"},202);
+}
 export default {
   async fetch(request,env) {
     try {
@@ -204,7 +243,7 @@ export default {
       if(path==="/auth/start" && request.method==="GET") return await beginLogin(request,env);
       if(path==="/auth/callback" && request.method==="GET") return await callback(request,env);
       // Cross-origin API calls must originate from the one approved Pages site.
-      if (!["/auth/me","/reviews/dispatch"].includes(path))
+      if (!["/auth/me","/reviews/dispatch","/stage3/dispatch"].includes(path))
         return json({error:"NOT_FOUND"},404,false);
       if(request.headers.get("Origin")!==SITE)
         return json({error:"ORIGIN_NOT_ALLOWED"},403,false);
@@ -220,6 +259,7 @@ export default {
         return json({login,expires:session.exp,can_review:true});
       }
       if(path==="/reviews/dispatch" && request.method==="POST") return await dispatchReview(request,env);
+      if(path==="/stage3/dispatch" && request.method==="POST") return await dispatchStage3(request,env);
       return json({error:"METHOD_NOT_ALLOWED"},405);
     } catch(e) {
       const status=[400,401,403,405,413,415,502].includes(e.status)?e.status:500;

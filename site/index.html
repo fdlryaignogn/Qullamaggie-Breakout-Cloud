@@ -102,7 +102,7 @@
 @media(max-width:900px){.review-queues-cards{grid-template-columns:1fr}}
 /* Public data stays read-only. Authenticated review sends a GitHub API request.
    Do not turn on legacy browser editing in the cloud. */
-#addBtn,#importBtn,#scanBtn,button[data-act]:not([data-act="review"]){display:none!important}
+#addBtn,#importBtn,#scanBtn,button[data-act]:not([data-act="review"]):not([data-act="stage3view"]):not([data-act="stage3action"]){display:none!important}
 .review-result{margin-top:12px;padding:11px 15px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);font-size:12px;color:var(--text)}
 .review-result[hidden]{display:none!important}
 .review-result a{margin-left:10px;white-space:nowrap}
@@ -149,7 +149,7 @@
   <nav class="tabbar" aria-label="篩選輪次" role="tablist">
     <button class="tab" role="tab" aria-selected="true" aria-controls="tablePanel" data-stage="1"><span class="tab-n">01</span><span><div class="tab-title">第一輪 · 動能篩選</div><div class="tab-desc">Momentum screening</div></span><span class="tab-count" id="count1">0</span></button>
     <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="2"><span class="tab-n">02</span><span><div class="tab-title">第二輪 · 整理形態</div><div class="tab-desc">Setup qualification</div></span><span class="tab-count" id="count2">0</span></button>
-    <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="3"><span class="tab-n">03</span><span><div class="tab-title">第三輪 · 突破訊號</div><div class="tab-desc">Breakout execution</div></span><span class="tab-count" id="count3">0</span></button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="tablePanel" data-stage="3"><span class="tab-n">03</span><span><div class="tab-title">第三輪 · 突破訊號</div><div class="tab-desc">EOD watch & review</div></span><span class="tab-count" id="count3">0</span></button>
   </nav>
   <main class="panel" id="tablePanel" role="tabpanel">
     <div class="panel-info"><div><h2 id="panelTitle">第一輪：強勢股動能篩選</h2><p id="panelDesc">比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。</p></div><span class="workflow" id="workflow">◇ 每日更新，歷史保留</span></div>
@@ -185,6 +185,7 @@ const STORE_KEY='qulla_breakout_dashboard_v1';
 // GitHub App mode stores only a six-hour AES-GCM-sealed reviewer session.
 const REVIEW_REPO='fdlryaignogn/Qullamaggie-Breakout-Cloud';
 const REVIEW_WORKFLOW='review-stage2.yml';
+const STAGE3_REVIEW_WORKFLOW='review-stage3.yml';
 let reviewToken=null, reviewIdentity=null, reviewPending=null;
 let oauthApi='',oauthEnabled=false,oauthSession=null,oauthExpires=0;
 const OAUTH_SESSION_STORAGE_KEY='qullamaggie_reviewer_oauth_v1';
@@ -196,7 +197,7 @@ const stages={
   2:{title:'第二輪：整理形態確認',desc:'持續追蹤強勢股的整理底部、回撤與波動收縮；只有 READY 才可進入第三輪。',workflow:'◇ Setup 追蹤 · 不每日清空',note:'整理前 63 個交易日升幅 30% 僅作參考評分。READY CANDIDATE 是系統建議；READY 須在 GitHub 經登入後人工核准。',statuses:['NEW','FORMING','DEVELOPING','READY','REJECT','INVALIDATED','INSUFFICIENT_DATA','ARCHIVED'],fields:[
   ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['as_of_date','評估日期','date'],['setup_status','形態狀態','select'],['prior_advance_pct','整理前63個交易日升幅 %','number'],['prior_advance_days','前段上漲天數','number'],['prior_advance_start','前段上漲起始日','date'],['prior_advance_end','前段上漲截止日','date'],['prior_advance_min_pct','最低參考升幅 %（預設30）','number'],['base_start','整理開始','date'],['base_end','整理結束／評估','date'],['base_length_days','整理天數','number'],['base_high','整理高點 / 突破參考','number'],['base_low','整理低點','number'],['pullback_pct','回撤 %','number'],['higher_lows','低點抬高','select-yes'],['volatility_contraction','波動收縮','select-yes'],['moving_average_context','均線描述','textarea'],['ready_since','READY 起始日','date'],['invalidation_reason','失效原因','textarea'],['status_reason','狀態原因 / 判斷依據','textarea'],['rationale','形態判斷理由','textarea'],['last_reviewed_at','最後覆核日','date']
   ],columns:[['symbol','股票 / Setup'],['setup_status','形態狀態'],['prior_advance_pct','整理前63日升幅'],['prior_advance_min_pct','最低參考升幅'],['prior_advance_ref_pass','符合參考？'],['readiness_recommendation','系統建議'],['readiness_score','準備分數'],['base_start','整理開始'],['base_length_days','整理天數'],['base_high','整理高點'],['base_low','整理低點'],['pullback_pct','回撤'],['higher_lows','低點抬高'],['volatility_contraction','波動收縮'],['ready_since','READY 起始'],['last_reviewed_at','最近覆核']]},
-  3:{title:'第三輪：突破監察與風險規劃',desc:'僅根據第二輪 READY 的 Setup 監察突破、開盤區間與風險參數，不會替你落單。',workflow:'◇ READY → WATCH → TRIGGERED',note:'只有第二輪目前為 READY 的 Setup 才能有效監察突破；TRIGGERED 代表訊號而非實際成交。',statuses:['WATCH','TRIGGERED','INVALIDATED','NO_TRADE','ARCHIVED'],fields:[
+  3:{title:'第三輪：突破監察與風險規劃',desc:'僅以完成的日線監察第二輪已核准 READY 的 Setup；網頁可進行人工 WATCH / NO_TRADE / ARCHIVE 決定。',workflow:'◇ EOD READY → WATCH → 人工 Action',note:'日線突破屬觀察，不是即時觸發或成交；NO_TRADE 與 ARCHIVED 須有管理員授權及人工原因。',statuses:['WATCH','TRIGGERED','INVALIDATED','NO_TRADE','ARCHIVED'],fields:[
   ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['watch_date','監察日期','date'],['trade_date','交易日','date'],['setup_status','來源 Setup 狀態','text'],['breakout_level','突破關鍵價','number'],['opening_range_minutes','Opening range 分鐘','number'],['opening_range_high','開盤區間高點','number'],['trigger_price','觸發價格','number'],['trigger_time','觸發時間','text'],['trigger_rule','突破確認規則','textarea'],['entry_plan','入場計劃','textarea'],['initial_stop','初始止損','number'],['risk_per_share','每股風險','number'],['atr_adr_context','ATR / ADR 參考','text'],['suggested_max_shares','建議最大股數','number'],['status','觸發狀態','select'],['triggered_at','觸發記錄時間','text'],['status_reason','狀態原因','textarea'],['rationale','其他依據 / 注意事項','textarea'],['last_reviewed_at','最後覆核日','date']
   ],columns:[['symbol','股票 / Setup'],['status','突破狀態'],['breakout_level','突破參考價'],['eod_close','最新收市價'],['eod_distance_pct','距離參考價 %'],['eod_event','日線觀察結果'],['eod_volume_ratio','成交量 / 前20日均量'],['eod_atr14','ATR 14 日'],['eod_adr20_pct','ADR 20 日 %'],['eod_ref_risk_atr','參考風險 / ATR'],['eod_ref_stop','參考止損價（當日低點）'],['trade_date','日線資料日期']]}
 };
@@ -479,7 +480,7 @@ function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;if(stage===2&&ui.reviewGroup&&stage2ReviewGroup(r)!==ui.reviewGroup)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
  byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
  byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
- if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewAuthenticated()&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';return `<tr><td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}${reviewAction}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}</tr>`}).join('')}
+ if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewAuthenticated()&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';const stage3Actions=CLOUD_MODE&&stage===3?`<button class="link-btn" data-act="stage3view" data-id="${esc(id)}">${tl('查看 EOD','EOD details')}</button>${statusOf(row,3)==='WATCH'?`<button class="link-btn" data-act="stage3action" data-id="${esc(id)}">${tl('Action ▾','Action ▾')}</button>`:''} `:'';const regularActions=CLOUD_MODE?'':`<button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button>`;return `<tr><td><div class="cell-actions">${regularActions}${reviewAction}${stage3Actions}</div></td>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}</tr>`}).join('')}
  else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
  byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
  syncTopTableScrollbar();
@@ -566,7 +567,7 @@ wireTopTableScrollbar();
 byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});function sortByHeader(th){if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render();}
 byId('thead').addEventListener('click',e=>sortByHeader(e.target.closest('[data-sort]')));
 byId('thead').addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const th=e.target.closest('[data-sort]');if(!th)return;e.preventDefault();sortByHeader(th);});
-byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewAuthenticated()){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
+byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewAuthenticated()){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}if(ui.stage===3&&['stage3view','stage3action'].includes(btn.dataset.act)){const watch=state['3'].find(r=>sid(r,3)===btn.dataset.id);if(!watch)return;if(btn.dataset.act==='stage3view')openStage3Details(watch);else if(!reviewAuthenticated())openReviewAuth();else openStage3Action(watch);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
 byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLanguage('en');
 byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(true);byId('exportCsvBtn').onclick=()=>exportCSV(false);byId('importBtn').onclick=()=>byId('fileInput').click();byId('fileInput').addEventListener('change',e=>importFile(e.target.files[0]));byId('exportAllBtn').onclick=()=>{download(`qullamaggie_all_stages_${today()}.json`,JSON.stringify({...state,exported_at:nowIso(),version:1},null,2),'application/json;charset=utf-8');toast(t('已備份三輪資料與狀態歷史。'))};byId('helpBtn').onclick=help;byId('versionBtn').onclick=showVersionDetails;byId('closeModal').onclick=modal.close;byId('overlay').addEventListener('click',e=>{if(e.target===byId('overlay'))modal.close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.close();hidePricePopup()}});
 // Same-origin browser-to-Python API. Standalone HTML still works offline.
@@ -1324,6 +1325,91 @@ function openReviewAuth(){
  };
  byId('reviewKey').focus();
 }
+// Stage 3 cloud actions are authenticated and EOD-only. No browser-local mutation.
+function stage3CurrentEod(row){
+ const persisted=row.eod_as_of===serverMeta?.as_of_date && row.eod_data_status==='FRESH' ? row : null;
+ const cached=stage3EodMetrics.get(row.setup_id);
+ return persisted || (cached?.eod_as_of===serverMeta?.as_of_date ? cached : null);
+}
+function openStage3Details(row){
+ const data=stage3CurrentEod(row);
+ const source=data?tl('已驗證的收市日線','Verified completed daily chart'):tl('EOD 資料缺失或過期','EOD figures unavailable or stale');
+ const values=[
+  [tl('交易日','Market session'),data?.eod_as_of||serverMeta?.as_of_date||'—'],
+  [tl('來源 Setup','Source setup'),row.setup_id],
+  [tl('突破參考價（人工核准）','Approved pivot'),fmtNum(row.breakout_level)],
+  [tl('收市價','Daily close'),data?.eod_close==null?'—':fmtNum(data.eod_close)],
+  [tl('距離參考價','Distance to pivot'),data?.eod_distance_pct==null?'—':pct(data.eod_distance_pct,true)],
+  [tl('日線觀察事件','EOD observation'),data?.eod_event||'—'],
+  [tl('相對成交量 / 20 日','Volume vs prior 20'),data?.eod_volume_ratio==null?'—':fmtNum(data.eod_volume_ratio)+'×'],
+  ['ATR14',data?.eod_atr14==null?'—':fmtNum(data.eod_atr14)],
+  ['ADR20',data?.eod_adr20_pct==null?'—':pct(data.eod_adr20_pct)],
+  [tl('參考低點（非交易止損）','Hypothetical low (not a placed stop)'),data?.eod_ref_stop==null?'—':fmtNum(data.eod_ref_stop)],
+  [tl('人工狀態','Manual state'),row.status||'—'],
+  [tl('人工備註','Manual reason'),row.stage3_manual_action?row.status_reason||'—':'—']
+ ];
+ const table='<div class="review-guide">'+source+' · '+tl('這不是買入、觸發或成交確認。','Not an entry, trigger or execution.')+'</div>'+
+ '<div class="form-grid">'+values.map(([k,v])=>'<div class="field"><label>'+esc(k)+'</label><strong>'+esc(String(v))+'</strong></div>').join('')+'</div>'+
+ '<p class="review-status">'+tl('指標只使用指定交易日的日線資料。研究版 V2 標籤未經正式回測驗證。','Figures are daily-only; research V2 labels are not approved strategy signals.')+'</p>';
+ modal.open(tl('第三輪 EOD 詳情','Stage 3 EOD details'),esc(row.symbol+' · '+row.setup_id),table,
+  '<button type="button" class="outline-btn" id="stage3DetailsClose">'+tl('關閉','Close')+'</button>'+
+  (row.status==='WATCH'?'<button type="button" class="solid-btn" id="stage3DetailsReview">'+tl('Action ▾','Action ▾')+'</button>':''));
+ byId('stage3DetailsClose').onclick=modal.close;
+ const open=byId('stage3DetailsReview');if(open)open.onclick=()=>reviewAuthenticated()?openStage3Action(row):openReviewAuth();
+}
+function openStage3Action(row){
+ if(!reviewAuthenticated()||row?.status!=='WATCH')return;
+ const date=serverMeta?.as_of_date;
+ if(!date||!Number.isSafeInteger(Number(serverRevision))){toast(tl('尚未取得已核實的雲端 EOD 版本','No verified EOD revision is available'),true);return;}
+ const options=[
+  ['KEEP_WATCH',tl('繼續 WATCH + 記錄人工覆核','Keep WATCH + add review note')],
+  ['NO_TRADE',tl('NO_TRADE：本個 Setup 不交易','NO_TRADE: skip this setup')],
+  ['ARCHIVE',tl('ARCHIVED：結束第三輪追蹤','ARCHIVED: close this watch')]
+ ];
+ modal.open(tl('Stage 3 · 人工 EOD Action','Stage 3 · Manual EOD action'),
+  esc(row.symbol+' · '+row.setup_id+' · EOD '+date),
+  '<p class="review-guide">'+tl('僅處理已核准 READY 的 WATCH。執行後會寫入 GitHub，公開保留審核者、時間及原因。NO_TRADE / ARCHIVED 為結束狀態，不能由此介面重新啟動。','Only a human-approved READY WATCH can be changed. GitHub stores the reviewer, time and reason. NO_TRADE / ARCHIVED are terminal for this setup.')+'</p>'+
+  '<div class="field"><label for="stage3Decision">'+tl('選擇 Action','Choose action')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div>'+
+  '<div class="field" style="margin-top:12px"><label for="stage3Reason">'+tl('人工原因（公開，必填）','Reason (public, required)')+'</label><textarea id="stage3Reason" maxlength="500" placeholder="'+tl('僅描述日線結構、EOD 訊號及不交易理由；勿填帳戶資料。','EOD observations only; do not enter account details.')+'"></textarea></div>'+
+  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；不會自動下單，也不代表已成交。','I confirm this human decision creates no trade or fill.')+'</span></label>'+
+  '<p class="review-status">'+tl('若雲端資料已被更新，GitHub 會拒絕舊版本操作。','GitHub rejects requests against a stale published revision.')+'</p>'+
+  '<p class="review-status" id="stage3SubmitError" role="alert"></p>',
+  '<button type="button" class="outline-btn" id="stage3Cancel">'+tl('取消','Cancel')+'</button>'+
+  '<button type="button" class="solid-btn" id="stage3Submit">'+tl('提交 GitHub Action','Submit GitHub action')+'</button>');
+ const decision=byId('stage3Decision'),confirm=byId('stage3Confirm'),confirmWrap=byId('stage3ConfirmWrap');
+ decision.onchange=()=>{confirmWrap.hidden=decision.value==='KEEP_WATCH';confirm.checked=false;};
+ decision.onchange();
+ byId('stage3Cancel').onclick=modal.close;
+ byId('stage3Submit').onclick=async()=>{
+  const action=decision.value,reason=byId('stage3Reason').value.trim();
+  if(!reason||reason.length>500||/[\u0000-\u001f\u007f]/.test(reason)){
+   byId('stage3SubmitError').textContent=tl('請填寫不包含換行或控制字元的 1–500 字原因','Enter a 1–500 character reason without line breaks or control characters');return;
+  }
+  const confirmed=action!=='KEEP_WATCH'&&confirm.checked;
+  if(action!=='KEEP_WATCH'&&!confirmed){byId('stage3SubmitError').textContent=tl('請勾選確認結束追蹤','Confirm this terminal action');return;}
+  const button=byId('stage3Submit');button.disabled=true;
+  byId('stage3SubmitError').textContent=tl('提交 GitHub 中…','Submitting to GitHub…');
+  try{
+   const request={symbol:row.symbol,setup_id:row.setup_id,action,review_reason:reason,
+    confirmed,expected_revision:String(serverRevision),expected_as_of_date:date};
+   if(oauthEnabled){
+    await oauthRequest('/stage3/dispatch','POST',request);
+   }else{
+    await githubRequest('/repos/'+REVIEW_REPO+'/actions/workflows/'+STAGE3_REVIEW_WORKFLOW+'/dispatches',{
+     method:'POST',headers:{'Content-Type':'application/json'},
+     body:JSON.stringify({ref:'main',inputs:{...request,confirmed:String(confirmed)}})
+    });
+   }
+   modal.close();
+   byId('reviewActionLink').href='https://github.com/'+REVIEW_REPO+'/actions/workflows/'+STAGE3_REVIEW_WORKFLOW;
+   showReviewStatus(row.symbol+'：'+action+' 已提交 GitHub，等待工作流程驗證及發佈。',
+     row.symbol+': '+action+' queued on GitHub; validation and publication are pending.');
+   toast(tl('已送出；請稍後按同步確認結果。','Submitted; refresh to confirm publication.'));
+  }catch(err){if(byId('stage3SubmitError'))byId('stage3SubmitError').textContent=err.message;}
+  finally{if(button.isConnected)button.disabled=false;}
+ };
+}
+
 function openReviewForm(row){
  if(!reviewAuthenticated()||!row?.setup_id)return;
  const mayApprove=['FORMING','DEVELOPING'].includes(statusOf(row,2))&&row.readiness_recommendation==='READY_CANDIDATE';
@@ -1372,6 +1458,7 @@ function openReviewForm(row){
       decision,confirmed_chart_review:String(confirmed),review_reason:reason}})
     });
    }
+   byId('reviewActionLink').href='https://github.com/'+REVIEW_REPO+'/actions/workflows/'+REVIEW_WORKFLOW;
    reviewPending={setup_id:row.setup_id,decision,since:Date.now()};
    modal.close();
    showReviewStatus('GitHub 已接受 '+row.symbol+' → '+decision+' 的審核請求；尚待執行及資料發布。',

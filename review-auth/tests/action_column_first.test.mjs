@@ -21,8 +21,15 @@ test('all stage tables place action cells first while retaining stock columns an
   // Review button is built into reviewAction before row rendering, then inserted into first cell.
   assert.ok(render.includes('data-act="review"'));
   assert.ok(render.slice(row,fields).includes('${reviewAction}'));
-  assert.ok(render.slice(row,fields).includes('data-act="edit"'));
-  assert.ok(render.slice(row,fields).includes('data-act="remove"'));
+  // Cloud mode inserts only safe, permission-gated controls; legacy editing
+  // is generated exclusively for non-cloud mode.
+  assert.ok(render.slice(row,fields).includes('${regularActions}'));
+  assert.ok(render.slice(row,fields).includes('${stage3Actions}'));
+  assert.ok(render.includes('data-act="edit"'));
+  assert.ok(render.includes('data-act="remove"'));
+  assert.ok(render.includes("const regularActions=CLOUD_MODE?'':"));
+  assert.ok(render.includes('data-act="stage3view"'));
+  assert.ok(render.includes('data-act="stage3action"'));
   assert.ok(render.includes("reviewAuthenticated()&&stage===2"));
 });
 test('the first column remains sticky during horizontal scrolling',()=>{

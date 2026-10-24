@@ -1,0 +1,96 @@
+name: Review Stage 3 EOD Watch
+on:
+  workflow_dispatch:
+    inputs:
+      symbol:
+        description: "Approved Stage 3 WATCH stock symbol"
+        required: true
+        type: string
+      setup_id:
+        description: "Exact Stage 2 setup identifier"
+        required: true
+        type: string
+      action:
+        description: "Manual EOD decision (no orders, no TRIGGERED)"
+        required: true
+        type: choice
+        options:
+          - KEEP_WATCH
+          - NO_TRADE
+          - ARCHIVE
+      review_reason:
+        description: "Public reason; never enter account details"
+        required: true
+        type: string
+      confirmed:
+        description: "Confirm NO_TRADE or ARCHIVE action"
+        required: true
+        type: boolean
+        default: false
+      expected_revision:
+        description: "Dashboard snapshot revision"
+        required: true
+        type: string
+      expected_as_of_date:
+        description: "Completed EOD trading session YYYY-MM-DD"
+        required: true
+        type: string
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: qullamaggie-eod-scan
+  cancel-in-progress: false
+jobs:
+  review-watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify current snapshot and apply authenticated EOD decision
+        env:
+          REVIEW_SYMBOL: ${{ inputs.symbol }}
+          REVIEW_SETUP_ID: ${{ inputs.setup_id }}
+          REVIEW_ACTION: ${{ inputs.action }}
+          REVIEW_REASON: ${{ inputs.review_reason }}
+          REVIEW_CONFIRM: ${{ inputs.confirmed }}
+          EXPECTED_REVISION: ${{ inputs.expected_revision }}
+          EXPECTED_AS_OF: ${{ inputs.expected_as_of_date }}
+        run: |
+          python - <<'PY'
+          import os, subprocess, sys
+          command = [sys.executable, "stage3_review.py",
+                     "--symbol", os.environ["REVIEW_SYMBOL"],
+                     "--setup-id", os.environ["REVIEW_SETUP_ID"],
+                     "--action", os.environ["REVIEW_ACTION"],
+                     "--note", os.environ["REVIEW_REASON"],
+                     "--expected-revision", os.environ["EXPECTED_REVISION"],
+                     "--expected-as-of-date", os.environ["EXPECTED_AS_OF"]]
+          if os.environ["REVIEW_CONFIRM"] == "true":
+              command.append("--confirm")
+          subprocess.run(command, check=True)
+          PY
+      - name: Commit audited decision to long-lived tracking and public state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/tracking_state.json site/data/latest.json
+          git diff --cached --quiet && exit 1
+          git commit -m "Stage 3 manual EOD action: ${{ github.run_id }}"
+          git push
+      # Commits written by GITHUB_TOKEN do not trigger push-based publish-site.
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
