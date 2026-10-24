@@ -20,7 +20,8 @@
         "local case annotations",
         "CSV candlestick preview with as-of cutoff",
         "win rate / expectancy net R / profit factor / max drawdown",
-        "JSON backup and restore"
+        "JSON backup and restore",
+        "navigation link from site/index.html"
       ],
       "limitations": [
         "localStorage is device-specific, not cloud-synced",
@@ -29,10 +30,20 @@
         "not yet linked from main dashboard"
       ],
       "tests": {
-        "status": "not_executed",
-        "reason": "GitHub connector cannot run browser tests; review and CI needed"
+        "status": "static_checks_passed_browser_not_run",
+        "checks": {
+          "hasHTML": true,
+          "hasScript": true,
+          "hasClosing": true,
+          "hasLocalStorage": true,
+          "hasCutoff": true,
+          "hasEscape": true,
+          "hasRStats": true,
+          "hasCSV": true
+        },
+        "notes": "No headless browser verification available in this tool session; CSV parsing is basic and does not support quoted commas."
       },
-      "next_action": "Review PR, test browser CSV import/annotations, add dashboard navigation, then merge and verify Pages URL"
+      "next_action": "Merge PR after review, then verify deployed GitHub Pages research.html and main dashboard navigation"
     },
     "trading_system": {
       "status": "not_audited_in_this_turn",
