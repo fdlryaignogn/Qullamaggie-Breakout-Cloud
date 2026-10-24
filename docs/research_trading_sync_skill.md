@@ -49,3 +49,9 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - Audit results distinguish `PERSISTED_MATCH`, `DERIVED_NOT_PERSISTED`, `METRIC_MISMATCH`, and `CHART_UNAVAILABLE`; they are descriptive validation flags, not trading signals or Research Lab approval states.
 - Browser fallback EOD metrics must verify chart symbol, as-of date, 1d interval, and adjusted-data provenance. An obsolete asynchronous chart response cannot replace newer scan data.
 - The audit neither downloads prices nor writes state; it does not prove GitHub Pages is accessible or a new market session has been scanned.
+
+## Historical EOD publication backfill (2026-10-24)
+- Once-a-day WATCH values for the completed 2026-10-23 session were recoverable for NIQ, RBRK, and RPD from already published adjusted 1d charts and manual READY approvals.
+- Historical metrics are committed into both `data/tracking_state.json` and `site/data/latest.json` together through a reviewed PR. The original scan's `metadata.as_of_date`, `metadata.last_success`, approvals and history must remain unchanged. The public data revision may increment to make open dashboards reload the corrected snapshot.
+- `stage3_eod_backfill.py` is an opt-in deterministic repair utility: preview by default; `--apply` only under operator supervision, with chart provenance, parent/record consistency, idempotence and conflict checks. Do not use it to create a newer scan or imply the public site was visually verified.
+- A stored `EOD_CROSS` remains a historical daily observation, not a validated trade signal, order, or realized return. Research Lab promotion still follows the documented human-approved strategy lifecycle.
