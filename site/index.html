@@ -844,7 +844,7 @@ function showReviewStatus(zh,en){
  el.hidden=false;
 }
 function githubHeaders(token){
- return {Accept:'application/vnd.github+json',Authorization:'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'};
+ return {Accept:'application/vnd.github+json',Authorization:'Bearer '+token};
 }
 async function githubRequest(path, options={}, token=reviewToken){
  if(!token)throw Error(tl('沒有授權憑證','No reviewer token'));
