@@ -154,8 +154,8 @@ function stage4SizePlan(i){
  const byCash=Math.floor((i.cash-i.fees)/assumedEntry);
  const shares=Math.floor(Math.min(byRisk,byCash)/i.lot)*i.lot;
  if(!Number.isSafeInteger(shares)||shares<0)return {ok:false,error:'INVALID_INPUT'};
- const totalRisk=shares*perShare+i.fees;
- const cashUsed=shares*assumedEntry+i.fees;
+ const totalRisk=shares>0?shares*perShare+i.fees:0;
+ const cashUsed=shares>0?shares*assumedEntry+i.fees:0;
  if(!Number.isFinite(totalRisk)||!Number.isFinite(cashUsed)||cashUsed>i.cash+1e-7||totalRisk>budget+1e-7)return {ok:false,error:'INVALID_INPUT'};
  const target=Number.isFinite(i.target)&&i.target>0?i.target:null;
  const targetR=target!==null?(target-assumedEntry)/perShare:null;
@@ -187,7 +187,7 @@ function renderRisk(){
 }
 function secMetric(record,key,label){
  const m=record?.[key];
- const valid=m&&typeof m==='object'&&Number.isFinite(Number(m.value))&&typeof m.period_end==='string'&&typeof m.filed==='string';
+ const valid=m&&typeof m==='object'&&m.value!=null&&Number.isFinite(Number(m.value))&&typeof m.period_end==='string'&&typeof m.filed==='string';
  const value=valid?(m.unit==='USD'?dollars(Number(m.value)):m.unit==='USD/shares'?'$'+fmt(Number(m.value)):fmt(Number(m.value))):
  tr('未取得','Unavailable');
  const period=valid?(m.period_end+' · '+m.filed+' · '+(m.form||'SEC')):tr('沒有可核實的最新申報數據','No verified recent filing data');
@@ -210,7 +210,7 @@ function renderFundamentals(){
  ];
  byId('fundamentalGrid').innerHTML=rows.map(([k,l])=>{
   if(k==='revenue_yoy_pct'){
-   const m=record?.[k];const ok=m&&Number.isFinite(Number(m.value))&&m.period_end&&m.filed;
+   const m=record?.[k];const ok=m&&m.value!=null&&Number.isFinite(Number(m.value))&&m.period_end&&m.filed;
    return '<div class="detail"><div class="key">'+esc(l)+'</div><div class="val">'+(ok?esc(fmt(Number(m.value))+'%'):esc(tr('未取得','Unavailable')))+'</div><div class="source">'+(ok?esc(m.period_end+' · '+m.filed):esc(tr('不同財年或資料缺失時不推算','Not inferred across mismatched fiscal years')))+'</div></div>';
   }
   return secMetric(record,k,l);
@@ -264,7 +264,7 @@ function renderSignal(){
  byId('useLow').disabled=!(Number.isFinite(low)&&low>0);
  const atr=Number(selected.eod_atr14),adr=Number(selected.eod_adr20_pct);
  byId('riskContext').textContent=tr('訊號當日 ATR14：','Signal-date ATR14: ')+(Number.isFinite(atr)&&atr>0?dollars(atr):tr('未取得','Unavailable'))+
-  tr('；ADR20：','; ADR20: ')+(Number.isFinite(adr)?fmt(adr)+'%':tr('未取得','Unavailable'))+
+  tr('；ADR20：','; ADR20: ')+(selected.eod_adr20_pct!=null&&Number.isFinite(adr)?fmt(adr)+'%':tr('未取得','Unavailable'))+
   tr('。參考低點、EOD 收盤只是歷史資料，非可成交報價。','; reference low and EOD close are historical, not executable quotes.');
 }
 function selectSetup(setupId){
