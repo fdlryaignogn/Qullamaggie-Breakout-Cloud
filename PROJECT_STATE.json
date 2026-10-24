@@ -12,22 +12,56 @@
   },
   "workstreams": {
     "research_lab": {
-      "status": "coordination_only",
-      "deployment": "not_verified",
-      "last_change": "Cross-thread coordination files established",
-      "next_action": "Inspect existing lab source and implement versioned research data interfaces"
+      "status": "merged_awaiting_live_verification",
+      "deployment": "merged_to_main_pages_pending_verification",
+      "page": "site/research.html",
+      "branch": "feature/research-lab-v0-1",
+      "features": [
+        "local case annotations",
+        "CSV candlestick preview with as-of cutoff",
+        "win rate / expectancy net R / profit factor / max drawdown",
+        "JSON backup and restore",
+        "navigation link from site/index.html"
+      ],
+      "limitations": [
+        "localStorage is device-specific, not cloud-synced",
+        "no integrated historical data feed",
+        "no production strategy changes",
+        "not yet linked from main dashboard"
+      ],
+      "tests": {
+        "status": "source_inspection_passed_browser_pending",
+        "checks": [
+          "language initialized before first render",
+          "form label text nodes preserved",
+          "shared language key unchanged"
+        ],
+        "browser_tests": "not executed"
+      },
+      "next_action": "Verify deployed language toggle on phone and desktop",
+      "merge_commit": "58bd3a1301d40ca4ea724ce4a2d2b0ab29ea284f",
+      "page_url": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/research.html",
+      "last_change": "Fixed Research Lab language initialization crash and form label translation",
+      "language_fix_commits": [
+        "7a677d9cd7e17d3d3c87169377ad907f002025d1",
+        "cb230964854345f620c321cde60e53e7f3d80d9a"
+      ]
     },
     "trading_system": {
-      "status": "stage3_eod_only_postreview_backfill_in_pr",
+      "status": "eod_only_pr10_ci_passed_pending_merge",
       "deployment": "not_verified",
-      "last_change": "Stage 3 remains EOD-only; post-review WATCH hydration from same-session public chart cache added on feature branch without intraday or order execution",
-      "next_action": "Run full CI and review PR; verify Stage 3 post-review EOD metrics publish safely; merge after checks; reconcile Research Lab PR #9 shared state",
+      "last_change": "PR #10: post-approval EOD WATCH annotations hydrated from validated same-session daily chart cache; no intraday scanning or trade execution",
+      "next_action": "Reconcile with Research Lab main, merge PR #10 after fresh checks, and verify successful EOD WATCH publication",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
-        "status": "pending_ci",
-        "added": "tests/test_stage3_postreview_eod.py",
-        "manual_ran": false
+        "status": "passed_previous_feature_head; latest_ci_pending",
+        "github_actions_run_id": 40080060584,
+        "python_tests": "passed",
+        "review_auth_node_tests": "passed",
+        "dashboard_js_syntax": "passed",
+        "additional_test_file": "tests/test_stage3_postreview_eod.py",
+        "local_rerun": false
       },
       "published_scan": {
         "as_of_date": "2026-10-23",
