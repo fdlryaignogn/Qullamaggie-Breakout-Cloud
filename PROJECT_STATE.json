@@ -12,8 +12,8 @@
   },
   "workstreams": {
     "research_lab": {
-      "status": "implementation_in_review",
-      "deployment": "not_deployed",
+      "status": "merged_awaiting_live_verification",
+      "deployment": "merged_to_main_pages_pending_verification",
       "page": "site/research.html",
       "branch": "feature/research-lab-v0-1",
       "features": [
@@ -43,7 +43,9 @@
         },
         "notes": "No headless browser verification available in this tool session; CSV parsing is basic and does not support quoted commas."
       },
-      "next_action": "Merge PR after review, then verify deployed GitHub Pages research.html and main dashboard navigation"
+      "next_action": "Verify Pages deployment and browser flows; v0.2 cloud persistence",
+      "merge_commit": "58bd3a1301d40ca4ea724ce4a2d2b0ab29ea284f",
+      "page_url": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/research.html"
     },
     "trading_system": {
       "status": "not_audited_in_this_turn",
