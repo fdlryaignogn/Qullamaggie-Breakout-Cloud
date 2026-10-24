@@ -421,6 +421,10 @@ def merge_scan(state: dict, frames: dict, rows: list[dict], meta: dict) -> dict:
                "last_reviewed_at":as_of,"_updated_at":captured,"_scanned_at":captured}
         state["3"].append(watch)
         state["history"].insert(0,{"when":captured,"stage":3,"symbol":sym,"setup_id":id_,"from":"","to":"WATCH","reason":"Human READY setup entered EOD watch"})
+    # Calculate descriptive EOD metrics for each persistent Stage-3 WATCH.
+    # Never auto-trigger, auto-trade, change an approved pivot, or use future bars.
+    from stage3_eod import enrich_stage3_eod
+    enrich_stage3_eod(state, frames, as_of)
     state["history"]=state["history"][:1000]
     state["updatedAt"]=captured
     return state
