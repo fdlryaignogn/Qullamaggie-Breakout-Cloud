@@ -201,8 +201,8 @@ export default {
       if(path==="/health" && request.method==="GET")
         return json({status:"ok",configured:configValid(env)},200,false);
       if(!configValid(env)) return json({error:"AUTH_BACKEND_NOT_CONFIGURED"},503,false);
-      if(path==="/auth/start" && request.method==="GET") return beginLogin(request,env);
-      if(path==="/auth/callback" && request.method==="GET") return callback(request,env);
+      if(path==="/auth/start" && request.method==="GET") return await beginLogin(request,env);
+      if(path==="/auth/callback" && request.method==="GET") return await callback(request,env);
       // Cross-origin API calls must originate from the one approved Pages site.
       if (!["/auth/me","/reviews/dispatch"].includes(path))
         return json({error:"NOT_FOUND"},404,false);
@@ -219,7 +219,7 @@ export default {
         const login=await checkReviewer(session);
         return json({login,expires:session.exp,can_review:true});
       }
-      if(path==="/reviews/dispatch" && request.method==="POST") return dispatchReview(request,env);
+      if(path==="/reviews/dispatch" && request.method==="POST") return await dispatchReview(request,env);
       return json({error:"METHOD_NOT_ALLOWED"},405);
     } catch(e) {
       const status=[400,401,403,405,413,415,502].includes(e.status)?e.status:500;
