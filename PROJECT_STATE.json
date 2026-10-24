@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-10-24",
+  "source_of_truth": "GitHub repository fdlryaignogn/Qullamaggie-Breakout-Cloud",
+  "coordination": {
+    "status": "initialized",
+    "live_cross_thread_notifications": false,
+    "project_instructions_updated": false,
+    "history_retrieval": "best_effort",
+    "handoff_contract": "docs/research_trading_sync_skill.md",
+    "workflow": "skills/project_coordination/develop_sync_skill.md"
+  },
+  "workstreams": {
+    "research_lab": {
+      "status": "coordination_only",
+      "deployment": "not_verified",
+      "last_change": "Cross-thread coordination files established",
+      "next_action": "Inspect existing lab source and implement versioned research data interfaces"
+    },
+    "trading_system": {
+      "status": "not_audited_in_this_turn",
+      "deployment": "not_verified",
+      "last_change": "No trading logic changed by coordination setup",
+      "next_action": "Read coordination files before next development session"
+    }
+  },
+  "strategy_registry": {
+    "production_rule_change": false,
+    "approval_required": true
+  },
+  "notes": [
+    "Do not infer live deployment or app functionality from this status file.",
+    "Chat threads do not automatically run repository instructions without adopting them."
+  ]
+}
