@@ -48,6 +48,19 @@ jobs:
               r['point_in_time_eligible'] for r in report['observations'])
           assert all(r['production_status']=='WATCH' and r['is_trade'] is False
                      for r in report['observations'])
+          # Archived 2026-10-23 sample was approved on 2026-10-24,
+          # so no prospective October 23 signal may be backdated.
+          if report['as_of_date']=='2026-10-23':
+              rows={r['symbol']:r for r in report['observations']}
+              assert set(rows)=={'NIQ','RBRK','RPD'}
+              assert report['point_in_time_eligible_count']==0
+              assert all(r['eligibility_reason']=='HUMAN_APPROVAL_AFTER_EOD'
+                         and r['point_in_time_eligible'] is False
+                         and r['earliest_research_available_at'] is None
+                         for r in rows.values())
+              assert rows['NIQ']['classification']=='EOD_BREAKOUT'
+              assert rows['RBRK']['classification']=='EOD_BREAKOUT'
+              assert rows['RPD']['classification']=='STRONG_EOD_BREAKOUT'
           PY
       - name: Test GitHub App reviewer security gateway
         run: node --test review-auth/tests/*.test.mjs
