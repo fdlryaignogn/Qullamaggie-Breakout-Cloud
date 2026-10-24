@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage4_post_trigger_workbench_pr20_merged",
-      "deployment": "main_source_merged; github_pages_live_visual_and_SEC_feed_unverified",
-      "last_change": "PR #20 merged fourth-stage web tab linked from Stage 3 TRIGGERED with hypothetical risk/cash-constrained position sizing and provenance-aware SEC annual fundamentals & filing evidence",
-      "next_action": "Verify GitHub Pages fourth tab render on mobile/desktop; configure SEC_USER_AGENT repository secret for real read-only SEC data, then manually trigger Stage 4 SEC workflow; validate a genuine TRIGGERED -> Stage 4 data flow",
+      "status": "stage3_single_trigger_auto_classification_pending_pr_ci",
+      "deployment": "feature_branch_not_merged_or_deployed",
+      "last_change": "Replacing two manual TRIGGERED selectors with one CONFIRM_TRIGGER: UI displays server-matched EOD classification, backend independently decides first/hold subtype and preserves distinct audit fields",
+      "next_action": "Run PR CI; confirm one Trigger option and code-level real EOD eligibility tests; merge and update official state; live Pages verification remains separate",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -71,7 +71,7 @@
       },
       "latest_merged_pr": 20,
       "latest_merge_commit": "f78726383838bc244acda45825490bec960cf2dd",
-      "pending_feature_branch": null,
+      "pending_feature_branch": "feature/stage3-single-confirm-trigger-automatic-eod-mode",
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": null,
+      "pending_pr": "to_be_created",
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -136,8 +136,7 @@
         "enabled_in_public_website": "merged_to_main_not_live_http_verified",
         "actions": [
           "KEEP_WATCH",
-          "CONFIRM_EOD_TRIGGER",
-          "CONFIRM_POST_APPROVAL",
+          "CONFIRM_TRIGGER",
           "NO_TRADE",
           "ARCHIVE"
         ],
@@ -156,15 +155,9 @@
         "oauth_gateway_config": "disabled_in_site/auth-config.json",
         "authentication": "GitHub App when explicitly enabled and deployed; otherwise transient fine-grained PAT",
         "tests": {
-          "status": "PR_CI_passed",
-          "github_actions_run_id": 40135822251,
-          "python_pytest": "99 passed",
-          "node_tests": "40 passed",
-          "strict_eod_audit": "passed",
-          "experimental_v2_smoke": "passed",
-          "dashboard_js_syntax": "passed",
-          "live_browser": "not_verified",
-          "real_auth_action": "not_exercised"
+          "status": "pending_PR_CI",
+          "python": "tests/test_stage3_trigger_checks.py",
+          "node": "review-auth/tests/stage3_eod_actions.test.mjs"
         },
         "public_page": "not_verified",
         "latest_commit": "a6a0a46cdba32aca610e9b06aa027fc8e73db738",
@@ -187,7 +180,7 @@
           "SAVED_EOD_MATCH",
           "EOD_CLOSE_CROSS"
         ],
-        "feature_branch": "feature/stage3-eod-confirmed-trigger-checklist",
+        "feature_branch": "feature/stage3-single-confirm-trigger-automatic-eod-mode",
         "latest_source_commit": "4bd77e9bb79284933742c8aaf189a04cf9c18d6f",
         "no_trade_execution": true,
         "research_v2_remains_experimental": true,
@@ -197,10 +190,18 @@
         "no_retroactive_entry": true,
         "first_confirmation": "FIRST_EOD_CROSS / EOD_CLOSE_CROSS_MANUAL_V1",
         "delayed_confirmation": "POST_APPROVAL_HOLD / EOD_POST_APPROVAL_MANUAL_V1",
-        "trigger_option_display": "both selectable for inspection even when a checklist requirement fails",
-        "trigger_submission": "disabled unless selected EOD Trigger meets all required conditions; GitHub revalidates",
+        "trigger_option_display": "one selectable CONFIRM_TRIGGER; system auto-selects FIRST_EOD_CROSS or POST_APPROVAL_HOLD from EOD",
+        "trigger_submission": "disabled when auto-detected EOD pattern or other mandatory checks fail; server verifies adjusted daily source",
         "last_inspected_published_session": "2026-10-23",
-        "last_inspected_sample": "NIQ/RBRK/RPD first EOD cross, manual READY 2026-10-24; ineligible for both on 2026-10-23"
+        "last_inspected_sample": "NIQ/RBRK/RPD first EOD cross, manual READY 2026-10-24; ineligible for both on 2026-10-23",
+        "trigger_subtypes": {
+          "first": "FIRST_EOD_CROSS / EOD_CLOSE_CROSS_MANUAL_V1",
+          "hold": "POST_APPROVAL_HOLD / EOD_POST_APPROVAL_MANUAL_V1",
+          "selector": "automatic in server; user cannot choose"
+        },
+        "old_triggers": "historical Python internal validator compatibility only; no public workflow/gateway choices",
+        "production_trade_execution": false,
+        "client_authorization_cutoff": "NY 16:00:00 exactly, matches backend"
       },
       "stage4": {
         "status": "merged_to_main_live_not_verified",
