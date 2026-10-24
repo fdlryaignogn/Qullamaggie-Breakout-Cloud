@@ -98,7 +98,8 @@ test('Stage3 Action shows required pass/fail evidence and blocks unqualified tri
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
  assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
  assert.ok(html.includes("!checks.requiredOK"));
- assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled'"));
+ assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK"));
+ assert.ok(html.includes("k==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK"));
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
  assert.ok(html.includes('人工確認 EOD 突破'));
 });
