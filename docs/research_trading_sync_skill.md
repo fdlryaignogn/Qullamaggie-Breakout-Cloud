@@ -69,3 +69,11 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - `stage3_review.py` and `.github/workflows/review-stage3.yml` must validate current manually approved READY parent, matching persisted public/private WATCH row, authenticated actor, as-of date and optimistic revision; then update both state files and an audit event, preserving original scan last_success.
 - No `TRIGGERED`, trading orders, fills, risk sizing, auto-pivot edits or promotion of experimental EOD V2 thresholds through these web Actions.
 - Website OAuth is disabled unless `site/auth-config.json` is deliberately activated with separately deployed and verified secure GitHub App backend. PAT fallback is a temporary tab-memory credential, not a stored or published password.
+
+## Trading System EOD confirmed-trigger UI contract (2026-10-24)
+
+- The Trading System may offer human `CONFIRM_EOD_TRIGGER` as an action on an already-approved Stage-3 WATCH. It is an EOD close-cross confirmation, **not** an intraday trigger, simulated fill, purchase, or automatic order.
+- For a state transition to `TRIGGERED` the server independently verifies the published as-of day and unchanged revision, human READY approval on/before that session, a consistent adjusted daily chart and persisted EOD metrics, and a *fresh upward daily closing cross* of the saved pivot. If a necessary condition fails, the action is rejected and reasons are displayed in the UI.
+- Volume ratio, ATR, ADR and hypothetical low/stop are **reference metrics**; this feature does not promote Research Lab's experimental 1.5x / 3% thresholds into mandatory production trading rules.
+- `TRIGGERED` records the daily evidence date, observed close, manual review timestamp and actor under `EOD_CLOSE_CROSS_MANUAL_V1`. There is **no intraday trigger_time or fill/entry execution inferred**. Every action still requires explicit authenticated human consent and an audit history entry.
+- Stage 1 and Stage 2 behavior are unchanged. Retrospective NIQ/RBRK/RPD EOD_CROSS observations dated October 23 remain ineligible for an October 23 triggered event because human approval followed on October 24.
