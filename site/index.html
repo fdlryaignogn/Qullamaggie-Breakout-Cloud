@@ -1434,14 +1434,25 @@ function stage3TriggerChecklistHtml(summary){
 }
 
 
-/* Disabled <option> prevents inspecting WHY a trigger is blocked.
-   The reviewer may select either path to inspect its requirements; only a
-   passing path can be submitted. GitHub independently revalidates everything. */
-function stage3ActionAvailability(mode,firstChecks,laterChecks){
- const isTrigger=mode==='CONFIRM_EOD_TRIGGER'||mode==='CONFIRM_POST_APPROVAL';
- const report=mode==='CONFIRM_POST_APPROVAL'?laterChecks:firstChecks;
+/* One public Trigger decision; the preceding close and saved EOD event
+   uniquely determine its audit subtype. Selecting it always reveals checks.
+   The backend independently reads the adjusted daily chart and determines
+   the subtype again; the browser cannot choose or forge a classification. */
+function stage3ActionAvailability(mode,firstChecks,laterChecks,eodEvent=null){
+ const isTrigger=['CONFIRM_TRIGGER','CONFIRM_EOD_TRIGGER','CONFIRM_POST_APPROVAL'].includes(mode);
+ const auto=mode==='CONFIRM_TRIGGER';
+ const pattern=auto?(eodEvent==='EOD_CROSS'?'FIRST_EOD_CROSS':
+                   eodEvent==='ABOVE_PIVOT'?'POST_APPROVAL_HOLD':null):
+                   mode==='CONFIRM_POST_APPROVAL'?'POST_APPROVAL_HOLD':'FIRST_EOD_CROSS';
+ const report=pattern==='POST_APPROVAL_HOLD'?laterChecks:firstChecks;
  const failed=isTrigger?report.checks.filter(c=>c.required&&!c.pass):[];
- return {isTrigger,canSubmit:!isTrigger||failed.length===0,failed};
+ if(auto&&!pattern)failed.unshift({
+  label:tl('未出現可確認的 EOD 突破型態','No eligible EOD breakout pattern'),
+  description:tl('最新完整 EOD 必須是首次收盤向上突破，或前收盤與當日收盤均高於 Pivot。',
+  'Latest EOD must have a new upward close-cross or two consecutive closes above pivot.'),
+  required:true,pass:false
+ });
+ return {isTrigger,canSubmit:!isTrigger||failed.length===0,failed,report,pattern};
 }
 function openStage3Action(row){
  if(!reviewAuthenticated()||row?.status!=='WATCH')return;
@@ -1451,8 +1462,7 @@ function openStage3Action(row){
  const lateChecks=stage3TriggerChecklist(row,'CONFIRM_POST_APPROVAL');
  const options=[
   ['KEEP_WATCH',tl('繼續 WATCH + 記錄人工覆核','Keep WATCH + add review note')],
-  ['CONFIRM_EOD_TRIGGER',tl('TRIGGERED：READY 後首次 EOD 突破','TRIGGERED: first breakout after READY')],
-  ['CONFIRM_POST_APPROVAL',tl('TRIGGERED：READY 後延後確認（持續站上突破價）','TRIGGERED: later confirmation above pivot')],
+  ['CONFIRM_TRIGGER',tl('確認 TRIGGERED（自動判斷突破類型）','Confirm TRIGGERED (automatic EOD classification)')],
   ['NO_TRADE',tl('NO_TRADE：本個 Setup 不交易','NO_TRADE: skip this setup')],
   ['ARCHIVE',tl('ARCHIVED：結束第三輪追蹤','ARCHIVED: close this watch')]
  ];
@@ -1460,29 +1470,42 @@ function openStage3Action(row){
   esc(row.symbol+' · '+row.setup_id+' · EOD '+date),
   '<p class="review-guide">'+tl('僅處理已核准 READY 的 WATCH。執行後會寫入 GitHub，公開保留審核者、時間及原因。NO_TRADE / ARCHIVED 為結束狀態，不能由此介面重新啟動。','Only a human-approved READY WATCH can be changed. GitHub stores the reviewer, time and reason. NO_TRADE / ARCHIVED are terminal for this setup.')+'</p>'+
   '<div id="stage3Checklist">'+stage3TriggerChecklistHtml(checks)+'</div>'+
-  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action（可查看兩種 Trigger 的條件）','Choose an action (inspect either Trigger path)')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div>'+
+  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action（只需一次 Trigger 確認）','Choose action (one Trigger confirmation)')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div>'+
   '<p class="review-status" id="stage3DecisionStatus" role="status" aria-live="polite"></p>'+
   '<div class="field" style="margin-top:12px"><label for="stage3Reason">'+tl('人工原因（公開，必填）','Reason (public, required)')+'</label><textarea id="stage3Reason" maxlength="500" placeholder="'+tl('僅描述日線結構、EOD 訊號及不交易理由；勿填帳戶資料。','EOD observations only; do not enter account details.')+'"></textarea></div>'+
-  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；TRIGGERED 只表示 EOD 突破訊號，沒有盤中觸發時間、成交或自動下單。','I understand TRIGGERED only records an EOD breakout signal, not an intraday trigger, fill or order.')+'</span></label>'+
+  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；系統根據已核實 EOD 自動區分首次突破或延後確認。TRIGGERED 不代表成交或自動下單。','I confirm the verified EOD determines the breakout subtype; TRIGGERED is not a fill or order.')+'</span></label>'+
   '<p class="review-status">'+tl('若雲端資料已被更新，GitHub 會拒絕舊版本操作。','GitHub rejects requests against a stale published revision.')+'</p>'+
   '<p class="review-status" id="stage3SubmitError" role="alert"></p>',
   '<button type="button" class="outline-btn" id="stage3Cancel">'+tl('取消','Cancel')+'</button>'+
   '<button type="button" class="solid-btn" id="stage3Submit">'+tl('提交 GitHub Action','Submit GitHub action')+'</button>');
  const decision=byId('stage3Decision'),confirm=byId('stage3Confirm'),confirmWrap=byId('stage3ConfirmWrap');
+ const currentEodEvent=()=>{
+  const data=stage3CurrentEod(row);
+  return data?.eod_as_of===date?data?.eod_event:null;
+ };
  decision.onchange=()=>{
-  const availability=stage3ActionAvailability(decision.value,checks,lateChecks);
+  const availability=stage3ActionAvailability(decision.value,checks,lateChecks,currentEodEvent());
   confirmWrap.hidden=decision.value==='KEEP_WATCH';confirm.checked=false;
-  byId('stage3Checklist').innerHTML=stage3TriggerChecklistHtml(
-   decision.value==='CONFIRM_POST_APPROVAL'?lateChecks:checks);
+  byId('stage3Checklist').innerHTML=stage3TriggerChecklistHtml(availability.report);
   const status=byId('stage3DecisionStatus');
   const submit=byId('stage3Submit');
+  const kind=availability.pattern==='FIRST_EOD_CROSS'
+    ?tl('首次 EOD 收盤突破','First EOD close-cross')
+    :availability.pattern==='POST_APPROVAL_HOLD'
+    ?tl('突破後延後確認','Post-approval hold')
+    :tl('未有合格 EOD 型態','No eligible EOD pattern');
   if(!availability.canSubmit){
    const failed=availability.failed.map(c=>c.label).join('、');
-   status.textContent=tl('可以選取以查看原因，但目前不可提交 Trigger。未通過：'+failed+'。EOD 日期：'+(date||'—')+'；READY 核准時間：'+(state['2'].find(p=>p.setup_id===row.setup_id)?.manual_reviewed_at||'—')+'。如需核准後確認，必須等待新完成的 EOD 資料。','You may inspect this Trigger, but cannot submit it. Failed: '+availability.failed.map(c=>c.description).join('; ')+'. EOD date: '+(date||'—')+'. A new completed post-approval EOD session is required.');
+   status.textContent=availability.isTrigger?
+    tl('系統判斷：'+kind+'。目前不可提交 Trigger。未通過：'+failed+'。EOD 日期：'+(date||'—')+'；READY 核准時間：'+(state['2'].find(p=>p.setup_id===row.setup_id)?.manual_reviewed_at||'—')+'。',
+       'Detected pattern: '+kind+'. Cannot submit. Failed: '+availability.failed.map(c=>c.description).join('; ')+'. EOD: '+(date||'—')+'.'):
+    '';
    submit.disabled=true;
    submit.textContent=tl('條件未通過 · 不能提交 Trigger','Requirements not met · Trigger unavailable');
   }else{
-   status.textContent=availability.isTrigger?tl('必要檢查已通過；提交時 GitHub 仍會重新驗證。','Checks pass; GitHub independently verifies on submission.'):tl('可提交人工追蹤決定；不涉及下單。','Ready to record a manual watch decision; no order is placed.');
+   status.textContent=availability.isTrigger?
+    tl('系統判斷：'+kind+'。必要條件通過；GitHub 會依已核實日線自行確認種類。','Detected: '+kind+'. Checks pass; GitHub reclassifies from verified daily bars.'):
+    tl('可提交人工追蹤決定；不涉及下單。','Ready to record a manual watch decision; no order is placed.');
    submit.disabled=false;
    submit.textContent=tl('提交 GitHub Action','Submit GitHub action');
   }
@@ -1491,7 +1514,7 @@ function openStage3Action(row){
  byId('stage3Cancel').onclick=modal.close;
  byId('stage3Submit').onclick=async()=>{
   const action=decision.value,reason=byId('stage3Reason').value.trim();
-  if(!stage3ActionAvailability(action,checks,lateChecks).canSubmit){
+  if(!stage3ActionAvailability(action,checks,lateChecks,currentEodEvent()).canSubmit){
    byId('stage3SubmitError').textContent=tl('EOD Trigger 必要條件未通過，請檢查上方逐項結果','EOD Trigger blocked by the failed requirements above');
    return;
   }
