@@ -70,6 +70,11 @@ test('budget too small yields zero shares not synthetic holdings',()=>{
  assert.equal(p.ok,true);
  assert.equal(p.shares,0);
  assert.equal(p.totalRisk,0);
+ const noLot=size(scenario({equity:1000,riskPct:.1,cash:1000,entry:100,stop:90,fees:.5}));
+ assert.equal(noLot.ok,true);
+ assert.equal(noLot.shares,0);
+ assert.equal(noLot.totalRisk,0);
+ assert.equal(noLot.cashUsed,0);
 });
 test('no SEC information is represented as unknown and 13F/Form4 are not inferred buys',()=>{
  assert.ok(page.includes('institutionStatus'));
