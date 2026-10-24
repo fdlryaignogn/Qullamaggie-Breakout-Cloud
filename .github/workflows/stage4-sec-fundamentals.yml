@@ -1,0 +1,61 @@
+name: Refresh Stage 4 SEC Fundamentals
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 02 * * 2-6"
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: qullamaggie-eod-scan
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Collect filing facts for confirmed Stage 3 TRIGGERED only
+        id: sec
+        env:
+          SEC_USER_AGENT: ${{ secrets.SEC_USER_AGENT }}
+        run: |
+          if [ -z "$SEC_USER_AGENT" ]; then
+            echo "SEC_USER_AGENT not configured: no SEC requests; leave existing public data unchanged."
+            echo "collected=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python stage4_sec_fundamentals.py
+          echo "collected=true" >> "$GITHUB_OUTPUT"
+      - name: Commit read-only SEC snapshot
+        id: commit
+        if: steps.sec.outputs.collected == 'true'
+        run: |
+          if git diff --quiet -- site/data/stage4_fundamentals.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data/stage4_fundamentals.json
+          git commit -m "data(stage4): refresh SEC filing fundamentals for confirmed triggers"
+          git push
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - uses: actions/configure-pages@v5
+        if: steps.commit.outputs.changed == 'true'
+      - uses: actions/upload-pages-artifact@v4
+        if: steps.commit.outputs.changed == 'true'
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
+        if: steps.commit.outputs.changed == 'true'
