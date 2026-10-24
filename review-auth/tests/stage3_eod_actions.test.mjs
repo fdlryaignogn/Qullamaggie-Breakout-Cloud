@@ -127,6 +127,8 @@ test('Stage 3 browser checklist computes pass/fail and does not gate on volume m
  const late=decide(row);
  assert.equal(late.requiredOK,false);
  assert.equal(late.checks.some(c=>!c.pass&&c.label.includes('核准時間')),true);
+ parent.manual_reviewed_at='2026-10-23T19:00:00';
+ assert.equal(decide(row).requiredOK,false); // time zone missing
  parent.manual_reviewed_at='2026-10-23T19:00:00+00:00';
  metric.eod_event='ABOVE_PIVOT';
  assert.equal(decide(row).requiredOK,false);
