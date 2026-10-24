@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "source": "US SEC EDGAR companyfacts / submissions",
+  "source_status": "not_configured",
+  "generated_at": null,
+  "snapshot_as_of": "2026-10-23",
+  "triggered_count": 0,
+  "records": {},
+  "institutional_buying_verified": false,
+  "insider_buying_verified": false
+}
