@@ -62,3 +62,10 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - Report `point_in_time_eligible` separately from `classification`. Manual READY approved after the EOD session cannot be counted as a valid hypothetical signal for that past date. In the historical 2026-10-23 snapshot, NIQ/RBRK/RPD were approved only on October 24: all **ineligible** for October 23 prospective signal counts, despite EOD_CROSS.
 - Handoff to Research Lab requires frozen as-of pivots and approvals, representative historical cohorts, no-leakage replay, explicit training/validation/test periods, sample size, after-cost expectancy (R), win rate, profit factor and drawdown. No performance values have been validated.
 - Module is read-only and excluded from production Stage 3, Stage 2 READY approval, statuses and broker execution. Only independently validated and owner-approved future PRs can promote rules.
+
+## Trading System Stage 3 EOD web action contract (2026-10-24)
+- The Stage 3 cloud dashboard offers `查看 EOD / EOD details` to readers and a GitHub-authenticated `Action` menu for WATCH rows.
+- Allowed human decisions are `KEEP_WATCH` (WATCH -> WATCH), `NO_TRADE` (WATCH -> NO_TRADE), and `ARCHIVE` (WATCH -> ARCHIVED). All require a public reason; terminal choices require explicit confirmation and cannot be silently reactivated. Stage-2 `INVALIDATED` remains the proper way to invalidate the underlying setup.
+- `stage3_review.py` and `.github/workflows/review-stage3.yml` must validate current manually approved READY parent, matching persisted public/private WATCH row, authenticated actor, as-of date and optimistic revision; then update both state files and an audit event, preserving original scan last_success.
+- No `TRIGGERED`, trading orders, fills, risk sizing, auto-pivot edits or promotion of experimental EOD V2 thresholds through these web Actions.
+- Website OAuth is disabled unless `site/auth-config.json` is deliberately activated with separately deployed and verified secure GitHub App backend. PAT fallback is a temporary tab-memory credential, not a stored or published password.
