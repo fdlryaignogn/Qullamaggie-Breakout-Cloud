@@ -197,7 +197,7 @@ const stages={
   ],columns:[['symbol','股票 / Setup'],['setup_status','形態狀態'],['prior_advance_pct','整理前63日升幅'],['prior_advance_min_pct','最低參考升幅'],['prior_advance_ref_pass','符合參考？'],['readiness_recommendation','系統建議'],['readiness_score','準備分數'],['base_start','整理開始'],['base_length_days','整理天數'],['base_high','整理高點'],['base_low','整理低點'],['pullback_pct','回撤'],['higher_lows','低點抬高'],['volatility_contraction','波動收縮'],['ready_since','READY 起始'],['last_reviewed_at','最近覆核']]},
   3:{title:'第三輪：突破監察與風險規劃',desc:'僅根據第二輪 READY 的 Setup 監察突破、開盤區間與風險參數，不會替你落單。',workflow:'◇ READY → WATCH → TRIGGERED',note:'只有第二輪目前為 READY 的 Setup 才能有效監察突破；TRIGGERED 代表訊號而非實際成交。',statuses:['WATCH','TRIGGERED','INVALIDATED','NO_TRADE','ARCHIVED'],fields:[
   ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['watch_date','監察日期','date'],['trade_date','交易日','date'],['setup_status','來源 Setup 狀態','text'],['breakout_level','突破關鍵價','number'],['opening_range_minutes','Opening range 分鐘','number'],['opening_range_high','開盤區間高點','number'],['trigger_price','觸發價格','number'],['trigger_time','觸發時間','text'],['trigger_rule','突破確認規則','textarea'],['entry_plan','入場計劃','textarea'],['initial_stop','初始止損','number'],['risk_per_share','每股風險','number'],['atr_adr_context','ATR / ADR 參考','text'],['suggested_max_shares','建議最大股數','number'],['status','觸發狀態','select'],['triggered_at','觸發記錄時間','text'],['status_reason','狀態原因','textarea'],['rationale','其他依據 / 注意事項','textarea'],['last_reviewed_at','最後覆核日','date']
-  ],columns:[['symbol','股票 / Setup'],['watch_date','監察日'],['status','突破狀態'],['breakout_level','突破價'],['opening_range_minutes','開盤區間'],['opening_range_high','區間高點'],['trigger_price','觸發價'],['trigger_time','觸發時間'],['initial_stop','初始止損'],['risk_per_share','每股風險'],['suggested_max_shares','最大股數'],['last_reviewed_at','最近覆核']]}
+  ],columns:[['symbol','股票 / Setup'],['status','突破狀態'],['breakout_level','突破參考價'],['eod_close','最新收市價'],['eod_distance_pct','距離參考價 %'],['eod_event','日線觀察結果'],['eod_volume_ratio','成交量 / 前20日均量'],['eod_atr14','ATR 14 日'],['eod_adr20_pct','ADR 20 日 %'],['eod_ref_risk_atr','參考風險 / ATR'],['eod_ref_stop','參考止損價（當日低點）'],['trade_date','日線資料日期']]}
 };
 
 // Compact display headings only; original field keys, export names and sort behavior stay intact.
@@ -231,6 +231,15 @@ const COLUMN_ABBREVIATIONS={
   last_reviewed_at:'Reviewed',
   watch_date:'Watch Dt',
   breakout_level:'BO Level',
+  eod_close:'Close',
+  eod_distance_pct:'ΔPivot%',
+  eod_event:'EOD Flag',
+  eod_volume_ratio:'RVOL20',
+  eod_atr14:'ATR14',
+  eod_adr20_pct:'ADR20%',
+  eod_ref_risk_atr:'Risk/ATR',
+  eod_ref_stop:'Ref Stop',
+  trade_date:'As-of',
   opening_range_minutes:'OR Min',
   opening_range_high:'OR High',
   trigger_price:'Trig Px',
@@ -239,10 +248,31 @@ const COLUMN_ABBREVIATIONS={
   risk_per_share:'Risk/Sh',
   suggested_max_shares:'Max Sh'
 };
+
+const EOD_FULL_EN={
+ eod_close:'Last completed daily close',
+ eod_distance_pct:'Close versus approved breakout reference (%) — positive is above',
+ eod_event:'End-of-day price observation (NOT a verified intraday trigger)',
+ eod_volume_ratio:'Daily volume relative to previous 20 complete sessions (reference, not a required rule)',
+ eod_atr14:'14-session simple average true range',
+ eod_adr20_pct:'20-session average daily high-low / low (%)',
+ eod_ref_risk_atr:'Hypothetical (pivot minus last daily low) / ATR14 — NOT a trade plan',
+ eod_ref_stop:'Last completed daily low as reference only — NOT a submitted stop order',
+ trade_date:'Published EOD session date',
+};
+function eodEventText(code){
+ const labels={
+   EOD_CROSS:[ '日線收市由下向上越過參考價（未確認盤中訊號）','EOD close crossed above pivot (not intraday confirmed)' ],
+   ABOVE_PIVOT:['收市高於參考價（非當日首次上穿）','Close above pivot (not first cross today)'],
+   TOUCH_ONLY:['日內高點越過參考價，但收市未站穩','High above pivot; close not above'],
+   BELOW_PIVOT:['未越過參考價','Below pivot'],
+ };
+ return labels[code]?tl(...labels[code]):tl('資料未齊','Data unavailable');
+}
 function columnFullTitle(stage,key,name){
  const field=stages[stage].fields.find(f=>f[0]===key);
  const label=t(name), detail=t(field?field[1]:name);
- const full=label===detail?label:label+' ('+detail+')';
+ const full=(lang==='en'&&EOD_FULL_EN[key])|| (label===detail?label:label+' ('+detail+')');
  if(key.startsWith('rank_pct_')){
   return full+' — '+tl('數值越小代表排名越強；1.5% = 前 1.5%。點擊標題可排序。',
                        'Lower percentage means stronger rank; 1.5% = top 1.5%. Click header to sort.');
@@ -296,7 +326,31 @@ function eligible(row){const parent=state['2'].find(r=>String(r.setup_id).toUppe
 function newSetupId(symbol){const prefix=String(symbol).toUpperCase()+'-'+today().replaceAll('-','');let id=prefix,n=2;while(state['2'].some(r=>r.setup_id===id)){id=prefix+'-'+n;n++}return id}
 function pct(v,signed=false){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);if(!Number.isFinite(n))return esc(v);return (signed&&n>0?'+':'')+n.toLocaleString('en-US',{maximumFractionDigits:2})+'%'}
 function fmtNum(v){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);return Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:4}):esc(v)}
-function cellValue(row,key,stage){const v=row[key];if(key==='symbol'){let sub=stage===1?(row.market||'US'):(row.setup_id||'—');return `<button type="button" class="symbol symbol-hover" data-chart-symbol="${esc(String(row.symbol||'').toUpperCase())}" data-chart-setup="${esc(String(row.setup_id||''))}" aria-label="${esc(tl((row.symbol||'')+'：左半部顯示六個月，右半部顯示三個月 K 線',(row.symbol||'')+': left half shows six months, right half shows three months'))}" title="${esc(tl('左半部 6 個月 │ 右半部 3 個月','Left half 6 months │ Right half 3 months'))}"><span>${esc(row.symbol||'—')}</span><span class="symbol-mode-guide">6M ◀ │ ▶ 3M</span></button><div class="symbol-sub">${esc(sub)}</div>`}
+function cellValue(row,key,stage){
+ const derived=stage===3 ? stage3EodMetrics.get(row.setup_id) : null;
+ const current=row?.eod_as_of===serverMeta?.as_of_date && row.eod_data_status==='FRESH' ? row : derived;
+ if(stage===3 && key.startsWith('eod_')){
+  const v=current?.[key];
+  if(key==='eod_event'){
+   if(!current)return '<span class="muted">…</span>';
+   return '<span class="status '+(v==='EOD_CROSS'?'READY':'WATCH')+'" title="'+esc(eodEventText(v))+'">'+
+     esc(({EOD_CROSS:'Cross↑',ABOVE_PIVOT:'Above',TOUCH_ONLY:'Touch',BELOW_PIVOT:'Below'})[v]||'—')+'</span>';
+  }
+  if(v===null||v===undefined||v==='')return '<span class="muted">—</span>';
+  let display=fmtNum(v);
+  if(key==='eod_distance_pct')display=(Number(v)>0?'+':'')+fmtNum(v)+'%';
+  if(key==='eod_volume_ratio'||key==='eod_ref_risk_atr')display=fmtNum(v)+'×';
+  if(key==='eod_adr20_pct')display=fmtNum(v)+'%';
+  const more=key==='eod_ref_risk_atr'
+    ?tl('只是假設以突破參考價入場、以最近一日日線低點止損的風險比較，不是建議止損或實際入場。',
+        'Illustrative pivot-to-latest-day-low risk divided by ATR; not a recommended stop or actual entry.')
+    :key==='eod_volume_ratio'
+    ?tl('與之前20個交易日均量比較，並非突破所必須達到的官方倍率。',
+        'Compared with prior 20 sessions; no mandatory volume threshold implied.')
+    :columnFullTitle(stage,key,key);
+  return '<span class="num" title="'+esc(more)+'">'+esc(display)+'</span>';
+ }
+ const v=row[key];if(key==='symbol'){let sub=stage===1?(row.market||'US'):(row.setup_id||'—');return `<button type="button" class="symbol symbol-hover" data-chart-symbol="${esc(String(row.symbol||'').toUpperCase())}" data-chart-setup="${esc(String(row.setup_id||''))}" aria-label="${esc(tl((row.symbol||'')+'：左半部顯示六個月，右半部顯示三個月 K 線',(row.symbol||'')+': left half shows six months, right half shows three months'))}" title="${esc(tl('左半部 6 個月 │ 右半部 3 個月','Left half 6 months │ Right half 3 months'))}"><span>${esc(row.symbol||'—')}</span><span class="symbol-mode-guide">6M ◀ │ ▶ 3M</span></button><div class="symbol-sub">${esc(sub)}</div>`}
   if(key==='readiness_recommendation'){const v=String(row.readiness_recommendation||'—');const label=v==='READY_CANDIDATE'?tl('待人工確認','Review READY'):v==='FORMING'?tl('繼續整理','Forming'):v==='INSUFFICIENT_DATA'?tl('資料不足','Insufficient data'):v;return `<span class="status ${v==='READY_CANDIDATE'?'READY':v==='FORMING'?'FORMING':'INSUFFICIENT_DATA'}" title="${esc(row.readiness_rationale||'')}" aria-label="${esc(label)}">${esc(label)}</span>`;}
   if(key==='readiness_score'){return row.readiness_score===null||row.readiness_score===undefined?'—':`${fmtNum(row.readiness_score)} / 5`;}
   if(key==='prior_advance_ref_pass'){
@@ -417,7 +471,7 @@ function wireTopTableScrollbar(){
 }
 function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  for(let s=1;s<=3;s++){byId('count'+s).textContent=state[s].length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
- byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note);renderUpdatedTime();renderStage2ReviewGroups();
+ byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note)+(stage===3?tl(' 日線 Cross 不代表盤中確認或成交；風險參考不是實際止損建議。','EOD Cross is not an intraday trigger or fill; risk figures are hypothetical references.'):'');renderUpdatedTime();renderStage2ReviewGroups();
  const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
  byId('thead').innerHTML='<tr><th scope="col" title="'+esc(t('操作'))+'" aria-label="'+esc(t('操作'))+'">Act</th>'+config.columns.map(([key,name])=>`<th class="clickable" scope="col" data-sort="${esc(key)}" title="${esc(columnFullTitle(stage,key,name))}" aria-label="${esc(columnFullTitle(stage,key,name))}" tabindex="0">${esc(COLUMN_ABBREVIATIONS[key]||t(name))}${ui.sortBy===key?(ui.sortDir===1?' ↑':' ↓'):''}</th>`).join('')+'</tr>';
  let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;if(stage===2&&ui.reviewGroup&&stage2ReviewGroup(r)!==ui.reviewGroup)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
@@ -427,6 +481,7 @@ function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
  byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
  syncTopTableScrollbar();
+ if(stage===3)scheduleStage3Eod();
 }
 function switchTab(stage){ui.stage=stage;ui.query='';ui.filter='';ui.reviewGroup='';ui.sortBy='';ui.sortDir=-1;byId('search').value='';render();}
 const modal={close(){byId('overlay').classList.remove('visible');byId('modalMain').innerHTML='';byId('modalFoot').innerHTML='';},open(title,subtitle,body,footer){byId('modalTitle').textContent=title;byId('modalSubtitle').textContent=subtitle||'';byId('modalMain').innerHTML=body;byId('modalFoot').innerHTML=footer;byId('overlay').classList.add('visible');}};
@@ -601,6 +656,8 @@ function updateTzUi(){
 // Hover-only price chart; downloaded once per symbol from local EOD cache.
 const popup=byId('pricePopup'), popupBody=byId('pricePopupBody');
 const priceCache=new Map();
+const stage3EodMetrics=new Map();
+const stage3EodPending=new Set();
 let chartHoverTimer=null,chartOpenSymbol=null,chartOpenWindow=null,chartGeneration=0;
 function hidePricePopup(){
  chartGeneration++;clearTimeout(chartHoverTimer);chartOpenSymbol=null;chartOpenWindow=null;
@@ -627,6 +684,70 @@ function chartPayload(sym){
  priceCache.set(sym,request);
  request.catch(()=>priceCache.delete(sym));
  return request;
+}
+// Same EOD-only metric definitions as stage3_eod.py.
+// Existing 180-bar published charts provide immediate values for approved WATCH
+// setups, even before the next full-market scanner run persists the fields.
+function eodFromPublishedBars(bars,pivot,asOf){
+ pivot=Number(pivot);
+ if(!Array.isArray(bars)||bars.length<2||!Number.isFinite(pivot)||pivot<=0)return null;
+ const filtered=bars.filter(b=>String(b.date||'')<=asOf);
+ const n=filtered.length,last=filtered[n-1],prev=filtered[n-2];
+ if(n<2||last.date!==asOf)return null;
+ const vals=[last.close,last.high,last.low,prev.close].map(Number);
+ if(!vals.every(v=>Number.isFinite(v)&&v>0)||vals[2]>vals[1]||vals[0]<vals[2]-1e-7||vals[0]>vals[1]+1e-7)return null;
+ const [close,high,low,prevClose]=vals;
+ const rnd=(v,places=2)=>Number.isFinite(v)?Number(v.toFixed(places)):null;
+ const event=close>pivot?(prevClose<=pivot?'EOD_CROSS':'ABOVE_PIVOT'):(high>pivot?'TOUCH_ONLY':'BELOW_PIVOT');
+ const obj={eod_as_of:asOf,eod_data_status:'FRESH',eod_close:rnd(close,4),
+  eod_high:rnd(high,4),eod_low:rnd(low,4),eod_prev_close:rnd(prevClose,4),
+  eod_distance_pct:rnd(100*(close/pivot-1)),eod_event:event,
+  eod_volume_ratio:null,eod_atr14:null,eod_adr20_pct:null,
+  eod_ref_stop:null,eod_ref_risk_per_share:null,eod_ref_risk_atr:null};
+ if(n>=21){
+  const v=Number(last.volume),prior=filtered.slice(-21,-1).map(b=>Number(b.volume));
+  if(Number.isFinite(v)&&v>0&&prior.length===20&&prior.every(x=>Number.isFinite(x)&&x>0)){
+   const avg=prior.reduce((a,b)=>a+b,0)/20;if(avg>0)obj.eod_volume_ratio=rnd(v/avg);
+  }
+ }
+ if(n>=15){
+  const period=filtered.slice(-15),ranges=[];
+  for(let i=1;i<period.length;i++){
+   const [h,l,p]=[period[i].high,period[i].low,period[i-1].close].map(Number);
+   if(![h,l,p].every(x=>Number.isFinite(x)&&x>0)||h<l){ranges.length=0;break;}
+   ranges.push(Math.max(h-l,Math.abs(h-p),Math.abs(l-p)));
+  }
+  if(ranges.length===14)obj.eod_atr14=rnd(ranges.reduce((a,b)=>a+b,0)/14,4);
+ }
+ if(n>=20){
+  const ranges=filtered.slice(-20).map(b=>100*(Number(b.high)-Number(b.low))/Number(b.low));
+  if(ranges.every(x=>Number.isFinite(x)&&x>=0))obj.eod_adr20_pct=rnd(ranges.reduce((a,b)=>a+b,0)/20);
+ }
+ if(low<pivot){
+  obj.eod_ref_stop=rnd(low,4);
+  obj.eod_ref_risk_per_share=rnd(pivot-low,4);
+  if(obj.eod_atr14>0)obj.eod_ref_risk_atr=rnd((pivot-low)/obj.eod_atr14);
+ }
+ return obj;
+}
+function scheduleStage3Eod(){
+ if(ui.stage!==3||!serverMeta?.as_of_date)return;
+ const asOf=serverMeta.as_of_date;
+ for(const watch of state['3']){
+  if(watch.status!=='WATCH')continue;
+  if(watch.eod_as_of===asOf&&watch.eod_data_status==='FRESH')continue;
+  const key=String(watch.setup_id||'')+':'+asOf+':'+serverRevision;
+  if(stage3EodPending.has(key)||stage3EodMetrics.has(watch.setup_id)&&stage3EodMetrics.get(watch.setup_id).eod_as_of===asOf)continue;
+  stage3EodPending.add(key);
+  chartPayload(watch.symbol).then(chart=>{
+   if(chart.as_of!==asOf)return;
+   const details=eodFromPublishedBars(chart.bars,watch.breakout_level,asOf);
+   if(details&&state['3'].some(w=>w.setup_id===watch.setup_id)){
+    stage3EodMetrics.set(watch.setup_id,details);
+    if(ui.stage===3)render();
+   }
+  }).catch(()=>{}).finally(()=>stage3EodPending.delete(key));
+ }
 }
 function shortPrice(n){return Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
 // Two synchronized Y axes are BOTH on the RIGHT: inner (nearest bars) = price,

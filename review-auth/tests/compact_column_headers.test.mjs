@@ -9,7 +9,7 @@ const configEnd=html.indexOf('const esc=',configStart);
 assert.ok(configStart>=0&&configEnd>configStart,'Stage definitions and column abbreviations are present');
 const definitions=html.slice(configStart,configEnd);
 const {stages,COLUMN_ABBREVIATIONS,columnFullTitle}=vm.runInNewContext(
-  `const t=value=>value;const tl=(zh,en)=>zh;\n${definitions}\n({stages,COLUMN_ABBREVIATIONS,columnFullTitle})`
+  `const lang='zh';const t=value=>value;const tl=(zh,en)=>zh;\n${definitions}\n({stages,COLUMN_ABBREVIATIONS,columnFullTitle})`
 );
 
 test('all 3 stages use a short heading for every listed stock column',()=>{
