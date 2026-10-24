@@ -84,3 +84,8 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - The latest EOD session requires READY already approved no later than **16:00 New York**, including full timezone validation. Neither mode can annotate an earlier breakout as an entry, forge a trigger time, imply a fill, or place an order.
 - Each mode has its own pass/fail checklist in the Dashboard; GitHub backend repeats all validations against adjusted same-session daily chart and persisted EOD fields. `CONFIRM_POST_APPROVAL` uses `EOD_POST_APPROVAL_MANUAL_V1` and stores `POST_APPROVAL_HOLD` separately from `EOD_CLOSE_CROSS_MANUAL_V1` / `FIRST_EOD_CROSS`.
 - Research Lab continues to own parameter experiments and historical performance validation. This feature does not promote the experimental V2 volume/proximity thresholds.
+
+## EOD Trigger UI clarity correction (2026-10-25)
+- Both Trigger modes must stay selectable **for inspection** when the required checklist fails; they show specific failed checks and approval/EOD timestamps. Submission stays disabled unless that mode is eligible. The server repeats all guards, without allowing backdated events.
+- For the 2026-10-23 EOD snapshot, NIQ/RBRK/RPD were approved on 2026-10-24; neither first-cross nor post-approval hold qualifies on that older EOD. Next EOD may qualify only after publication of a new completed session and verified price evidence.
+- No change to research parameters, trade execution, or Stage 1/Stage 2 rules.

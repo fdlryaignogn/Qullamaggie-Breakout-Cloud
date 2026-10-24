@@ -118,3 +118,23 @@ Example: Friday initial EOD breakout, Saturday READY approval, Monday EOD still 
 Data persisted on human confirmation includes `trigger_rule` (distinct mode), `eod_trigger_confirmation_type`, original READY approval timestamp, *latest* as-of date and close, actor and audit history. No intraday `trigger_time`, simulated fill, broker order or auto-trigger is created.
 
 This is a user-approved operational distinction between the timing of EOD observation and subsequent manual confirmation, not a Research Lab performance claim or auto-promoted experimental strategy filter.
+
+## Visible but not actionable Trigger checks (2026-10-25)
+
+Both `CONFIRM_EOD_TRIGGER` and `CONFIRM_POST_APPROVAL` remain **selectable in the
+Action menu**, even when their requirements are unmet. Selecting either action
+shows the independent mandatory checklist, EOD as-of session, and the READY
+approval timestamp with the failed requirements clearly described. This is a
+**diagnostic selection only**; the GitHub submission button is disabled for a
+non-qualifying Trigger, and the server again refuses any bypass attempts.
+
+The published 2026-10-23 sample demonstrates why this is necessary: NIQ,
+RBRK and RPD had a fresh daily `EOD_CROSS` that Friday but READY approval
+was given on Saturday 2026-10-24. First cross fails the pre-close approval
+gate. Post-approval hold fails the pre-close approval gate **and** requires a
+new completed EOD with both closes above the pivot. The next possible EOD
+session is Monday 2026-10-26, subject to a successful scan and price behavior.
+
+A disabled **submit** action must never be interpreted as an actual accepted
+trigger, order, or trade; ordinary KEEP_WATCH, NO_TRADE, ARCHIVE workflows
+remain available to authenticated human reviewers.

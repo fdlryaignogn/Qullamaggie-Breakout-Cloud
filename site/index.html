@@ -1426,6 +1426,16 @@ function stage3TriggerChecklistHtml(summary){
   '<div class="stage3-check-grid">'+summary.context.map(([label,value])=>'<div class="stage3-check-row"><strong>'+esc(label)+'</strong><span>'+esc(String(value))+'</span></div>').join('')+'</div>';
 }
 
+
+/* Disabled <option> prevents inspecting WHY a trigger is blocked.
+   The reviewer may select either path to inspect its requirements; only a
+   passing path can be submitted. GitHub independently revalidates everything. */
+function stage3ActionAvailability(mode,firstChecks,laterChecks){
+ const isTrigger=mode==='CONFIRM_EOD_TRIGGER'||mode==='CONFIRM_POST_APPROVAL';
+ const report=mode==='CONFIRM_POST_APPROVAL'?laterChecks:firstChecks;
+ const failed=isTrigger?report.checks.filter(c=>c.required&&!c.pass):[];
+ return {isTrigger,canSubmit:!isTrigger||failed.length===0,failed};
+}
 function openStage3Action(row){
  if(!reviewAuthenticated()||row?.status!=='WATCH')return;
  const date=serverMeta?.as_of_date;
@@ -1443,7 +1453,8 @@ function openStage3Action(row){
   esc(row.symbol+' · '+row.setup_id+' · EOD '+date),
   '<p class="review-guide">'+tl('僅處理已核准 READY 的 WATCH。執行後會寫入 GitHub，公開保留審核者、時間及原因。NO_TRADE / ARCHIVED 為結束狀態，不能由此介面重新啟動。','Only a human-approved READY WATCH can be changed. GitHub stores the reviewer, time and reason. NO_TRADE / ARCHIVED are terminal for this setup.')+'</p>'+
   '<div id="stage3Checklist">'+stage3TriggerChecklistHtml(checks)+'</div>'+
-  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action','Choose action')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'"'+((k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK)||(k==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK)?' disabled':'')+'>'+v+'</option>').join('')+'</select></div>'+
+  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action（可查看兩種 Trigger 的條件）','Choose an action (inspect either Trigger path)')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div>'+
+  '<p class="review-status" id="stage3DecisionStatus" role="status" aria-live="polite"></p>'+
   '<div class="field" style="margin-top:12px"><label for="stage3Reason">'+tl('人工原因（公開，必填）','Reason (public, required)')+'</label><textarea id="stage3Reason" maxlength="500" placeholder="'+tl('僅描述日線結構、EOD 訊號及不交易理由；勿填帳戶資料。','EOD observations only; do not enter account details.')+'"></textarea></div>'+
   '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；TRIGGERED 只表示 EOD 突破訊號，沒有盤中觸發時間、成交或自動下單。','I understand TRIGGERED only records an EOD breakout signal, not an intraday trigger, fill or order.')+'</span></label>'+
   '<p class="review-status">'+tl('若雲端資料已被更新，GitHub 會拒絕舊版本操作。','GitHub rejects requests against a stale published revision.')+'</p>'+
@@ -1452,16 +1463,28 @@ function openStage3Action(row){
   '<button type="button" class="solid-btn" id="stage3Submit">'+tl('提交 GitHub Action','Submit GitHub action')+'</button>');
  const decision=byId('stage3Decision'),confirm=byId('stage3Confirm'),confirmWrap=byId('stage3ConfirmWrap');
  decision.onchange=()=>{
+  const availability=stage3ActionAvailability(decision.value,checks,lateChecks);
   confirmWrap.hidden=decision.value==='KEEP_WATCH';confirm.checked=false;
   byId('stage3Checklist').innerHTML=stage3TriggerChecklistHtml(
    decision.value==='CONFIRM_POST_APPROVAL'?lateChecks:checks);
+  const status=byId('stage3DecisionStatus');
+  const submit=byId('stage3Submit');
+  if(!availability.canSubmit){
+   const failed=availability.failed.map(c=>c.label).join('、');
+   status.textContent=tl('可以選取以查看原因，但目前不可提交 Trigger。未通過：'+failed+'。EOD 日期：'+(date||'—')+'；READY 核准時間：'+(state['2'].find(p=>p.setup_id===row.setup_id)?.manual_reviewed_at||'—')+'。如需核准後確認，必須等待新完成的 EOD 資料。','You may inspect this Trigger, but cannot submit it. Failed: '+availability.failed.map(c=>c.description).join('; ')+'. EOD date: '+(date||'—')+'. A new completed post-approval EOD session is required.');
+   submit.disabled=true;
+   submit.textContent=tl('條件未通過 · 不能提交 Trigger','Requirements not met · Trigger unavailable');
+  }else{
+   status.textContent=availability.isTrigger?tl('必要檢查已通過；提交時 GitHub 仍會重新驗證。','Checks pass; GitHub independently verifies on submission.'):tl('可提交人工追蹤決定；不涉及下單。','Ready to record a manual watch decision; no order is placed.');
+   submit.disabled=false;
+   submit.textContent=tl('提交 GitHub Action','Submit GitHub action');
+  }
  };
  decision.onchange();
  byId('stage3Cancel').onclick=modal.close;
  byId('stage3Submit').onclick=async()=>{
   const action=decision.value,reason=byId('stage3Reason').value.trim();
-  if((action==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK)||
-     (action==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK)){
+  if(!stage3ActionAvailability(action,checks,lateChecks).canSubmit){
    byId('stage3SubmitError').textContent=tl('EOD Trigger 必要條件未通過，請檢查上方逐項結果','EOD Trigger blocked by the failed requirements above');
    return;
   }

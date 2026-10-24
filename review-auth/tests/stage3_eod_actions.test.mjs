@@ -97,9 +97,10 @@ test('Stage3 Action shows required pass/fail evidence and blocks unqualified tri
  assert.ok(html.includes('function stage3TriggerChecklist(row,mode='));
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
  assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
- assert.ok(html.includes("!checks.requiredOK"));
- assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK"));
- assert.ok(html.includes("k==='CONFIRM_POST_APPROVAL'&&!lateChecks.requiredOK"));
+ assert.ok(html.includes("function stage3ActionAvailability("));
+ assert.ok(html.includes("!stage3ActionAvailability(action,checks,lateChecks).canSubmit"));
+ assert.ok(html.includes("submit.disabled=true"));
+ assert.ok(html.includes("stage3DecisionStatus"));
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
  assert.ok(html.includes('READY 後首次 EOD 突破'));
  assert.ok(html.includes('READY 後延後確認'));
@@ -172,4 +173,36 @@ test('Saturday READY approval allows Monday above-pivot, but not older Friday ob
  observation.eod_as_of='2026-10-26';
  parent.manual_reviewed_at='2026-10-26T21:00:00+00:00';
  assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
+});
+
+test('Both EOD Trigger choices remain selectable for requirements inspection but submission is blocked',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const start=html.indexOf('function stage3ActionAvailability(');
+ const end=html.indexOf('function openStage3Action(row){',start);
+ assert.ok(start>=0 && end>start);
+ const check=vm.runInNewContext(html.slice(start,end)+'\nstage3ActionAvailability');
+ const failFirst={requiredOK:false,checks:[
+  {label:'READY approved by close',description:'Approval after EOD',pass:false,required:true},
+  {label:'Daily close-cross',description:'Price crossed',pass:true,required:true}
+ ]};
+ const failLater={requiredOK:false,checks:[
+  {label:'READY approved by close',description:'Approval after EOD',pass:false,required:true},
+  {label:'Post-approval close',description:'Await new EOD hold',pass:false,required:true}
+ ]};
+ assert.equal(check('CONFIRM_EOD_TRIGGER',failFirst,failLater).canSubmit,false);
+ assert.equal(check('CONFIRM_POST_APPROVAL',failFirst,failLater).canSubmit,false);
+ assert.equal(check('CONFIRM_POST_APPROVAL',failFirst,failLater).failed.length,2);
+ assert.equal(check('KEEP_WATCH',failFirst,failLater).canSubmit,true);
+ assert.equal(check('NO_TRADE',failFirst,failLater).canSubmit,true);
+ const eligible={requiredOK:true,checks:[{label:'EOD valid',pass:true,required:true}]};
+ assert.equal(check('CONFIRM_EOD_TRIGGER',eligible,failLater).canSubmit,true);
+ assert.equal(check('CONFIRM_POST_APPROVAL',failFirst,eligible).canSubmit,true);
+ const modalStart=html.indexOf('function openStage3Action(row){');
+ const modalEnd=html.indexOf('function openReviewForm(',modalStart);
+ const modal=html.slice(modalStart,modalEnd);
+ assert.ok(modal.includes("options.map(([k,v])=>'<option value="));
+ assert.ok(!modal.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled'"));
+ assert.ok(modal.includes('stage3DecisionStatus'));
+ assert.ok(modal.includes('submit.disabled=true'));
+ assert.ok(modal.includes('!stage3ActionAvailability(action,checks,lateChecks).canSubmit'));
 });
