@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_trigger_diagnostic_selectability_pr19_merged",
-      "deployment": "main_source_merged; published_Pages_browser_unverified",
-      "last_change": "PR #19 merged: both EOD Trigger types selectable for inspection when disqualified; show mode-specific failing checklist and EOD/READY dates; submission remains blocked until legitimate eligibility",
-      "next_action": "Check live Pages displays selectable Trigger choices and their failed conditions; verify next successful EOD scan after READY approval before trying to submit; use qualified test data only for future Trigger workflow",
+      "status": "stage4_trade_plan_fundamentals_pending_ci",
+      "deployment": "stage4_feature_branch_not_merged_or_deployed",
+      "last_change": "Added a fourth web tab for human-confirmed TRIGGERED, hypothetical risk/cash-capped sizing, dated SEC annual financials and Form4 filing metadata, and institutional/insider evidence with explicit unverified statuses",
+      "next_action": "Open PR, run CI, fix failures and merge on green; then verify live Pages and configure identifying SEC_USER_AGENT secret before claiming live SEC data",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -71,7 +71,7 @@
       },
       "latest_merged_pr": 19,
       "latest_merge_commit": "a23299c4ac9fbf3e177459f3c5c6d8afc922676f",
-      "pending_feature_branch": null,
+      "pending_feature_branch": "feature/stage4-post-trigger-risk-fundamental-workbench",
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": null,
+      "pending_pr": "to_be_created",
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -201,6 +201,34 @@
         "trigger_submission": "disabled unless selected EOD Trigger meets all required conditions; GitHub revalidates",
         "last_inspected_published_session": "2026-10-23",
         "last_inspected_sample": "NIQ/RBRK/RPD first EOD cross, manual READY 2026-10-24; ineligible for both on 2026-10-23"
+      },
+      "stage4": {
+        "status": "feature_branch_pending_ci",
+        "dashboard_tab": "site/stage4.html",
+        "upstream_status": "stage3 TRIGGERED only",
+        "source": "site/data/latest.json",
+        "risk_calculator": "scenario_only_long; budget_and_cash_capped; no live quotes, orders, fills or personal equity publication",
+        "sec_collector": "stage4_sec_fundamentals.py",
+        "sec_workflow": ".github/workflows/stage4-sec-fundamentals.yml",
+        "public_sec_json": "site/data/stage4_fundamentals.json",
+        "sec_configuration": "requires SEC_USER_AGENT secret identifying project contact; not configured or verified",
+        "financial_metrics": [
+          "FY_revenue_USD",
+          "FY_revenue_YoY_percent",
+          "FY_net_income_USD",
+          "FY_diluted_EPS_USD_per_share"
+        ],
+        "insider_form4": "filing counts only; purchase status UNVERIFIED",
+        "institutional_13f": "source education and manual research; purchase status UNVERIFIED",
+        "manual_evidence": "user-entered local browser only; not cross-device, not verified by system",
+        "tests": {
+          "status": "pending_PR_CI",
+          "python": "tests/test_stage4_sec_fundamentals.py",
+          "node": "review-auth/tests/stage4_trade_planning.test.mjs"
+        },
+        "browser_verified": false,
+        "live_sec_data_verified": false,
+        "next_action": "End-to-end Pages smoke, SEC secret setup, real trigger evidence and verified institutional transaction follow-on"
       }
     },
     "historical_superstocks_product_research": {
