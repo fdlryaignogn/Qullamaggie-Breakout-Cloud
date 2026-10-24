@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a101e">
+<title>Qullamaggie Breakout｜第四輪交易計劃</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="./icons/app-192.png">
+<style>
+:root{color-scheme:dark;--bg:#0a101e;--panel:#111a2b;--panel2:#18263b;--line:#2a3a53;--muted:#94a5bf;--text:#edf4ff;--accent:#66e4cc;--amber:#f2c67b;--red:#f5a5a9;--blue:#97baff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+a{color:var(--accent)}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.48;cursor:not-allowed}input,select,textarea{color:var(--text);background:#0b1628;border:1px solid #354b67;border-radius:8px;padding:10px;width:100%;min-width:0}textarea{min-height:75px;resize:vertical}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.shell{max-width:1390px;margin:0 auto;padding:0 28px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:23px 0;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:13px;font-weight:800;letter-spacing:.08em}.brand-mark{display:grid;place-items:center;width:39px;height:39px;border:1px solid #4c9993;border-radius:10px;color:var(--accent);background:#133336;font-size:22px}.top-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.btn{border:1px solid #38516b;background:#1c3048;border-radius:9px;color:var(--text);min-height:36px;padding:8px 13px;font-weight:650;font-size:12px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}.btn:hover{background:#2a435e}.btn.primary{background:var(--accent);border-color:var(--accent);color:#09302b}
+.hero{padding:29px 0 23px;display:flex;align-items:end;justify-content:space-between;gap:15px}.eyebrow{color:var(--accent);font-size:11px;letter-spacing:.15em;font-weight:800}.hero h1{font-size:clamp(25px,3.5vw,38px);margin:6px 0 7px;letter-spacing:-.035em}.hero p{color:var(--muted);margin:0;max-width:840px;font-size:12px;line-height:1.8}.pill{display:inline-flex;gap:6px;align-items:center;border-radius:999px;padding:5px 10px;background:#17243b;border:1px solid #354762;color:#a7b8d1;font-size:11px;white-space:nowrap}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;border-bottom:1px solid var(--line)}.tab{display:flex;gap:11px;align-items:center;color:var(--muted);text-decoration:none;padding:16px 12px;position:relative;border-radius:9px 9px 0 0;min-width:0}.tab:hover{background:#17263a}.tab[aria-current="page"]{background:#19283e;color:var(--text)}.tab[aria-current="page"]:after{position:absolute;content:"";bottom:-1px;height:3px;left:0;right:0;background:var(--accent)}.tab-n{font-size:16px;font-weight:850;color:var(--accent);background:#122238;padding:7px 10px;border:1px solid #34506a;border-radius:9px}.tab strong{display:block;font-size:12px}.tab small{display:block;color:var(--muted);font-size:10px}
+.summary{padding:17px;border:1px solid var(--line);border-top:0;background:#101b2d;border-radius:0 0 13px 13px;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}.summary p{margin:0;color:var(--muted);font-size:12px}.summary strong{color:var(--text)}
+.layout{display:grid;grid-template-columns:minmax(245px,290px) minmax(0,1fr);gap:18px;margin-top:19px}.stack{display:grid;gap:18px;align-content:start}.card{border:1px solid var(--line);border-radius:13px;background:var(--panel);padding:20px;min-width:0}.card h2{font-size:17px;letter-spacing:-.02em;margin:0 0 7px}.card h3{font-size:13px;margin:0 0 8px}.hint{font-size:12px;color:var(--muted);line-height:1.7;margin:0 0 14px}.muted{color:var(--muted)}.note{border-left:3px solid var(--amber);background:#322b24;padding:11px 13px;color:#f0d5a5;font-size:12px;border-radius:5px;line-height:1.65}.safe{color:var(--accent)}.warning{color:var(--amber)}.danger{color:var(--red)}
+.candidates{display:grid;gap:6px;max-height:380px;overflow:auto}.candidate{width:100%;text-align:left;border-radius:9px;border:1px solid #334762;background:#132137;padding:11px;color:var(--text)}.candidate strong{display:block}.candidate small{display:block;color:var(--muted)}.candidate[aria-pressed="true"]{border-color:var(--accent);background:#183b38}.placeholder{border:1px dashed #435972;padding:17px;border-radius:9px;color:var(--muted);font-size:12px;line-height:1.7}
+.fact-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid #243550;font-size:12px}.fact-row:last-child{border:0}.fact-row span{color:var(--muted)}.fact-row strong{text-align:right;overflow-wrap:anywhere}.fact-row small{display:block;color:var(--muted);text-align:right;font-size:10px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field label{font-size:11px;color:#b9c9de;font-weight:650}.field small{font-size:10px;color:var(--muted)}.field input{font-variant-numeric:tabular-nums}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:15px 0}.metric{padding:15px;background:#17273c;border:1px solid #2a415d;border-radius:10px}.metric .label{font-size:10px;color:var(--muted)}.metric .value{font-size:19px;font-weight:800;margin-top:6px;overflow-wrap:anywhere}.metric .context{font-size:10px;color:var(--muted);margin-top:4px}
+.section-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.section-heading .pill{max-width:100%;white-space:normal}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:12px 0}.detail{border:1px solid #30445d;border-radius:9px;padding:13px;background:#152239}.detail .key{font-size:11px;color:var(--muted)}.detail .val{font-size:17px;font-weight:750;margin:5px 0}.detail .source{font-size:10px;color:var(--muted)}.audit{margin-top:12px;padding:12px;border:1px solid #36475c;border-radius:9px;font-size:11px;color:var(--muted);line-height:1.7}
+.evidence-row{border:1px solid #30465d;background:#142238;border-radius:9px;padding:12px;display:grid;gap:5px;margin:8px 0;font-size:12px}.evidence-row .meta{font-size:11px;color:var(--muted)}.evidence-row .btn{justify-self:start}.divider{height:1px;background:var(--line);margin:17px 0}.links{display:flex;gap:11px;flex-wrap:wrap;font-size:12px}.form-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}.form-evidence .full{grid-column:1/-1}
+footer{color:var(--muted);font-size:11px;margin-top:22px;line-height:1.7}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.candidates{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}.card{padding:16px}}
+@media(max-width:680px){.shell{padding:0 13px 35px}.top{align-items:start}.brand{letter-spacing:0}.hero{display:block;padding:20px 0 15px}.tabs{gap:2px}.tab{flex-direction:column;align-items:center;padding:11px 3px;text-align:center;gap:5px}.tab small{display:none}.tab strong{font-size:10px}.tab-n{font-size:14px;padding:5px 8px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-grid{grid-template-columns:1fr}.form-evidence{grid-template-columns:1fr}.form-evidence .full{grid-column:auto}}
+</style>
+</head>
+<body>
+<div class="shell">
+ <header class="top">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">Q</span><span>QULLAMAGGIE<br><span class="muted" style="font-size:10px">BREAKOUT SYSTEM</span></span></div>
+  <div class="top-actions">
+   <button type="button" class="btn" id="langToggle">English</button>
+   <button type="button" class="btn" id="reload">⟳ <span data-zh="重新同步" data-en="Refresh">重新同步</span></button>
+   <a href="./index.html#stage-3" class="btn" data-zh="返回第三輪" data-en="Back to Stage 3">返回第三輪</a>
+  </div>
+ </header>
+ <section class="hero"><div><div class="eyebrow">STAGE 04 / POST-TRIGGER WORKBENCH</div>
+  <h1 data-zh="第四輪：交易計劃與基本面" data-en="Stage 4: Trade Plan &amp; Fundamentals">第四輪：交易計劃與基本面</h1>
+  <p data-zh="只讀取第三輪經人工確認的 TRIGGERED 訊號，制定入場情境、止損與最大倉位，並核對財報、機構持倉與內部人士申報。所有風險估算均不會發送訂單。" data-en="Only human-confirmed TRIGGERED signals reach this workbench. Assess hypothetical entry, stops and sizing alongside filings. No broker orders are sent.">只讀取第三輪經人工確認的 TRIGGERED 訊號，制定入場情境、止損與最大倉位，並核對財報、機構持倉與內部人士申報。所有風險估算均不會發送訂單。</p>
+ </div><span class="pill" id="stateBadge" role="status">⟳ 載入中</span></section>
+ <nav class="tabs" aria-label="四輪工作流程">
+  <a class="tab" href="./index.html#stage-1"><span class="tab-n">01</span><span><strong data-zh="動能篩選" data-en="Momentum">動能篩選</strong><small>Relative strength</small></span></a>
+  <a class="tab" href="./index.html#stage-2"><span class="tab-n">02</span><span><strong data-zh="整理形態" data-en="Setup">整理形態</strong><small>Qualification</small></span></a>
+  <a class="tab" href="./index.html#stage-3"><span class="tab-n">03</span><span><strong data-zh="突破訊號" data-en="EOD trigger">突破訊號</strong><small>EOD review</small></span></a>
+  <a class="tab" href="./stage4.html" aria-current="page"><span class="tab-n">04</span><span><strong data-zh="交易計劃" data-en="Trade planning">交易計劃</strong><small>Risk &amp; filings</small></span></a>
+ </nav>
+ <div class="summary"><p><strong id="triggerCount">—</strong> <span data-zh="個已確認突破 Setup。第三輪仍然是訊號來源，第四輪不會自動批准交易。" data-en="confirmed Trigger setups. Stage 3 is the signal source; Stage 4 does not approve a trade.">個已確認突破 Setup。第三輪仍然是訊號來源，第四輪不會自動批准交易。</span></p><span class="pill" id="asOfBadge">EOD —</span></div>
+ <main class="layout">
+  <aside class="stack">
+   <section class="card">
+    <h2 data-zh="已確認突破股票" data-en="Confirmed breakout setups">已確認突破股票</h2>
+    <p class="hint" data-zh="來源為雲端第三輪 status=TRIGGERED；不會從 WATCH 或歷史 EOD_CROSS 偷偷升級。" data-en="Sourced only from cloud Stage 3 status=TRIGGERED. WATCH or historical EOD_CROSS is never auto-promoted.">來源為雲端第三輪 status=TRIGGERED；不會從 WATCH 或歷史 EOD_CROSS 偷偷升級。</p>
+    <div id="candidateList" class="candidates"><div class="placeholder" data-zh="讀取中…" data-en="Loading…">讀取中…</div></div>
+   </section>
+   <section class="card">
+    <h2 data-zh="訊號與市場參考" data-en="Signal &amp; market context">訊號與市場參考</h2>
+    <div id="signalSummary" class="placeholder" data-zh="尚未選取 Trigger。" data-en="No Trigger selected.">尚未選取 Trigger。</div>
+   </section>
+   <section class="card">
+    <h2 data-zh="資訊分類原則" data-en="Evidence classification">資訊分類原則</h2>
+    <p class="hint" data-zh="大型機構的 13F 是季度持倉，不等於今日買入。Insider 的 Form 4 亦不等於全部是買入；需核對交易代碼 P、方向、日期、價格及持有人身分。" data-en="Institutional Form 13F is quarterly holdings, not evidence of buying today. Form 4 filings require inspection of transaction code P, acquisition direction, date, price and owner identity.">大型機構的 13F 是季度持倉，不等於今日買入。Insider 的 Form 4 亦不等於全部是買入；需核對交易代碼 P、方向、日期、價格及持有人身分。</p>
+    <div class="links"><a href="https://www.sec.gov/search-filings" target="_blank" rel="noopener noreferrer">SEC EDGAR</a><a href="https://www.sec.gov/rules-regulations/staff-guidance/division-investment-management-frequently-asked-questions/frequently-asked-questions-about-form-13f" target="_blank" rel="noopener noreferrer">SEC 13F</a><a href="https://www.sec.gov/about/forms/forms-3-4-5.pdf" target="_blank" rel="noopener noreferrer">SEC Form 4</a></div>
+   </section>
+  </aside>
+  <div class="stack">
+   <section class="card">
+    <div class="section-heading"><div><h2 data-zh="入場、止損與建議最大股數" data-en="Entry, stop &amp; maximum scenario shares">入場、止損與建議最大股數</h2><p class="hint" data-zh="全為你自行設定的情境輸入，既不是當前報價，也不是自動買入或投資建議。資金資料只在目前分頁記憶體中計算，不上傳。" data-en="User-entered scenarios only, not a live quote, automatic buy or recommendation. Account values stay in this browser tab memory and are not uploaded.">全為你自行設定的情境輸入，既不是當前報價，也不是自動買入或投資建議。資金資料只在目前分頁記憶體中計算，不上傳。</p></div><span class="pill" id="planMode">SIMULATION ONLY</span></div>
+    <form id="riskForm" autocomplete="off">
+     <div class="form-grid">
+      <div class="field"><label for="equity" data-zh="帳戶資金 (USD)" data-en="Account equity (USD)">帳戶資金 (USD)</label><input id="equity" inputmode="decimal" type="number" min="0" step="any" placeholder="例如 10000"></div>
+      <div class="field"><label for="riskPct" data-zh="每筆風險 (%)" data-en="Risk per plan (%)">每筆風險 (%)</label><input id="riskPct" inputmode="decimal" type="number" min="0" max="100" step="any" value="0.5"><small data-zh="0.5% 只是可改的示例" data-en="0.5% is an editable example">0.5% 只是可改的示例</small></div>
+      <div class="field"><label for="cash" data-zh="可用現金 (USD)" data-en="Available cash (USD)">可用現金 (USD)</label><input id="cash" inputmode="decimal" type="number" min="0" step="any" placeholder="必須輸入"></div>
+      <div class="field"><label for="entry" data-zh="計劃入場價 (USD)" data-en="Hypothetical entry (USD)">計劃入場價 (USD)</label><input id="entry" inputmode="decimal" type="number" min="0" step="any" placeholder="自行設定"></div>
+      <div class="field"><label for="stop" data-zh="計劃止損 (USD)" data-en="Hypothetical initial stop (USD)">計劃止損 (USD)</label><input id="stop" inputmode="decimal" type="number" min="0" step="any" placeholder="自行設定"></div>
+      <div class="field"><label for="target" data-zh="目標價（選填）" data-en="Target (optional)">目標價（選填）</label><input id="target" inputmode="decimal" type="number" min="0" step="any" placeholder="選填"></div>
+      <div class="field"><label for="slippage" data-zh="預估買入滑價 (%)" data-en="Assumed buy slippage (%)">預估買入滑價 (%)</label><input id="slippage" inputmode="decimal" type="number" min="0" step="any" value="0"></div>
+      <div class="field"><label for="fees" data-zh="預估來回費用 (USD)" data-en="Round-trip fees (USD)">預估來回費用 (USD)</label><input id="fees" inputmode="decimal" type="number" min="0" step="any" value="0"></div>
+      <div class="field"><label for="lot" data-zh="每交易單位股數" data-en="Share lot size">每交易單位股數</label><input id="lot" inputmode="numeric" type="number" min="1" step="1" value="1"></div>
+     </div>
+    </form>
+    <div class="links" style="margin-top:13px">
+     <button class="btn" type="button" id="useClose" disabled data-zh="以訊號 EOD 收盤價作試算" data-en="Use signal close in scenario">以訊號 EOD 收盤價作試算</button>
+     <button class="btn" type="button" id="useLow" disabled data-zh="以 EOD 低點作假設止損" data-en="Use EOD low as hypothetical stop">以 EOD 低點作假設止損</button>
+     <button class="btn" type="button" id="copyPlan" data-zh="複製計劃摘要" data-en="Copy scenario summary">複製計劃摘要</button>
+    </div>
+    <div id="riskStatus" class="note" role="status" aria-live="polite" style="margin-top:15px" data-zh="請先輸入帳戶資金、可用現金、入場價及止損價。" data-en="Enter equity, available cash, planned entry and stop first.">請先輸入帳戶資金、可用現金、入場價及止損價。</div>
+    <div class="metrics">
+     <div class="metric"><div class="label" data-zh="風險預算" data-en="Risk budget">風險預算</div><div class="value" id="riskBudget">—</div><div class="context" data-zh="帳戶資金 × 自訂風險 %" data-en="Equity × risk %">帳戶資金 × 自訂風險 %</div></div>
+     <div class="metric"><div class="label" data-zh="每股含滑價風險" data-en="Risk / share incl. slippage">每股含滑價風險</div><div class="value" id="perShareRisk">—</div><div class="context" data-zh="情境入場價 − 止損" data-en="Scenario fill price − stop">情境入場價 − 止損</div></div>
+     <div class="metric"><div class="label" data-zh="風險與現金約束的最大股數" data-en="Risk- & cash-capped shares">風險與現金約束的最大股數</div><div class="value safe" id="maxShares">—</div><div class="context" data-zh="非保證成交股數" data-en="Not a guaranteed fill">非保證成交股數</div></div>
+     <div class="metric"><div class="label" data-zh="含費用預估總風險" data-en="Estimated total risk incl. fees">含費用預估總風險</div><div class="value" id="actualRisk">—</div><div class="context" data-zh="止損不保證成交" data-en="Stops are not guaranteed fills">止損不保證成交</div></div>
+     <div class="metric"><div class="label" data-zh="預估資金使用量" data-en="Cash required">預估資金使用量</div><div class="value" id="capitalUse">—</div><div class="context" data-zh="含估計費用" data-en="Includes assumed fees">含估計費用</div></div>
+     <div class="metric"><div class="label" data-zh="目標回報 / 風險" data-en="Target reward/risk">目標回報 / 風險</div><div class="value" id="rewardR">—</div><div class="context" data-zh="僅在有目標價時顯示" data-en="Shown when a target is supplied">僅在有目標價時顯示</div></div>
+    </div>
+    <div class="audit" id="riskContext" data-zh="ATR 與 ADR 如可取得會顯示作風險參考，沒有硬性門檻。缺失值不會自動變成 0。" data-en="ATR and ADR appear only when available. They are context, not validated mandatory thresholds; missing data is never zero.">ATR 與 ADR 如可取得會顯示作風險參考，沒有硬性門檻。缺失值不會自動變成 0。</div>
+   </section>
+   <section class="card" id="fundamentals">
+    <div class="section-heading"><div><h2 data-zh="基本面（SEC 財報）" data-en="Fundamentals (SEC filings)">基本面（SEC 財報）</h2><p class="hint" data-zh="只展示有明確期間、申報日期及來源的數據；不存在的數據顯示「未取得」，絕不填 0。" data-en="Only show metrics with a known reporting period, filing date and source. Missing data is unavailable, not zero.">只展示有明確期間、申報日期及來源的數據；不存在的數據顯示「未取得」，絕不填 0。</p></div><span class="pill" id="fundSourceStatus">SEC —</span></div>
+    <div id="fundamentalGrid" class="detail-grid"><div class="placeholder" data-zh="等待選擇已觸發股票。" data-en="Select a confirmed Trigger.">等待選擇已觸發股票。</div></div>
+    <div class="audit" id="fundamentalFoot"></div>
+   </section>
+   <section class="card" id="ownership">
+    <h2 data-zh="機構持倉與 Insider 買入核對" data-en="Institutional and insider purchase evidence">機構持倉與 Insider 買入核對</h2>
+    <div class="detail-grid">
+     <div class="detail"><div class="key" data-zh="大型機構／大行是否增持" data-en="Institutional manager increased holdings?">大型機構／大行是否增持</div><div class="val warning" id="institutionStatus" data-zh="未核實" data-en="Not verified">未核實</div><div class="source" data-zh="13F 披露季度持倉；需要對比同一機構、同一證券的相鄰季度，不能當作今日買入。" data-en="Form 13F is quarterly. Confirm the same security and manager across adjacent quarters; it is not today's buying.">13F 披露季度持倉；需要對比同一機構、同一證券的相鄰季度，不能當作今日買入。</div></div>
+     <div class="detail"><div class="key" data-zh="Insider 是否有買入" data-en="Insider open-market purchase?">Insider 是否有買入</div><div class="val warning" id="insiderStatus" data-zh="未核實" data-en="Not verified">未核實</div><div class="source" data-zh="Form 4 有申報不代表買入；必須核對交易代碼 P、買入方向、股數、價格及交易日期。" data-en="A Form 4 filing alone is not a purchase. Verify code P, acquisition direction, shares, price and transaction date.">Form 4 有申報不代表買入；必須核對交易代碼 P、買入方向、股數、價格及交易日期。</div></div>
+    </div>
+    <div class="fact-row"><span data-zh="最近 Form 4 申報（不代表買入）" data-en="Recent Form 4 filings (not purchase proof)">最近 Form 4 申報（不代表買入）</span><strong id="form4Count">—</strong></div>
+    <div class="links" style="margin-top:13px"><a id="secIssuerLink" href="https://www.sec.gov/search-filings" target="_blank" rel="noopener noreferrer" data-zh="開啟 SEC 公司申報" data-en="Open SEC company filings">開啟 SEC 公司申報</a><a href="https://www.sec.gov/edgar/search/" target="_blank" rel="noopener noreferrer" data-zh="搜尋 Form 4 與 13F" data-en="Search Form 4 and 13F">搜尋 Form 4 與 13F</a></div>
+    <div class="divider"></div>
+    <h3 data-zh="人工申報觀察紀錄（此瀏覽器本機）" data-en="Manual filing observations (this browser only)">人工申報觀察紀錄（此瀏覽器本機）</h3>
+    <p class="hint" data-zh="可保存來源連結與觀察，但這些是人工輸入、未由系統核實，不會自動變成「機構買入」或「Insider 買入」，亦不會同步到其他裝置或 GitHub。" data-en="Record a filing link and observations locally. User-entered evidence is not independently verified, never auto-classified as a buy, and is not synced to other devices or GitHub.">可保存來源連結與觀察，但這些是人工輸入、未由系統核實，不會自動變成「機構買入」或「Insider 買入」，亦不會同步到其他裝置或 GitHub。</p>
+    <div id="manualEvidence"></div>
+    <form id="evidenceForm" class="form-evidence" autocomplete="off">
+     <div class="field"><label for="evidenceType" data-zh="申報類型" data-en="Evidence type">申報類型</label><select id="evidenceType"><option value="INSTITUTION" data-zh="13F／機構" data-en="13F / institution">13F／機構</option><option value="INSIDER" data-zh="Form 4／Insider" data-en="Form 4 / insider">Form 4／Insider</option><option value="FINANCIAL" data-zh="財報／其他" data-en="Financial filing / other">財報／其他</option></select></div>
+     <div class="field"><label for="evidenceDate" data-zh="申報／交易日期" data-en="Filing / transaction date">申報／交易日期</label><input id="evidenceDate" type="date" required></div>
+     <div class="field"><label for="evidenceName" data-zh="機構或內部人士名稱" data-en="Manager or insider name">機構或內部人士名稱</label><input id="evidenceName" maxlength="90" required placeholder="名稱"></div>
+     <div class="field"><label for="evidenceLink" data-zh="原始資料連結 (HTTPS)" data-en="Source link (HTTPS)">原始資料連結 (HTTPS)</label><input id="evidenceLink" type="url" required placeholder="https://www.sec.gov/..."></div>
+     <div class="field full"><label for="evidenceNote" data-zh="你看到的事實／交易代碼（勿當成已確認買入）" data-en="Observed facts / transaction code (not a verified buy)">你看到的事實／交易代碼（勿當成已確認買入）</label><textarea id="evidenceNote" maxlength="300" required></textarea></div>
+     <div class="full"><button class="btn" type="submit" id="saveEvidence" data-zh="儲存在此瀏覽器" data-en="Save in this browser only">儲存在此瀏覽器</button> <span class="muted" id="evidenceStatus" role="status"></span></div>
+    </form>
+   </section>
+  </div>
+ </main>
+ <footer data-zh="第四輪僅為人工交易計劃工作台。SEC 資料可能延遲或缺失；收盤價不代表可成交價格；風險計算不保證止損執行。所有交易須另行審批。" data-en="Stage 4 is a manual planning workbench only. SEC filings may be delayed or missing, observed EOD closes are not executable prices, and stop losses are not guaranteed. Trading requires separate approval.">第四輪僅為人工交易計劃工作台。SEC 資料可能延遲或缺失；收盤價不代表可成交價格；風險計算不保證止損執行。所有交易須另行審批。</footer>
+</div>
+<script>
+'use strict';
+const langKey='qulla_breakout_dashboard_language';
+const evidenceKey='qulla_stage4_manual_evidence_v1';
+let lang='zh',lastRisk=null,selected=null,confirmed=[],fundamentals=null,asOf=null,loadFailure=null;
+try{lang=localStorage.getItem(langKey)==='en'?'en':'zh'}catch(_){}
+const byId=id=>document.getElementById(id);
+const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tr=(zh,en)=>lang==='en'?en:zh;
+const fmt=n=>Number.isFinite(n)?n.toLocaleString(lang==='en'?'en-US':'zh-Hant',{maximumFractionDigits:2}):'—';
+const dollars=n=>Number.isFinite(n)?'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+const safeSymbol=s=>/^[A-Z][A-Z0-9.-]{0,11}$/.test(s||'');
+const filingLink=s=>safeSymbol(s)?'https://www.sec.gov/edgar/browse/?CIK='+encodeURIComponent(s)+'&owner=include':'https://www.sec.gov/search-filings';
+const fieldNumber=id=>byId(id).value.trim()===''?NaN:Number(byId(id).value);
+function stage4SizePlan(i){
+ const required=['equity','riskPct','cash','entry','stop','slippage','fees','lot'];
+ if(required.some(k=>!Number.isFinite(i[k])))return {ok:false,error:'MISSING_INPUT'};
+ if(!(i.equity>0&&i.riskPct>0&&i.riskPct<=100&&i.cash>0&&i.entry>0&&i.stop>0&&i.slippage>=0&&i.slippage<100&&i.fees>=0&&Number.isSafeInteger(i.lot)&&i.lot>=1))return {ok:false,error:'INVALID_INPUT'};
+ const assumedEntry=i.entry*(1+i.slippage/100);
+ const perShare=assumedEntry-i.stop;
+ if(!(perShare>0))return {ok:false,error:'ENTRY_NOT_ABOVE_STOP'};
+ const budget=i.equity*i.riskPct/100;
+ if(!Number.isFinite(budget)||budget<=0||i.fees>=budget||i.fees>=i.cash)return {ok:false,error:'FEES_EXCEED_BUDGET'};
+ const byRisk=Math.floor((budget-i.fees)/perShare);
+ const byCash=Math.floor((i.cash-i.fees)/assumedEntry);
+ const shares=Math.floor(Math.min(byRisk,byCash)/i.lot)*i.lot;
+ if(!Number.isSafeInteger(shares)||shares<0)return {ok:false,error:'INVALID_INPUT'};
+ const totalRisk=shares*perShare+i.fees;
+ const cashUsed=shares*assumedEntry+i.fees;
+ if(!Number.isFinite(totalRisk)||!Number.isFinite(cashUsed)||cashUsed>i.cash+1e-7||totalRisk>budget+1e-7)return {ok:false,error:'INVALID_INPUT'};
+ const target=Number.isFinite(i.target)&&i.target>0?i.target:null;
+ const targetR=target!==null?(target-assumedEntry)/perShare:null;
+ return {ok:true,budget,assumedEntry,perShare,byRisk,byCash,shares,totalRisk,cashUsed,targetR,
+  riskPct:i.riskPct,lot:i.lot,warningHighRisk:i.riskPct>2,scenarioOnly:true};
+}
+function riskInputs(){return {equity:fieldNumber('equity'),riskPct:fieldNumber('riskPct'),cash:fieldNumber('cash'),entry:fieldNumber('entry'),stop:fieldNumber('stop'),target:fieldNumber('target'),slippage:fieldNumber('slippage'),fees:fieldNumber('fees'),lot:fieldNumber('lot')}}
+function formatRiskError(code){
+ const table={MISSING_INPUT:tr('請輸入帳戶資金、風險%、現金、入場價、止損及成本參數。','Enter equity, risk%, cash, entry, stop and cost inputs.'),
+ INVALID_INPUT:tr('輸入必須有效：正數資金與價位、風險 0–100%、非負費用、整數每手股數。','Use positive equity/prices, 0–100% risk, nonnegative fees and integer lot size.'),
+ ENTRY_NOT_ABOVE_STOP:tr('只支援做多情境：加上滑價的入場價必須高於止損。','Long-only: assumed filled entry must exceed stop.'),
+ FEES_EXCEED_BUDGET:tr('預估交易費用已超過風險預算或可用現金。','Assumed fees exceed the risk budget or available cash.')};
+ return table[code]||tr('無法計算，請檢查輸入。','Unable to calculate; check inputs.');
+}
+function renderRisk(){
+ const p=stage4SizePlan(riskInputs());lastRisk=p;
+ const keys=['riskBudget','perShareRisk','maxShares','actualRisk','capitalUse','rewardR'];
+ if(!p.ok){keys.forEach(k=>byId(k).textContent='—');byId('riskStatus').textContent=formatRiskError(p.error);return}
+ byId('riskBudget').textContent=dollars(p.budget);
+ byId('perShareRisk').textContent=dollars(p.perShare);
+ byId('maxShares').textContent=fmt(p.shares);
+ byId('actualRisk').textContent=dollars(p.totalRisk);
+ byId('capitalUse').textContent=dollars(p.cashUsed);
+ byId('rewardR').textContent=p.targetR==null?'—':fmt(p.targetR)+' R';
+ const noShares=p.shares===0;
+ byId('riskStatus').textContent=noShares?tr('風險或現金限制不足以容納一手；建議最大股數為 0。','Budget or cash cannot support one lot; capped shares are 0.'):
+  tr('純情境估算；總風險包含假設的來回費用，但跳空與止損滑價可能造成更高損失。','Scenario only: estimated loss includes assumed round-trip fees, but gaps and stop slippage can cause larger losses.');
+ if(p.warningHighRisk)byId('riskStatus').textContent+=' '+tr('你設定的單筆風險超過 2%；請再檢查承受能力。','Your assumed risk is above 2%; reassess risk tolerance.');
+}
+function secMetric(record,key,label){
+ const m=record?.[key];
+ const valid=m&&typeof m==='object'&&Number.isFinite(Number(m.value))&&typeof m.period_end==='string'&&typeof m.filed==='string';
+ const value=valid?(m.unit==='USD'?dollars(Number(m.value)):m.unit==='USD/shares'?'$'+fmt(Number(m.value)):fmt(Number(m.value))):
+ tr('未取得','Unavailable');
+ const period=valid?(m.period_end+' · '+m.filed+' · '+(m.form||'SEC')):tr('沒有可核實的最新申報數據','No verified recent filing data');
+ let cite='';
+ if(valid&&typeof m.source_url==='string'){
+  try{const u=new URL(m.source_url);if(u.protocol==='https:'&&(['sec.gov','data.sec.gov'].includes(u.hostname)||u.hostname.endsWith('.sec.gov')))cite='<a href="'+esc(u.href)+'" target="_blank" rel="noopener noreferrer">SEC ↗</a>';}catch(_){}
+ }
+ return '<div class="detail"><div class="key">'+esc(label)+'</div><div class="val">'+esc(value)+'</div><div class="source">'+esc(period)+' '+cite+'</div></div>';
+}
+function renderFundamentals(){
+ const stock=selected?.symbol;
+ const report=stock&&fundamentals?.records?.[stock];
+ const record=report?.status==='ok'?report:null;
+ byId('fundSourceStatus').textContent=record?tr('SEC 已載入','SEC loaded'):tr('SEC 未取得','SEC unavailable');
+ const rows=[
+  ['revenue_fy',tr('年度營收（USD）','Annual revenue (USD)')],
+  ['net_income_fy',tr('年度淨收益（USD）','Annual net income (USD)')],
+  ['eps_diluted_fy',tr('年度稀釋 EPS（USD／股）','Annual diluted EPS (USD/share)')],
+  ['revenue_yoy_pct',tr('年度營收同比增長 (%)','Annual revenue growth YoY (%)')]
+ ];
+ byId('fundamentalGrid').innerHTML=rows.map(([k,l])=>{
+  if(k==='revenue_yoy_pct'){
+   const m=record?.[k];const ok=m&&Number.isFinite(Number(m.value))&&m.period_end&&m.filed;
+   return '<div class="detail"><div class="key">'+esc(l)+'</div><div class="val">'+(ok?esc(fmt(Number(m.value))+'%'):esc(tr('未取得','Unavailable')))+'</div><div class="source">'+(ok?esc(m.period_end+' · '+m.filed):esc(tr('不同財年或資料缺失時不推算','Not inferred across mismatched fiscal years')))+'</div></div>';
+  }
+  return secMetric(record,k,l);
+ }).join('');
+ byId('fundamentalFoot').textContent=record?tr('SEC 公司識別碼 CIK：','SEC company CIK: ')+(record.cik||'—')+' · '+tr('資料下載時間：','Fetched: ')+(fundamentals?.generated_at||'—')+'. '+tr('歷史申報不等於當期業績；不使用未驗證預測。','Historical filings are not forecasts.'):
+  tr('暫無可核實的 SEC 公司財報資料。可能尚無 TRIGGERED、SEC 資料供應尚未啟用，或個別公司缺少 XBRL 標籤。不要解讀成公司營收或 EPS 為零。','No verified SEC fundamental data. There may be no TRIGGERED setup, the SEC feed may not be configured, or an issuer may lack the relevant XBRL tags. Missing does not mean zero.');
+ const f4=record?.form4;
+ byId('form4Count').textContent=f4&&Number.isSafeInteger(f4.recent_count)?String(f4.recent_count)+' '+tr('筆最近申報；最新：','recent filings; latest: ')+(f4.latest_filed||'—'):tr('未取得','Unavailable');
+ byId('secIssuerLink').href=stock?filingLink(stock):'https://www.sec.gov/search-filings';
+ // A bare Form 4 filing or 13F holding cannot classify a purchase.
+ byId('institutionStatus').textContent=tr('未核實','Not verified');
+ byId('insiderStatus').textContent=tr('未核實','Not verified');
+}
+function readEvidence(){
+ try{const v=JSON.parse(localStorage.getItem(evidenceKey)||'[]');return Array.isArray(v)?v.filter(r=>r&&typeof r==='object').slice(-100):[]}catch(_){return []}
+}
+function writeEvidence(data){try{localStorage.setItem(evidenceKey,JSON.stringify(data.slice(-100)));return true}catch(_){return false}}
+function evidenceSource(url){
+ try{const u=new URL(url);return u.protocol==='https:'&&!!u.hostname&&!u.username&&!u.password&&u.href.length<=900?u.href:null}catch(_){return null}
+}
+function renderEvidence(){
+ const rows=selected?readEvidence().filter(r=>r.setup_id===selected.setup_id):[];
+ byId('manualEvidence').innerHTML=rows.length?rows.map(r=>{
+  const link=evidenceSource(r.url);
+  return '<div class="evidence-row"><strong>'+esc(r.type)+' · '+esc(r.entity)+'</strong><div class="meta">'+esc(r.date)+' · '+esc(tr('人工觀察・未核實','User entered · unverified'))+'</div><div>'+esc(r.note)+'</div><div class="links">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">'+esc(tr('查看原始來源','Open source'))+'</a>':'')+'<button type="button" class="btn" data-delete-evidence="'+esc(r.id)+'">'+esc(tr('刪除本機紀錄','Delete local record'))+'</button></div></div>';
+ }).join(''):'<div class="placeholder">'+tr('此 Setup 尚未有人工申報紀錄；不能推斷沒有機構或 Insider 買入。','No manual filing observations for this setup. This does not establish the absence of institutional or insider purchases.')+'</div>';
+ byId('saveEvidence').disabled=!selected;
+}
+function renderCandidate(){
+ const list=byId('candidateList');
+ if(loadFailure){list.innerHTML='<div class="placeholder">'+esc(tr('雲端資料載入失敗；請重新同步。不可將空白清單當作無訊號。','Cloud data failed to load; retry. An empty list is not evidence of no signals.'))+'</div>';return}
+ if(!confirmed.length){list.innerHTML='<div class="placeholder">'+tr('目前公開快照沒有經人工確認的 TRIGGERED。請先在第三輪完成有效 EOD Trigger；右側計算器可先獨立試算，但不代表任何真實訊號。','The published snapshot has no human-confirmed TRIGGERED yet. Confirm a qualified EOD Trigger in Stage 3. The risk calculator remains a standalone scenario tool.')+'</div>';return}
+ list.innerHTML=confirmed.map(r=>'<button type="button" class="candidate" data-setup="'+esc(r.setup_id)+'" aria-pressed="'+String(selected?.setup_id===r.setup_id)+'"><strong>'+esc(r.symbol)+'</strong><small>'+esc(r.setup_id)+' · '+esc(r.eod_trigger_confirmation_type||'TRIGGERED')+'</small></button>').join('');
+}
+function renderSignal(){
+ if(!selected){byId('signalSummary').className='placeholder';byId('signalSummary').textContent=tr('沒有已觸發 Setup；情境計算不代表交易訊號。','No confirmed Trigger setup. Scenario math is not a trading signal.');byId('useClose').disabled=true;byId('useLow').disabled=true;byId('planMode').textContent='SIMULATION ONLY';byId('riskContext').textContent=tr('ATR 與 ADR 在沒有有效日線資料時不可當作零；目前未選取真實訊號。','ATR/ADR are unavailable without a valid EOD signal, not zero.');return}
+ byId('planMode').textContent=selected.symbol+' · TRIGGERED';
+ const items=[
+  [tr('原第三輪狀態','Stage 3 status'),selected.status],
+  [tr('確認類型','Confirmation type'),selected.eod_trigger_confirmation_type||'—'],
+  [tr('證據 EOD 日期','Evidence EOD date'),selected.eod_trigger_as_of||'—'],
+  [tr('訊號收盤價（非入場價）','Signal close (not an entry)'),selected.eod_trigger_close==null?'—':dollars(Number(selected.eod_trigger_close))],
+  [tr('突破參考價','Approved pivot'),selected.breakout_level==null?'—':dollars(Number(selected.breakout_level))],
+  [tr('人工確認時間','Manual confirmation time'),selected.stage3_manual_reviewed_at||selected.triggered_at||'—'],
+  [tr('人工確認者','Reviewer'),selected.stage3_manual_reviewer||'—']
+ ];
+ byId('signalSummary').className='';
+ byId('signalSummary').innerHTML=items.map(([k,v])=>'<div class="fact-row"><span>'+esc(k)+'</span><strong>'+esc(v)+'</strong></div>').join('');
+ const close=Number(selected.eod_trigger_close),low=Number(selected.eod_ref_stop);
+ byId('useClose').disabled=!(Number.isFinite(close)&&close>0);
+ byId('useLow').disabled=!(Number.isFinite(low)&&low>0);
+ const atr=Number(selected.eod_atr14),adr=Number(selected.eod_adr20_pct);
+ byId('riskContext').textContent=tr('訊號當日 ATR14：','Signal-date ATR14: ')+(Number.isFinite(atr)&&atr>0?dollars(atr):tr('未取得','Unavailable'))+
+  tr('；ADR20：','; ADR20: ')+(Number.isFinite(adr)?fmt(adr)+'%':tr('未取得','Unavailable'))+
+  tr('。參考低點、EOD 收盤只是歷史資料，非可成交報價。','; reference low and EOD close are historical, not executable quotes.');
+}
+function selectSetup(setupId){
+ const target=confirmed.find(r=>r.setup_id===setupId)||null;
+ const changed=selected?.setup_id!==target?.setup_id;
+ selected=target;
+ if(changed){byId('entry').value='';byId('stop').value='';byId('target').value='';}
+ renderCandidate();renderSignal();renderFundamentals();renderEvidence();renderRisk();
+}
+async function reloadStage4(){
+ loadFailure=null;byId('stateBadge').textContent=tr('⟳ 正在同步','⟳ Syncing');
+ try{
+  const responses=await Promise.all([
+   fetch('./data/latest.json?v='+Date.now(),{cache:'no-store'}),
+   fetch('./data/stage4_fundamentals.json?v='+Date.now(),{cache:'no-store'}).catch(()=>null)
+  ]);
+  if(!responses[0].ok)throw Error('latest.json '+responses[0].status);
+  const state=await responses[0].json();
+  if(!state||state.metadata?.phase!=='success'||!Array.isArray(state.state?.['3']))throw Error('Published Stage 3 snapshot invalid');
+  asOf=state.metadata.as_of_date||null;
+  const current=state.state['3'].filter(r=>r&&r.status==='TRIGGERED'&&safeSymbol(r.symbol)&&typeof r.setup_id==='string');
+  confirmed=current;
+  fundamentals=null;
+  if(responses[1]?.ok){try{const f=await responses[1].json();if(f?.schema_version===1&&f.records&&typeof f.records==='object'&&f.snapshot_as_of===asOf)fundamentals=f;}catch(_){}}
+  byId('triggerCount').textContent=String(current.length);
+  byId('asOfBadge').textContent='EOD '+(asOf||'—')+' · '+tr('雲端版本','snapshot')+' '+String(state.revision??'—');
+  byId('stateBadge').textContent=tr('● 已同步公開快照','● Public snapshot loaded');
+  const fromUrl=new URLSearchParams(location.search).get('setup_id');
+  selectSetup(selected&&current.some(r=>r.setup_id===selected.setup_id)?selected.setup_id:fromUrl&&current.some(r=>r.setup_id===fromUrl)?fromUrl:current[0]?.setup_id);
+ }catch(e){
+  loadFailure=e.message;confirmed=[];selected=null;fundamentals=null;
+  byId('triggerCount').textContent='—';
+  byId('asOfBadge').textContent=tr('快照不可用','Snapshot unavailable');
+  byId('stateBadge').textContent=tr('● 無法驗證雲端資料','● Cloud source unavailable');
+  renderCandidate();renderSignal();renderFundamentals();renderEvidence();renderRisk();
+ }
+}
+function applyLanguage(){
+ document.documentElement.lang=lang==='en'?'en':'zh-Hant';
+ document.title=tr('Qullamaggie Breakout｜第四輪交易計劃','Qullamaggie Breakout | Stage 4 Trade Planning');
+ document.querySelectorAll('[data-zh][data-en]').forEach(el=>{el.textContent=lang==='en'?el.dataset.en:el.dataset.zh});
+ document.querySelectorAll('#evidenceType option').forEach(el=>{el.textContent=lang==='en'?el.dataset.en:el.dataset.zh});
+ byId('langToggle').textContent=lang==='en'?'繁體中文':'English';
+ renderCandidate();renderSignal();renderFundamentals();renderEvidence();renderRisk();
+}
+byId('candidateList').addEventListener('click',e=>{const b=e.target.closest('[data-setup]');if(b)selectSetup(b.dataset.setup)});
+byId('riskForm').addEventListener('input',renderRisk);
+byId('riskForm').addEventListener('change',renderRisk);
+byId('useClose').addEventListener('click',()=>{if(selected){byId('entry').value=selected.eod_trigger_close;renderRisk()}});
+byId('useLow').addEventListener('click',()=>{if(selected){byId('stop').value=selected.eod_ref_stop;renderRisk()}});
+byId('copyPlan').addEventListener('click',async()=>{
+ const p=lastRisk;
+ if(!p?.ok){byId('riskStatus').textContent=tr('先輸入完整有效的交易情境。','Enter a valid scenario first.');return}
+ const data=[
+ 'Stage 4 hypothetical trade plan; NOT AN ORDER',
+ 'Setup: '+(selected?.setup_id||'UNLINKED SIMULATION'),
+ 'Source EOD: '+(selected?.eod_trigger_as_of||'N/A'),
+ 'Scenario filled entry: '+dollars(p.assumedEntry),
+ 'Scenario stop: '+dollars(fieldNumber('stop')),
+ 'Risk budget: '+dollars(p.budget),
+ 'Per-share risk incl buy slippage: '+dollars(p.perShare),
+ 'Maximum shares (risk/cash capped): '+p.shares,
+ 'Estimated loss incl assumed round trip fees: '+dollars(p.totalRisk),
+ 'Required cash: '+dollars(p.cashUsed),
+ 'No live quote, order, fill or guaranteed stop'
+ ].join('\n');
+ try{await navigator.clipboard.writeText(data);byId('riskStatus').textContent=tr('情境摘要已複製；不會送出訂單。','Scenario copied; no order sent.')}catch(_){byId('riskStatus').textContent=tr('瀏覽器不允許複製，請使用其他方式記錄。','Clipboard unavailable.')}
+});
+byId('evidenceForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ if(!selected){byId('evidenceStatus').textContent=tr('沒有 TRIGGERED Setup','No triggered setup');return}
+ const url=evidenceSource(byId('evidenceLink').value.trim()),entity=byId('evidenceName').value.trim(),note=byId('evidenceNote').value.trim(),date=byId('evidenceDate').value;
+ if(!url||!entity||!note||!/^\d{4}-\d{2}-\d{2}$/.test(date)||entity.length>90||note.length>300){
+  byId('evidenceStatus').textContent=tr('請填妥日期、名稱、HTTPS 原始來源及觀察。','Enter valid date, name, HTTPS source and observation.');return
+ }
+ const previous=readEvidence();
+ previous.push({id:Date.now()+'-'+Math.random().toString(36).slice(2,9),setup_id:selected.setup_id,
+  type:byId('evidenceType').value,date,entity,note,url,entered_at:new Date().toISOString(),verified:false});
+ if(!writeEvidence(previous)){byId('evidenceStatus').textContent=tr('本機儲存不可用','Local storage unavailable');return}
+ byId('evidenceForm').reset();byId('evidenceStatus').textContent=tr('已保存本機人工觀察；仍未經系統核實','Saved locally; not independently verified');renderEvidence();
+});
+byId('manualEvidence').addEventListener('click',e=>{
+ const b=e.target.closest('[data-delete-evidence]');if(!b)return;
+ if(!writeEvidence(readEvidence().filter(x=>String(x.id)!==String(b.dataset.deleteEvidence))))return;
+ renderEvidence();
+});
+byId('langToggle').addEventListener('click',()=>{lang=lang==='en'?'zh':'en';try{localStorage.setItem(langKey,lang)}catch(_){}applyLanguage()});
+byId('reload').addEventListener('click',reloadStage4);
+applyLanguage();reloadStage4();
+</script>
+</body>
+</html>
