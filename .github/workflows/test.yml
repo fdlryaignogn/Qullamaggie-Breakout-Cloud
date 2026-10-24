@@ -30,6 +30,8 @@ jobs:
           python -m pip install pytest
       - name: Run tests without publishing market data
         run: python -m pytest -q tests
+      - name: Audit published Stage 3 EOD snapshot without modifying it
+        run: python stage3_eod_audit.py --strict
       - name: Test GitHub App reviewer security gateway
         run: node --test review-auth/tests/*.test.mjs
       - name: Check cloud dashboard JavaScript syntax
