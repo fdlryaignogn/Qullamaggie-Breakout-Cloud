@@ -18,10 +18,21 @@
       "next_action": "Inspect existing lab source and implement versioned research data interfaces"
     },
     "trading_system": {
-      "status": "not_audited_in_this_turn",
+      "status": "stage3_eod_only_postreview_backfill_in_pr",
       "deployment": "not_verified",
-      "last_change": "No trading logic changed by coordination setup",
-      "next_action": "Read coordination files before next development session"
+      "last_change": "Stage 3 remains EOD-only; post-review WATCH hydration from same-session public chart cache added on feature branch without intraday or order execution",
+      "next_action": "Run full CI and review PR; verify Stage 3 post-review EOD metrics publish safely; merge after checks; reconcile Research Lab PR #9 shared state",
+      "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
+      "scope": "EOD_ONLY",
+      "tests": {
+        "status": "pending_ci",
+        "added": "tests/test_stage3_postreview_eod.py",
+        "manual_ran": false
+      },
+      "published_scan": {
+        "as_of_date": "2026-10-23",
+        "live_eod_refresh": "not_verified"
+      }
     }
   },
   "strategy_registry": {
@@ -30,6 +41,7 @@
   },
   "notes": [
     "Do not infer live deployment or app functionality from this status file.",
-    "Chat threads do not automatically run repository instructions without adopting them."
+    "Chat threads do not automatically run repository instructions without adopting them.",
+    "Trading System EOD-only scope is owner-approved; no intraday breakout or broker execution in current development scope."
   ]
 }
