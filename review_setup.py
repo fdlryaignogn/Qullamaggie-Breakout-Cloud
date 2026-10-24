@@ -108,6 +108,14 @@ def review_setup(state_path: Path, latest_path: Path, *, symbol: str, setup_id: 
     })
     state["history"] = state["history"][:1000]
     state["updatedAt"] = reviewed_at
+    # EOD-only post-approval refresh from the already published daily chart cache.
+    # This is not a new scan, signal, fill, or change to last_success.
+    from stage3_eod import enrich_from_published_charts
+    as_of = metadata.get("as_of_date")
+    if as_of:
+        enrich_from_published_charts(
+            state, latest_path.parent / "charts", as_of
+        )
     public_state = public["state"]
     # Mirrors the scanner's approved public projection. No API secrets or account data.
     bad_fields = {"api_key", "secret", "password", "account_number",

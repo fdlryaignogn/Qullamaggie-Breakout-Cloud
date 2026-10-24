@@ -48,10 +48,25 @@
       ]
     },
     "trading_system": {
-      "status": "not_audited_in_this_turn",
+      "status": "eod_only_pr10_ci_passed_pending_merge",
       "deployment": "not_verified",
-      "last_change": "No trading logic changed by coordination setup",
-      "next_action": "Read coordination files before next development session"
+      "last_change": "PR #10: post-approval EOD WATCH annotations hydrated from validated same-session daily chart cache; no intraday scanning or trade execution",
+      "next_action": "Reconcile with Research Lab main, merge PR #10 after fresh checks, and verify successful EOD WATCH publication",
+      "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
+      "scope": "EOD_ONLY",
+      "tests": {
+        "status": "passed_previous_feature_head; latest_ci_pending",
+        "github_actions_run_id": 40080060584,
+        "python_tests": "passed",
+        "review_auth_node_tests": "passed",
+        "dashboard_js_syntax": "passed",
+        "additional_test_file": "tests/test_stage3_postreview_eod.py",
+        "local_rerun": false
+      },
+      "published_scan": {
+        "as_of_date": "2026-10-23",
+        "live_eod_refresh": "not_verified"
+      }
     }
   },
   "strategy_registry": {
@@ -60,6 +75,7 @@
   },
   "notes": [
     "Do not infer live deployment or app functionality from this status file.",
-    "Chat threads do not automatically run repository instructions without adopting them."
+    "Chat threads do not automatically run repository instructions without adopting them.",
+    "Trading System EOD-only scope is owner-approved; no intraday breakout or broker execution in current development scope."
   ]
 }

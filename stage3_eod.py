@@ -124,3 +124,40 @@ def enrich_stage3_eod(state:dict, frames:dict, as_of:str) -> None:
             # Historical metrics remain visibly tagged to the *older* as-of date.
             continue
         watch.update(result)
+
+
+def enrich_from_published_charts(state: dict, chart_dir, as_of: str) -> None:
+    """Update approved WATCH observations using only published same-session 1d charts.
+
+    This also supports setups approved after the market scan: no new prices are
+    fetched, scan timestamps stay unchanged, and no trade signals are generated.
+    Missing/mismatched chart data is marked unavailable by enrich_stage3_eod.
+    """
+    import json
+    from pathlib import Path
+    from scanner import SYMBOL_RE, clean_frame
+
+    parents = {row.get("setup_id"): row for row in state.get("2", [])
+               if row.get("setup_status") == "READY"}
+    frames = {}
+    for watch in state.get("3", []):
+        if watch.get("status") != "WATCH":
+            continue
+        symbol = watch.get("symbol")
+        parent = parents.get(watch.get("setup_id"))
+        if not parent or parent.get("symbol") != symbol or not isinstance(symbol, str):
+            continue
+        if not SYMBOL_RE.fullmatch(symbol):
+            continue
+        try:
+            chart = json.loads((Path(chart_dir) / (symbol + ".json")).read_text(encoding="utf-8"))
+            if (chart.get("symbol") != symbol or chart.get("as_of") != as_of
+                    or chart.get("interval") != "1d" or chart.get("adjusted") is not True):
+                continue
+            frame = clean_frame(pd.DataFrame(chart["bars"]))
+            if frame.empty or frame.index[-1].strftime("%Y-%m-%d") != as_of:
+                continue
+            frames[symbol] = frame
+        except (OSError, ValueError, KeyError, TypeError, AttributeError):
+            continue
+    enrich_stage3_eod(state, frames, as_of)

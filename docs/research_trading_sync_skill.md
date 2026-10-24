@@ -37,3 +37,9 @@ This GitHub repository is the cross-thread handoff point. Each thread must read 
 
 ## Current status
 Coordination document created. No automatic live cross-thread notifications, database sync, or deployed Research Lab integration is yet established.
+
+## Trading System Stage 3 operating decision (2026-10-24)
+- Stage 3 is **EOD-only** per owner direction: no minute-bar acquisition, opening-range trigger engine or intraday automation is in scope.
+- Only manually approved Stage-2 READY setups are followed as Stage-3 WATCH. A daily close crossing the pivot is an `EOD_CROSS` descriptive observation, **not** an intraday TRIGGERED event, fill or order.
+- A post-scan manual READY review may hydrate EOD metrics from the verified same-session public daily-chart cache. It must not alter the scan's `as_of_date` / `last_success`, fetch fresh prices, approve additional setups, infer stops/fills, or fabricate a fresh scan notification.
+- Research Lab may consume versioned EOD observations with explicit session date, missing-data flags and source commit, but must not treat these observations as realized trading performance.
