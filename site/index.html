@@ -64,20 +64,34 @@
 .cloud-update-banner__close{align-self:flex-start;background:transparent;border:1px solid #4d857b;color:#d6f8ec;border-radius:8px;padding:5px 10px;font-size:12px;white-space:nowrap}
 .cloud-update-banner__close:hover{background:#245347}
 @media(max-width:600px){.cloud-update-banner{margin:12px 4px 0;padding:11px}.cloud-update-banner__body{gap:8px}}
-/* Public GitHub Pages view: edits and state changes require an authenticated separate backend. */
-#addBtn,#importBtn,#scanBtn,button[data-act]{display:none!important}
+/* Public data stays read-only. Authenticated review sends a GitHub API request.
+   Do not turn on legacy browser editing in the cloud. */
+#addBtn,#importBtn,#scanBtn,button[data-act]:not([data-act="review"]){display:none!important}
+.review-result{margin-top:12px;padding:11px 15px;border:1px solid var(--line);border-radius:9px;background:var(--surface2);font-size:12px;color:var(--text)}
+.review-result[hidden]{display:none!important}
+.review-result a{margin-left:10px;white-space:nowrap}
+.review-guide{font-size:12px;line-height:1.75;color:var(--muted);margin-bottom:14px}
+.review-guide strong{color:var(--text)}
+.review-guide a{font-weight:700}
+.review-status{font-size:11px;color:var(--muted);white-space:nowrap}
+.review-authorized{border-color:#3f8d72;color:#9af3d1}
+.review-confirm{display:flex;align-items:start;gap:9px;font-size:12px;color:var(--text)}
+.review-confirm input{width:16px;height:16px;margin-top:2px;flex:0 0 auto}
+#reviewNote{min-height:90px}
+
 </style>
 </head>
 <body>
-<div style="background:#183737;color:#baf8e6;text-align:center;padding:7px 16px;font-size:12px;font-weight:650">CLOUD VIEW · 只讀 / Read-only · 每日收市後更新，非即時報價</div>
+<div style="background:#183737;color:#baf8e6;text-align:center;padding:7px 16px;font-size:12px;font-weight:650">PUBLIC VIEW · 訪客唯讀 / Visitors read-only · 每日收市後更新，非即時報價</div>
 <div class="shell">
   <header class="topbar">
-    <div class="brand"><div class="brand-mark" aria-hidden="true">Q</div><div><div class="brand-name">QULLAMAGGIE <span style="color:var(--accent)">/</span> BREAKOUT</div><div class="brand-sub">THREE-STAGE STOCK TRACKER</div></div><button class="version-pill" id="versionBtn" type="button" title="查看版本與更新內容 / View version details" aria-label="查看網頁版本與更新內容"><span class="version-dot" aria-hidden="true"></span><span>v3.0 Cloud Preview</span></button></div>
+    <div class="brand"><div class="brand-mark" aria-hidden="true">Q</div><div><div class="brand-name">QULLAMAGGIE <span style="color:var(--accent)">/</span> BREAKOUT</div><div class="brand-sub">THREE-STAGE STOCK TRACKER</div></div><button class="version-pill" id="versionBtn" type="button" title="查看版本與更新內容 / View version details" aria-label="查看網頁版本與更新內容"><span class="version-dot" aria-hidden="true"></span><span>v3.2 Cloud</span></button></div>
     <div class="top-actions">
       <div class="language-picker" role="group" aria-label="Language / 語言"><button id="langZh" class="language-option" type="button" aria-pressed="true" lang="zh-Hant">繁中</button><button id="langEn" class="language-option" type="button" aria-pressed="false" lang="en">EN</button></div>
        <button class="outline-btn" id="helpBtn" type="button">ⓘ&nbsp; 使用說明</button>
       <button class="outline-btn" id="importBtn" type="button">↥&nbsp; 匯入數據</button>
       <button class="outline-btn" id="syncBtn" type="button">⟳ 同步</button>
+       <button class="outline-btn" id="reviewAuthBtn" type="button" aria-label="管理員審核模式 / Reviewer mode">🔒 管理員核准</button>
       <button class="solid-btn" id="scanBtn" type="button">▶ 開始掃描</button>
       <button class="outline-btn" id="exportAllBtn" type="button">↧&nbsp; 備份 JSON</button>
     </div>
@@ -89,6 +103,7 @@
     </div>
     <button id="cloudUpdateClose" class="cloud-update-banner__close" type="button" aria-label="Dismiss update notice / 關閉更新提示">✕</button>
   </section>
+  <section id="reviewResult" class="review-result" role="status" aria-live="polite" hidden><span id="reviewResultText"></span><a href="https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/actions/workflows/review-stage2.yml" target="_blank" rel="noopener noreferrer" id="reviewActionLink">查看審核紀錄 ↗</a></section>
   <section class="intro">
     <div><div class="eyebrow">TRADING WORKSPACE / WATCHLIST</div><h1>三階段突破監察台 <span style="color:var(--accent)">↗</span></h1><p>從市場強勢股出發，追蹤整理收縮形態，再觀察突破觸發。候選股票會保留追蹤，不會因每日排名變動而自動清空。</p></div>
     <div class="metadata"><span class="pill" id="sourceBadge">●&nbsp; 本地資料 · 非即時報價</span><span class="pill" id="updatedAt" role="status" aria-live="off">尚未有成功掃描</span><label class="tz-chooser" for="tzSelect"><span id="tzLabel">時間：</span><select id="tzSelect" aria-label="Timestamp timezone"><option value="America/New_York">紐約 NY</option><option value="Asia/Singapore">新加坡 SG</option><option value="UTC">UTC 世界標準時間</option></select></label><span class="pill" id="serverBadge">○ 未連線</span></div>
@@ -107,7 +122,7 @@
     <div class="footline"><span id="rowCount">共 0 筆記錄</span><span>點擊欄名可排序 · 左右捲動查看所有欄位</span></div>
   </main>
   <section class="below"><div class="info-card"><h3>三輪邏輯 · 由選股到監察</h3><p>第一輪以 1 / 3 / 6 個月強勢排名的<b>聯集</b>作初選；第二輪確認拉升後的整理與波動收縮；第三輪只接收第二輪 <b>READY</b> 的 setup。<b>TRIGGERED</b> 不等於券商成交。</p><div class="steps"><span class="step">STAGE 1 · MOMENTUM</span><span class="arrow">→</span><span class="step">STAGE 2 · FORMING / READY</span><span class="arrow">→</span><span class="step">STAGE 3 · WATCH / TRIGGERED</span></div></div><div class="info-card"><h3>持續追蹤原則</h3><p>第二輪股票即使不再進入當日第一輪排名，仍保留其整理形態與歷史紀錄。失效後以 <b>INVALIDATED</b> 記錄原因，再歸檔；並非每天重建整張觀察名單。</p></div></section>
-  <footer class="footer"><span>QULLAMAGGIE BREAKOUT · CLOUD VIEW · UI v3.1</span><span>依據 Project 三份 Skill 文件建立 · 非即時日線 · 沒有券商連接</span></footer>
+  <footer class="footer"><span>QULLAMAGGIE BREAKOUT · CLOUD VIEW · UI v3.2</span><span>依據 Project 三份 Skill 文件建立 · 非即時日線 · 沒有券商連接</span></footer>
 </div>
 <input id="fileInput" type="file" accept=".csv,.json,text/csv,application/json" hidden>
 <div class="overlay" id="overlay" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><div><h2 id="modalTitle">加入股票</h2><p id="modalSubtitle"></p></div><button class="close-btn" id="closeModal" aria-label="關閉">×</button></div><div class="modal-main" id="modalMain"></div><div class="modal-foot" id="modalFoot"></div></section></div>
@@ -116,10 +131,15 @@
 <script>
 (() => {
 'use strict';
-const DASHBOARD_VERSION='3.1-cloud';
+const DASHBOARD_VERSION='3.2-cloud';
 const CLOUD_MODE=true;
 const SCANNER_VERSION='3.1';
 const STORE_KEY='qulla_breakout_dashboard_v1';
+// Never put a GitHub credential into localStorage, sessionStorage, cookies,
+// URL parameters, site JSON, logs, or exported backups.
+const REVIEW_REPO='fdlryaignogn/Qullamaggie-Breakout-Cloud';
+const REVIEW_WORKFLOW='review-stage2.yml';
+let reviewToken=null, reviewIdentity=null, reviewPending=null;
 const stages={
   1:{title:'第一輪：強勢股動能篩選',desc:'比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。',workflow:'◇ 動能掃描 · 最少間隔 24 小時',note:'每期第一輪 CSV 會合併入候選池，不會覆寫第二輪 FORMING 或 READY 的狀態。',statuses:['NEW','ACTIVE','ARCHIVED','INSUFFICIENT_DATA'],fields:[
   ['symbol','股票代號','text',true],['market','市場','text'],['as_of_date','評估日期','date'],['return_1m','1 個月報酬 %','number'],['rank_pct_1m','1M 排名百分位 %','number'],['return_3m','3 個月報酬 %','number'],['rank_pct_3m','3M 排名百分位 %','number'],['return_6m','6 個月報酬 %','number'],['rank_pct_6m','6M 排名百分位 %','number'],['selected_windows','入選區間 (如 1M,3M)','text'],['pass_stage_1','通過第一輪 (YES / NO)','select-yes'],['status','追蹤狀態','select'],['first_seen_date','首次入選日期','date'],['last_screened_date','最近掃描日期','date'],['last_pass_date','最近通過日期','date'],['data_warnings','數據注意事項','textarea']
@@ -207,7 +227,7 @@ function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
  let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
  byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
  byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
- if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;return `<tr>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}<td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td></tr>`}).join('')}
+ if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewToken&&reviewIdentity&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';return `<tr>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}<td><div class="cell-actions"><button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}${reviewAction}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button></div></td></tr>`}).join('')}
  else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
  byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
 }
@@ -278,7 +298,7 @@ function help(){
 }
 for(const b of document.querySelectorAll('.tab'))b.addEventListener('click',()=>switchTab(Number(b.dataset.stage)));
 byId('search').addEventListener('input',e=>{ui.query=e.target.value.trim();render()});byId('statusFilter').addEventListener('change',e=>{ui.filter=e.target.value;render()});byId('thead').addEventListener('click',e=>{const th=e.target.closest('[data-sort]');if(!th)return;if(ui.sortBy===th.dataset.sort)ui.sortDir*=-1;else{ui.sortBy=th.dataset.sort;ui.sortDir=1}render()});
-byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){toast(tl('雲端網站為只讀；請勿在公開頁面編輯交易狀態。','Cloud view is read-only; do not edit trading states here.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
+byId('tbody').addEventListener('click',e=>{const btn=e.target.closest('button[data-act]');if(!btn)return;if(CLOUD_MODE){if(btn.dataset.act==='review'&&ui.stage===2&&reviewToken&&reviewIdentity){const candidate=state['2'].find(r=>sid(r,2)===btn.dataset.id);if(candidate)openReviewForm(candidate);return;}toast(tl('雲端資料只讀；人工核准必須通過 GitHub 權限驗證。','Public data is read-only; reviews require GitHub authorization.'));return;}const row=state[ui.stage].find(r=>sid(r,ui.stage)===btn.dataset.id);if(!row)return;if(btn.dataset.act==='edit')openForm(ui.stage,row);if(btn.dataset.act==='promote')promote(ui.stage,row);if(btn.dataset.act==='remove')remove(ui.stage,row)});
 byId('langZh').onclick=()=>setLanguage('zh');byId('langEn').onclick=()=>setLanguage('en');
 byId('addBtn').onclick=()=>openForm();byId('templateBtn').onclick=()=>exportCSV(true);byId('exportCsvBtn').onclick=()=>exportCSV(false);byId('importBtn').onclick=()=>byId('fileInput').click();byId('fileInput').addEventListener('change',e=>importFile(e.target.files[0]));byId('exportAllBtn').onclick=()=>{download(`qullamaggie_all_stages_${today()}.json`,JSON.stringify({...state,exported_at:nowIso(),version:1},null,2),'application/json;charset=utf-8');toast(t('已備份三輪資料與狀態歷史。'))};byId('helpBtn').onclick=help;byId('versionBtn').onclick=showVersionDetails;byId('closeModal').onclick=modal.close;byId('overlay').addEventListener('click',e=>{if(e.target===byId('overlay'))modal.close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'){modal.close();hidePricePopup()}});
 // Same-origin browser-to-Python API. Standalone HTML still works offline.
@@ -807,10 +827,156 @@ async function backendPoll(){
   if(result.revision!==serverRevision&&!syncBusy&&!syncPending&&!byId('overlay').classList.contains('visible'))await loadServer();
  }catch(e){serverOnline=false;refreshServerUi();}
 }
+// This static GitHub Pages dashboard NEVER handles a user's GitHub password.
+// A short-lived fine-grained token is kept only in JS memory until this tab closes.
+function reviewAuthLabel(){
+ const btn=byId('reviewAuthBtn');
+ if(!btn)return;
+ btn.textContent=reviewIdentity?tl('🔓 @'+reviewIdentity+' · 審核模式','🔓 @'+reviewIdentity+' · Reviewer'):tl('🔒 管理員核准','🔒 Reviewer access');
+ btn.classList.toggle('review-authorized',!!reviewIdentity);
+ btn.title=tl('GitHub 在每次送交審核時驗證 Actions 寫入權限。','GitHub checks Actions write permission on every review dispatch.');
+}
+function showReviewStatus(zh,en){
+ const el=byId('reviewResult');
+ byId('reviewResultText').textContent=tl(zh,en);
+ byId('reviewActionLink').textContent=tl('查看 GitHub 審核工作 ↗','See GitHub review runs ↗');
+ el.hidden=false;
+}
+function githubHeaders(token){
+ return {Accept:'application/vnd.github+json',Authorization:'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28'};
+}
+async function githubRequest(path, options={}, token=reviewToken){
+ if(!token)throw Error(tl('沒有授權憑證','No reviewer token'));
+ const res=await fetch('https://api.github.com'+path,{
+  ...options,headers:{...githubHeaders(token),...(options.headers||{})},cache:'no-store'
+ });
+ if(res.status===401 && token===reviewToken){
+  reviewToken=null;reviewIdentity=null;reviewAuthLabel();render();
+ }
+ if(!res.ok){
+  // Never echo an access token, response headers, or the submitted review note.
+  if(res.status===401)throw Error(tl('憑證無效或已過期','Token is invalid or expired'));
+  if(res.status===403||res.status===404)throw Error(tl('GitHub 拒絕：請確認此帳戶擁有 Repository 權限，且憑證有 Actions 寫入權限。','GitHub denied the request. Check repository access and Actions write permission.'));
+  throw Error(tl('GitHub 請求失敗：','GitHub request failed: ')+res.status);
+ }
+ return res.status===204?null:res.json();
+}
+function openReviewAuth(){
+ if(!CLOUD_MODE)return;
+ if(reviewToken&&reviewIdentity){
+  modal.open(tl('管理員審核模式','Reviewer access'),tl('目前 GitHub 身份：','Connected GitHub account: ')+'@'+reviewIdentity,
+    '<p class="review-guide">'+tl('核准會由 GitHub Actions 檢查提交權限並留下審核記錄。離開或重新整理網頁會清除本次憑證。','Review dispatches are checked by GitHub Actions and audited. Reloading or leaving this page clears the token.')+'</p>',
+    '<button class="outline-btn" type="button" id="reviewLogout">'+tl('🔒 結束管理員模式','🔒 Leave reviewer mode')+'</button>');
+  byId('reviewLogout').onclick=()=>{reviewToken=null;reviewIdentity=null;modal.close();reviewAuthLabel();render();};
+  return;
+ }
+ const instructions=tl(
+  '請自行到 GitHub 建立 <strong>Fine-grained personal access token</strong>：只選擇 <strong>Qullamaggie-Breakout-Cloud</strong> Repository，設定 <strong>Actions → Read and write</strong>，選擇短有效期。此處不是 GitHub 密碼登入；請勿在聊天中傳送憑證。',
+  'Create your own <strong>fine-grained personal access token</strong> for only <strong>Qullamaggie-Breakout-Cloud</strong>, with <strong>Actions → Read and write</strong> and a short expiration. This is not GitHub password sign-in. Never paste your token into chat.');
+ modal.open(tl('啟用網頁內核准','Enable in-page reviewing'),
+  tl('訪客無法修改；有 GitHub 審核權限才能提交。','Visitors cannot edit; only GitHub-authorized users can submit.'),
+  '<div class="review-guide">'+instructions+' <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer">'+tl('開啟 GitHub 憑證設定 ↗','Create token on GitHub ↗')+'</a><p>'+tl('憑證僅保留於目前網頁記憶體，不會儲存到瀏覽器或發佈到公開網站。','The token stays in this tab memory only: it is neither stored nor published.')+'</p></div>'+
+  '<div class="field"><label for="reviewKey">'+tl('限權 GitHub 憑證','Limited-scope GitHub token')+'</label><input type="password" id="reviewKey" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_..." required></div>'+
+  '<p id="reviewAuthError" role="alert" class="review-status"></p>',
+  '<button class="outline-btn" type="button" id="reviewAuthCancel">'+tl('取消','Cancel')+'</button>'+
+  '<button class="solid-btn" type="button" id="reviewAuthConnect">'+tl('驗證 GitHub 身份','Verify GitHub identity')+'</button>');
+ byId('reviewAuthCancel').onclick=modal.close;
+ byId('reviewAuthConnect').onclick=async()=>{
+  const input=byId('reviewKey');
+  const token=input.value.trim();
+  // Clear the DOM input before any network calls; token is held in a local
+  // variable and later a JS closure, never a persisted or DOM-visible value.
+  input.value='';
+  if(!token){byId('reviewAuthError').textContent=tl('請輸入 GitHub 限權憑證','Enter a GitHub fine-grained token');return;}
+  const btn=byId('reviewAuthConnect');btn.disabled=true;
+  try{
+   const who=await githubRequest('/user',{},token);
+   if(!who||!who.login)throw Error(tl('無法識別 GitHub 使用者','Unable to verify GitHub user'));
+   // Authentication alone is not write authorization. Workflow dispatch
+   // enforces the actual repository-specific permission.
+   await githubRequest('/repos/'+REVIEW_REPO+'/actions/workflows/'+REVIEW_WORKFLOW,{},token);
+   reviewToken=token;reviewIdentity=String(who.login);
+   modal.close();reviewAuthLabel();render();
+   showReviewStatus('已驗證 GitHub 身份 @'+reviewIdentity+'。提交時仍會由 GitHub 檢查修改權限。',
+                    'Connected as @'+reviewIdentity+'. GitHub checks write permission on dispatch.');
+  }catch(err){byId('reviewAuthError').textContent=err.message;}
+  finally{if(btn.isConnected)btn.disabled=false;}
+ };
+ byId('reviewKey').focus();
+}
+function openReviewForm(row){
+ if(!reviewToken||!reviewIdentity||!row?.setup_id)return;
+ const mayApprove=['FORMING','DEVELOPING'].includes(statusOf(row,2))&&row.readiness_recommendation==='READY_CANDIDATE';
+ const decisions=[...(mayApprove?['READY']:[]),'FORMING','INVALIDATED'];
+ const choices=decisions.map(d=>'<option value="'+d+'">'+({
+  READY:tl('核准 READY','Approve READY'),
+  FORMING:tl('維持 / 降回 FORMING','Keep / return to FORMING'),
+  INVALIDATED:tl('標記 INVALIDATED','Mark INVALIDATED')
+ }[d])+'</option>').join('');
+ const rationale=esc(row.readiness_rationale||'');
+ const heading=esc(row.symbol+' · '+row.setup_id);
+ modal.open(tl('人工覆核 Setup','Review Setup'),heading,
+  '<p class="review-guide">'+tl('目前狀態：','Current status: ')+'<strong>'+esc(row.setup_status||'—')+'</strong> · '+
+  tl('系統建議：','Scanner recommendation: ')+'<strong>'+esc(row.readiness_recommendation||'—')+'</strong> · '+
+  tl('分數：','Score: ')+esc(row.readiness_score??'—')+'/5<br>'+rationale+'</p>'+
+  '<div class="field"><label for="reviewDecision">'+tl('審核決定','Decision')+'</label><select id="reviewDecision">'+choices+'</select></div>'+
+  '<div class="field" style="margin-top:12px"><label for="reviewNote">'+tl('審核原因（公開，必填）','Review reason (public, required)')+'</label><textarea id="reviewNote" maxlength="500" placeholder="'+tl('描述整理結構、突破關鍵價、未通過項目…','Describe base structure, breakout level and conditions…')+'"></textarea></div>'+
+  '<label class="review-confirm" id="reviewConfirmWrap" style="margin-top:14px"><input type="checkbox" id="reviewConfirm">'+
+  '<span>'+tl('我已檢查 K 線、整理結構、波動收縮及突破價；READY 只代表可監察突破，不代表已買入。',
+  'I reviewed the chart, base, volatility contraction and pivot. READY permits monitoring, not a buy.')+'</span></label>'+
+  '<p class="review-status">'+tl('最終由 GitHub 工作流程核實 Setup 狀態及權限。','GitHub independently verifies the setup state and authorization.')+'</p>'+
+  '<p id="reviewSubmitError" role="alert" class="review-status"></p>',
+  '<button class="outline-btn" id="reviewCancel">'+tl('取消','Cancel')+'</button>'+
+  '<button class="solid-btn" id="reviewSubmit">'+tl('提交審核決定','Submit review')+'</button>');
+ const selector=byId('reviewDecision');
+ const toggle=()=>{byId('reviewConfirmWrap').hidden=selector.value!=='READY';if(selector.value!=='READY')byId('reviewConfirm').checked=false;};
+ selector.onchange=toggle;toggle();
+ byId('reviewCancel').onclick=modal.close;
+ byId('reviewSubmit').onclick=async()=>{
+  const decision=selector.value,reason=byId('reviewNote').value.trim();
+  if(!reason||reason.length>500){byId('reviewSubmitError').textContent=tl('請填寫 1–500 字審核原因','Provide a 1–500 character public review reason');return;}
+  const confirmed=decision==='READY'&&byId('reviewConfirm').checked;
+  if(decision==='READY'&&!confirmed){byId('reviewSubmitError').textContent=tl('必須勾選已親自檢查 K 線','You must confirm that you reviewed the chart');return;}
+  const submit=byId('reviewSubmit');submit.disabled=true;
+  byId('reviewSubmitError').textContent=tl('正在提交 GitHub…','Submitting to GitHub…');
+  try{
+   await githubRequest('/repos/'+REVIEW_REPO+'/actions/workflows/'+REVIEW_WORKFLOW+'/dispatches',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({ref:'main',inputs:{symbol:row.symbol,setup_id:row.setup_id,
+     decision,confirmed_chart_review:String(confirmed),review_reason:reason}})
+   });
+   reviewPending={setup_id:row.setup_id,decision,since:Date.now()};
+   modal.close();
+   showReviewStatus('GitHub 已接受 '+row.symbol+' → '+decision+' 的審核請求；尚待執行及資料發布。',
+                    'GitHub accepted '+row.symbol+' → '+decision+' for review. Execution and publication are pending.');
+   let attempts=0;
+   const interval=setInterval(async()=>{
+    attempts++;
+    if(!reviewPending||reviewPending.setup_id!==row.setup_id||document.hidden){if(attempts>=20)clearInterval(interval);return;}
+    await loadServer();
+    const updated=state['2'].find(r=>r.setup_id===row.setup_id);
+    const newer=Date.parse(updated?.manual_reviewed_at||'')>=reviewPending.since-5000;
+    if(newer&&updated?.setup_status===decision){
+     clearInterval(interval);reviewPending=null;
+     showReviewStatus('已確認 '+row.symbol+' → '+decision+' 已由 GitHub 發布。',
+                      'Verified: '+row.symbol+' → '+decision+' was published by GitHub.');
+    }else if(attempts>=20){
+     clearInterval(interval);
+     showReviewStatus('尚未確認發布。請查看 GitHub 工作紀錄，或按「同步」重新檢查。',
+                      'Not yet confirmed. Check GitHub workflow logs or refresh the page.');
+    }
+   },15000);
+  }catch(err){byId('reviewSubmitError').textContent=err.message;}
+  finally{if(submit.isConnected)submit.disabled=false;}
+ };
+}
+byId('reviewAuthBtn').addEventListener('click',openReviewAuth);
+reviewAuthLabel();
+
 byId('scanBtn').onclick=startScan;
 byId('syncBtn').onclick=async()=>{await loadServer();toast(tl('已同步最新追蹤資料。','Latest tracking records synced.'))};
 const oldApplyLanguage=applyLanguage;
-applyLanguage=function(){oldApplyLanguage();refreshServerUi();updateTzUi();renderCloudNewScanNotice();};
+applyLanguage=function(){oldApplyLanguage();refreshServerUi();updateTzUi();renderCloudNewScanNotice();reviewAuthLabel();};
 applyLanguage();
 if(API_ENABLED){
  // EOD scanner runs once per US trading day; half-hour polling is sufficient.
