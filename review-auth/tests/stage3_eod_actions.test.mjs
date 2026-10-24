@@ -75,3 +75,30 @@ test('cloud dashboard exposes read-only EOD details and authenticated review onl
  assert.ok(html.includes("oauthRequest('/stage3/dispatch'"));
  assert.ok(!source.slice(start,end).includes('TRIGGERED","'));
 });
+
+test('human EOD trigger dispatch demands confirmation and pinned snapshot',async()=>{
+ const {dispatch,req,requests}=harness();
+ await assert.rejects(
+  dispatch(req({...base,action:'CONFIRM_EOD_TRIGGER',confirmed:false}),{}),
+  e=>e.status===400
+ );
+ const response=await dispatch(
+  req({...base,action:'CONFIRM_EOD_TRIGGER',confirmed:true}),{}
+ );
+ assert.equal(response.status,202);
+ assert.equal(requests.length,1);
+ const body=JSON.parse(requests[0].opts.body);
+ assert.equal(body.inputs.action,'CONFIRM_EOD_TRIGGER');
+ assert.equal(body.inputs.confirmed,'true');
+ assert.equal(body.inputs.expected_as_of_date,'2026-10-23');
+});
+test('Stage3 Action shows required pass/fail evidence and blocks unqualified triggers',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ assert.ok(html.includes('function stage3TriggerChecklist(row)'));
+ assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
+ assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
+ assert.ok(html.includes("!checks.requiredOK"));
+ assert.ok(html.includes("k==='CONFIRM_EOD_TRIGGER'&&!checks.requiredOK?' disabled'"));
+ assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
+ assert.ok(html.includes('人工確認 EOD 突破'));
+});
