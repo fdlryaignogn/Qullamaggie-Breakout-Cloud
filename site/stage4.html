@@ -93,7 +93,7 @@ footer{color:var(--muted);font-size:11px;margin-top:22px;line-height:1.7}
      <div class="metric"><div class="label" data-zh="風險與現金約束的最大股數" data-en="Risk- & cash-capped shares">風險與現金約束的最大股數</div><div class="value safe" id="maxShares">—</div><div class="context" data-zh="非保證成交股數" data-en="Not a guaranteed fill">非保證成交股數</div></div>
      <div class="metric"><div class="label" data-zh="含費用預估總風險" data-en="Estimated total risk incl. fees">含費用預估總風險</div><div class="value" id="actualRisk">—</div><div class="context" data-zh="止損不保證成交" data-en="Stops are not guaranteed fills">止損不保證成交</div></div>
      <div class="metric"><div class="label" data-zh="預估資金使用量" data-en="Cash required">預估資金使用量</div><div class="value" id="capitalUse">—</div><div class="context" data-zh="含估計費用" data-en="Includes assumed fees">含估計費用</div></div>
-     <div class="metric"><div class="label" data-zh="目標回報 / 風險" data-en="Target reward/risk">目標回報 / 風險</div><div class="value" id="rewardR">—</div><div class="context" data-zh="僅在有目標價時顯示" data-en="Shown when a target is supplied">僅在有目標價時顯示</div></div>
+     <div class="metric"><div class="label" data-zh="扣估計費用的目標 R" data-en="Target net reward / risk">目標回報 / 風險</div><div class="value" id="rewardR">—</div><div class="context" data-zh="需有目標價及正數股數" data-en="Requires a target and positive shares">僅在有目標價時顯示</div></div>
     </div>
     <div class="audit" id="riskContext" data-zh="ATR 與 ADR 如可取得會顯示作風險參考，沒有硬性門檻。缺失值不會自動變成 0。" data-en="ATR and ADR appear only when available. They are context, not validated mandatory thresholds; missing data is never zero.">ATR 與 ADR 如可取得會顯示作風險參考，沒有硬性門檻。缺失值不會自動變成 0。</div>
    </section>
@@ -158,7 +158,7 @@ function stage4SizePlan(i){
  const cashUsed=shares>0?shares*assumedEntry+i.fees:0;
  if(!Number.isFinite(totalRisk)||!Number.isFinite(cashUsed)||cashUsed>i.cash+1e-7||totalRisk>budget+1e-7)return {ok:false,error:'INVALID_INPUT'};
  const target=Number.isFinite(i.target)&&i.target>0?i.target:null;
- const targetR=target!==null?(target-assumedEntry)/perShare:null;
+ const targetR=target!==null&&shares>0?(shares*(target-assumedEntry)-i.fees)/totalRisk:null;
  return {ok:true,budget,assumedEntry,perShare,byRisk,byCash,shares,totalRisk,cashUsed,targetR,
   riskPct:i.riskPct,lot:i.lot,warningHighRisk:i.riskPct>2,scenarioOnly:true};
 }
