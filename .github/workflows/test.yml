@@ -32,6 +32,23 @@ jobs:
         run: python -m pytest -q tests
       - name: Audit published Stage 3 EOD snapshot without modifying it
         run: python stage3_eod_audit.py --strict
+      - name: Verify experimental EOD V2 annotations are nonproduction
+        run: |
+          python stage3_eod_v2_research.py --snapshot site/data/latest.json > /tmp/stage3_eod_v2.json
+          python - <<'PY'
+          import json
+          with open('/tmp/stage3_eod_v2.json', encoding='utf-8') as fh:
+              report=json.load(fh)
+          assert report['approval_status']=='EXPERIMENTAL'
+          assert report['scope']=='RESEARCH_ONLY'
+          assert report['production_rules_modified'] is False
+          assert report['orders_submitted'] is False
+          assert report['new_price_downloads'] is False
+          assert report['point_in_time_eligible_count']==sum(
+              r['point_in_time_eligible'] for r in report['observations'])
+          assert all(r['production_status']=='WATCH' and r['is_trade'] is False
+                     for r in report['observations'])
+          PY
       - name: Test GitHub App reviewer security gateway
         run: node --test review-auth/tests/*.test.mjs
       - name: Check cloud dashboard JavaScript syntax
