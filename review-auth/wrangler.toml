@@ -1,0 +1,7 @@
+name = "qullamaggie-review-auth"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+[secrets]
+required = ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "SESSION_KEY"]
