@@ -102,3 +102,32 @@ test('Stage3 Action shows required pass/fail evidence and blocks unqualified tri
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
  assert.ok(html.includes('人工確認 EOD 突破'));
 });
+
+test('Stage 3 browser checklist computes pass/fail and does not gate on volume multiplier',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const start=html.indexOf('function stage3TriggerChecklist(row){');
+ const end=html.indexOf('function openStage3Action(row){',start);
+ assert.ok(start>=0&&end>start);
+ const parent={symbol:'ABC',setup_id:'ABC-1',setup_status:'READY',
+  manual_reviewer:'human',manual_reviewed_at:'2026-10-23T19:00:00+00:00'};
+ const row={symbol:'ABC',setup_id:'ABC-1',status:'WATCH',breakout_level:100,
+  eod_data_status:'FRESH',eod_as_of:'2026-10-23'};
+ const metric={eod_as_of:'2026-10-23',eod_event:'EOD_CROSS',
+  eod_prev_close:99.5,eod_close:100.5,eod_volume_ratio:null,
+  eod_atr14:2,eod_adr20_pct:4,eod_ref_risk_atr:null};
+ const ctx={serverMeta:{phase:'success',last_success:'2026-10-23T23:00:00Z',
+  as_of_date:'2026-10-23'},state:{'2':[parent]},stage3CurrentEod:()=>metric,
+  tl:(a)=>a,fmtNum:String,pct:String};
+ const decide=vm.runInNewContext(html.slice(start,end)+'\nstage3TriggerChecklist',ctx);
+ const ok=decide(row);
+ assert.equal(ok.requiredOK,true);
+ assert.equal(ok.checks.every(c=>c.pass),true);
+ assert.equal(ok.context[0][1],'—');
+ parent.manual_reviewed_at='2026-10-24T05:56:07+00:00';
+ const late=decide(row);
+ assert.equal(late.requiredOK,false);
+ assert.equal(late.checks.some(c=>!c.pass&&c.label.includes('核准時間')),true);
+ parent.manual_reviewed_at='2026-10-23T19:00:00+00:00';
+ metric.eod_event='ABOVE_PIVOT';
+ assert.equal(decide(row).requiredOK,false);
+});
