@@ -1247,6 +1247,8 @@ function openReviewForm(row){
    modal.close();
    showReviewStatus('GitHub 已接受 '+row.symbol+' → '+decision+' 的審核請求；尚待執行及資料發布。',
                     'GitHub accepted '+row.symbol+' → '+decision+' for review. Execution and publication are pending.');
+   toast(tl(row.symbol+' → '+decision+' 已提交，正在等候 GitHub 發布…',
+            row.symbol+' → '+decision+' submitted. Waiting for GitHub publication…'));
    let attempts=0;
    const interval=setInterval(async()=>{
     attempts++;
@@ -1256,12 +1258,17 @@ function openReviewForm(row){
     const newer=Date.parse(updated?.manual_reviewed_at||'')>=reviewPending.since-5000;
     if(newer&&updated?.setup_status===decision){
      clearInterval(interval);reviewPending=null;
-     showReviewStatus('已確認 '+row.symbol+' → '+decision+' 已由 GitHub 發布。',
-                      'Verified: '+row.symbol+' → '+decision+' was published by GitHub.');
+     const addedToWatch=decision==='READY'&&state['3'].some(w=>w.setup_id===row.setup_id&&w.status==='WATCH');
+     showReviewStatus(
+       addedToWatch?'已確認 '+row.symbol+' → READY，並已加入第三輪 WATCH。':'已確認 '+row.symbol+' → '+decision+' 已由 GitHub 發布。',
+       addedToWatch?'Verified: '+row.symbol+' is READY and now appears in Stage 3 WATCH.':'Verified: '+row.symbol+' → '+decision+' was published by GitHub.');
+     toast(addedToWatch?tl(row.symbol+' 已加入 Stage 3 WATCH',row.symbol+' added to Stage 3 WATCH'):
+       tl(row.symbol+' → '+decision+' 更新成功',row.symbol+' → '+decision+' updated'));
     }else if(attempts>=20){
      clearInterval(interval);
      showReviewStatus('尚未確認發布。請查看 GitHub 工作紀錄，或按「同步」重新檢查。',
                       'Not yet confirmed. Check GitHub workflow logs or refresh the page.');
+     toast(tl('仍在等待發布；請查看 GitHub 審核紀錄。','Still awaiting publication; check GitHub review runs.'),true);
     }
    },15000);
   }catch(err){byId('reviewSubmitError').textContent=err.message;}
