@@ -1385,11 +1385,11 @@ function stage3TriggerChecklist(row,mode="CONFIRM_EOD_TRIGGER"){
  try{
   const date=new Date(parent?.manual_reviewed_at);
   if(approved&&/(?:Z|[+-]\d{2}:\d{2})$/i.test(String(parent.manual_reviewed_at))&&Number.isFinite(date.getTime())&&typeof asOf==='string'){
-   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
+   const parts=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(date);
    const get=k=>parts.find(p=>p.type===k)?.value;
    const nyDate=get('year')+'-'+get('month')+'-'+get('day');
-   const hm=Number(get('hour'))*60+Number(get('minute'));
-   approvedBySession=nyDate<asOf||(nyDate===asOf&&hm<=16*60);
+   const seconds=Number(get('hour'))*3600+Number(get('minute'))*60+Number(get('second'));
+   approvedBySession=nyDate<asOf||(nyDate===asOf&&seconds<=16*3600);
   }
  }catch(_){}
  add(tl('核准時間不晚於該 EOD 交易日','READY approved by this EOD session'),
