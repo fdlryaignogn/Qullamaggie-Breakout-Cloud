@@ -93,18 +93,21 @@
       }
     },
     "historical_superstocks_product_research": {
-      "status": "plan_committed_pilot_not_started",
+      "status": "pilot_workbook_created_source_validation_pending",
       "scope": "research_only",
       "plan": "docs/historical_superstocks_product_research_plan.md",
       "plan_commit": "bbbc8ff4b20200123a46f3f193ab14f28ac57fb2",
       "sample_target": 20,
-      "outputs": "Google Sheets planned; not created",
+      "outputs": "Native Google Sheets workbook with 6 tabs and 20 unverified research candidates",
       "tests": {
-        "status": "documentation_only",
-        "checks": "JSON parse of project state; no code tests applicable"
+        "status": "structure_created",
+        "checks": "Google Sheets batchUpdate succeeded; metadata confirmation pending; no historical data accuracy tests yet"
       },
-      "deployment": "none",
-      "next_action": "Confirm historical data availability and source provenance; prepare 20-case pilot and controls"
+      "deployment": "research workbook only; no trading deployment",
+      "next_action": "Verify pilot candidates and breakout-date methodology using point-in-time sources; populate validated historical price, cap, volume, product evidence and contemporaneous controls",
+      "google_sheet_url": "https://docs.google.com/spreadsheets/d/1UQIrx6OI4E2R_G4G7ecEbTkV3AratRwneN8U9jlec5s/edit",
+      "candidate_queue_count": 20,
+      "verified_cases": 0
     }
   },
   "strategy_registry": {
