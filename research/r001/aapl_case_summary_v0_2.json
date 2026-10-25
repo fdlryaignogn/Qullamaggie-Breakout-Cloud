@@ -42,6 +42,25 @@
       },
       "max_forward_closing_gain_pct": 21.6912,
       "max_forward_closing_loss_vs_event_pct": -33.4559
+    },
+    "non_selected_sensitivity_candidate": {
+      "event_date": "2007-01-10",
+      "date_selection": "later qualifying event in all-candidate inventory, NOT earliest selected",
+      "open": 3.38,
+      "high": 3.49,
+      "low": 3.34,
+      "close": 3.46,
+      "prior_60_high": 3.33,
+      "first_2x_closing_date": "2007-12-07",
+      "next_252_max_close": 7.14,
+      "next_252_max_date": "2007-12-28",
+      "max_gain_pct": 106.3584,
+      "session_252_close": 6.36,
+      "session_252_date": "2008-01-10",
+      "session_252_return_pct": 83.815,
+      "winner_252": true,
+      "pit_product_context": "iPhone first announcement 2007-01-09 before this event; ineligible for selected Jan06 2006 event",
+      "status": "EXPLORATORY_NOT_SELECTED"
     }
   },
   "pre_event_evidence": [
