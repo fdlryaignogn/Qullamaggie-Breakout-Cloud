@@ -333,7 +333,7 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "RESEARCH_UI_BRANCH_COMMITTED_PENDING_PR_REVIEW",
+        "status": "MERGED_TO_MAIN_PUBLIC_PAGES_NOT_BROWSER_VERIFIED",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
@@ -346,12 +346,15 @@
           "static": "PASS: language/storage/nav, no credentials, no embedded OHLCV",
           "csv_parser": "PASS 5/5 including negative fixtures",
           "zip": "PASS: Chromium DEFLATE-RAW recovered 51527-byte CSV from owner ZIP",
-          "live_github_pages": "NOT TESTED",
-          "ci": "NOT TESTED"
+          "live_github_pages": "NOT VERIFIED (web request inaccessible)",
+          "ci": "PR verify cloud scanner success (not schema viewer browser coverage); page-specific CI not run",
+          "main_branch_readback": "PASS: HTML and Research Lab navigation fetched from main; translation/parser static checks passed"
         },
         "source_commit": "e02bf792632a23263038cd03dbed745a16c12bea",
         "documentation": "docs/r001_schema_web_viewer.md",
-        "model_training": "NOT_READY_UNCHANGED"
+        "model_training": "NOT_READY_UNCHANGED",
+        "pr": 27,
+        "merge_commit": "78092fd38c277579aad9a487eec9ddd763add6e9"
       }
     }
   },
