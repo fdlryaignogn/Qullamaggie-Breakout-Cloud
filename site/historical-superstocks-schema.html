@@ -28,6 +28,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 button[hidden],section[hidden],div[hidden]{display:none!important}
 @media(max-width:820px){.grid{grid-template-columns:1fr}.feature-grid{grid-template-columns:1fr 1fr}.shell{padding:0 14px 30px}.header{align-items:flex-start}}
 @media(max-width:490px){.feature-grid{grid-template-columns:1fr}.logo{font-size:12px}.controls{align-items:stretch;flex-direction:column}.controls label,.controls input,.controls select{width:100%}}
+.controls input[type=date]{background:#0d1929;color:var(--text);border:1px solid #47617d;border-radius:9px;padding:9px 10px;min-height:40px}
+#focusDate{max-width:185px}
+#clearCache{background:#2d2431;border-color:#775766;color:#ffe2e4}
+#prevSession,#nextSession,#jumpDate{min-width:42px}
+#cacheState,#dateNotice{min-height:20px}
+@media(max-width:820px){#focusDate{max-width:100%}}
 </style>
 </head>
 <body>
@@ -80,11 +86,30 @@ button[hidden],section[hidden],div[hidden]{display:none!important}
   <label for="fileInput" data-i18n="fileLabel">載入本機 ZIP 或 CSV</label>
   <input id="fileInput" type="file" accept=".zip,.csv,text/csv,application/zip" aria-describedby="fileHelp">
   <label for="eventSelect" data-i18n="eventLabel">研究事件</label>
-  <select id="eventSelect"><option value="2006-01-06" data-i18n="firstOpt">2006-01-06 · 首個候選（未翻倍）</option><option value="2007-01-10" data-i18n="laterOpt">2007-01-10 · 後續候選（翻倍）</option></select>
+  <select id="eventSelect"><option value="2006-01-06" data-i18n="firstOpt">2006-01-06 · 首個候選（未翻倍）</option><option value="2007-01-10" data-i18n="laterOpt">2007-01-10 · 後續候選（翻倍）</option><option value="custom" data-i18n="customOpt">指定日期（只查看 K 線）</option></select>
   <label for="chartType" data-i18n="chartTypeLabel">圖表類型</label>
   <select id="chartType"><option value="candles" data-i18n="candles">日 K 線</option><option value="close" data-i18n="closeLine">日收盤線</option></select>
 </div>
-<p class="muted" id="fileHelp" data-i18n="fileHelp">接受原始審計 ZIP 或包含 date,open,high,low,close,volume 欄位的 CSV。支援 120 日突破前與 252 日突破後視窗。</p>
+<p class="muted" id="fileHelp" data-i18n="fileHelp">首次載入後會保存在此瀏覽器（IndexedDB），下次自動載入；可隨時清除。不會傳送到網站伺服器，也不會在其他裝置自動同步。</p>
+<div class="controls" aria-label="Daily chart date navigation / 日線日期導航">
+  <label for="focusDate" data-i18n="dateLabel">查看指定日期</label>
+  <input id="focusDate" type="date" value="2006-01-06" aria-describedby="dateNotice">
+  <button id="jumpDate" type="button" data-i18n="jumpBtn">跳至日期</button>
+  <button id="prevSession" type="button" data-i18n="prevBtn">← 上一交易日</button>
+  <button id="nextSession" type="button" data-i18n="nextBtn">下一交易日 →</button>
+  <label for="windowSelect" data-i18n="windowLabel">K 線範圍</label>
+  <select id="windowSelect">
+    <option value="60" data-i18n="window60">前後共 60 個交易日</option>
+    <option value="120" data-i18n="window120" selected>前後共 120 個交易日</option>
+    <option value="252" data-i18n="window252">前後共 252 個交易日</option>
+    <option value="outcome" data-i18n="windowOutcome">前 120 日＋後 252 日</option>
+  </select>
+</div>
+<div class="controls">
+ <button id="clearCache" type="button" data-i18n="clearCache">清除本機已保存的 OHLCV</button>
+ <span id="cacheState" class="status" role="status" aria-live="polite"></span>
+</div>
+<p class="muted" id="dateNotice" role="status" aria-live="polite"></p>
 <div id="chartEmpty" class="chart-placeholder" role="status">
   <strong data-i18n="chartEmptyTitle">等待本機歷史資料</strong>
   <span class="muted" data-i18n="chartEmptyDesc">載入 ZIP／CSV 後，這裏會顯示真實日 K 線、成交量及突破位置。</span>
@@ -128,7 +153,8 @@ controlsNote:"目前缺少同期未成功／退市股票的對照樣本，不能
 footer:"Qullamaggie Research Lab · 獨立研究示範 · 非投資建議 · 不儲存上傳行情到 GitHub 或伺服器",
 typeInput:"輸入",typeLabel:"結果標籤",typeQuality:"品質註記",typeId:"識別",typePrice:"技術",typeFund:"基本面",typeProduct:"產品",typeMarket:"市場",
 loadOk:"已在本機載入 {n} 個交易日（{first} 至 {last}）。",loadError:"資料載入失敗：",eventNotFound:"資料中沒有指定事件日期：",chartDetail:"日期 {date}｜開 {o}｜高 {h}｜低 {l}｜收 {c}｜量 {v}",
-eventPrice:"事件收盤價",maxGain:"其後 252 日最高收盤漲幅",doubleLabel:"252 日翻倍",daysShown:"顯示交易日",limited:"不足 252 個後續交易日：結果為 CENSORED",yes:"是",no:"否",volume:"成交量",price:"調整價格 (USD)",chartName:"歷史日 K 線",fileTooLarge:"檔案過大（最多 10 MB）",unsupportedZip:"瀏覽器不支援 ZIP 解壓，請改為選擇 CSV",invalidCsv:"CSV 格式或 OHLC 資料不正確",eventMarker:"突破日",after:"事件後"
+eventPrice:"事件收盤價",maxGain:"其後 252 日最高收盤漲幅",doubleLabel:"252 日翻倍",daysShown:"顯示交易日",limited:"不足 252 個後續交易日：結果為 CENSORED",yes:"是",no:"否",volume:"成交量",price:"調整價格 (USD)",chartName:"歷史日 K 線",customOpt:"指定日期（只查看 K 線）",dateLabel:"查看指定日期",jumpBtn:"跳至日期",prevBtn:"← 上一交易日",nextBtn:"下一交易日 →",windowLabel:"K 線範圍",window60:"前後共 60 個交易日",window120:"前後共 120 個交易日",window252:"前後共 252 個交易日",windowOutcome:"前 120 日＋後 252 日",clearCache:"清除本機已保存的 OHLCV",cacheSaved:"行情已保存到此瀏覽器，下次會自動載入（其他裝置不共用）。",cacheRestored:"已自動讀取本機保存的行情。",cacheCleared:"本機行情已清除；下次使用需重新選擇 ZIP／CSV。",cacheUnavailable:"無法在此瀏覽器持久保存行情；本次仍可看圖，下次需要重選檔案。",cacheNone:"本機尚未保存行情，首次選擇 ZIP／CSV 後會自動保存。",nearestSession:"所選日期 {requested} 不是資料中的交易日，改顯示 {actual}。",dateOutOfRange:"指定日期不在資料範圍；已調整至 {actual}。",focusMarker:"查看日期",dayOpen:"開盤",dayHigh:"最高",dayLow:"最低",dayClose:"收盤",dayVolume:"成交量",selectedDay:"指定交易日",cachePrivate:"只儲存在目前瀏覽器，可隨時清除。",
+fileTooLarge:"檔案過大（最多 10 MB）",unsupportedZip:"瀏覽器不支援 ZIP 解壓，請改為選擇 CSV",invalidCsv:"CSV 格式或 OHLC 資料不正確",eventMarker:"突破日",after:"事件後"
 },
 en:{
 back:"← Back to Research Lab",title:"Historical Superstocks: Schema & Daily Charts",hero:"Separate point-in-time observable features, future outcomes and data quality. AAPL is a demonstration, not an accepted model-training case.",
@@ -146,7 +172,8 @@ controlsNote:"No contemporaneous non-winner/delisted-stock controls are availabl
 footer:"Qullamaggie Research Lab · Standalone research example · Not investment advice · No price series uploaded or published",
 typeInput:"Input",typeLabel:"Target label",typeQuality:"Quality flag",typeId:"Identity",typePrice:"Technical",typeFund:"Fundamentals",typeProduct:"Product",typeMarket:"Market",
 loadOk:"Loaded {n} sessions locally ({first} to {last}).",loadError:"Could not load data: ",eventNotFound:"Selected date is absent from the data: ",chartDetail:"Date {date} | O {o} | H {h} | L {l} | C {c} | Vol {v}",
-eventPrice:"Event close",maxGain:"Max closing gain over next 252",doubleLabel:"Doubled within 252",daysShown:"Trading sessions shown",limited:"Fewer than 252 subsequent sessions: outcome CENSORED",yes:"Yes",no:"No",volume:"Volume",price:"Adjusted price (USD)",chartName:"Daily historical candles",fileTooLarge:"File exceeds 10 MB",unsupportedZip:"ZIP decompression not available in this browser; import the CSV instead",invalidCsv:"Invalid CSV format or OHLC values",eventMarker:"Breakout",after:"After event"
+eventPrice:"Event close",maxGain:"Max closing gain over next 252",doubleLabel:"Doubled within 252",daysShown:"Trading sessions shown",limited:"Fewer than 252 subsequent sessions: outcome CENSORED",yes:"Yes",no:"No",volume:"Volume",price:"Adjusted price (USD)",chartName:"Daily historical candles",customOpt:"Custom date (chart inspection only)",dateLabel:"Inspect date",jumpBtn:"Go to date",prevBtn:"← Previous session",nextBtn:"Next session →",windowLabel:"Chart window",window60:"60 sessions around date",window120:"120 sessions around date",window252:"252 sessions around date",windowOutcome:"120 sessions before + 252 after",clearCache:"Clear saved local OHLCV",cacheSaved:"Market data saved in this browser for automatic reload (not synced to other devices).",cacheRestored:"Automatically restored locally saved OHLCV.",cacheCleared:"Local OHLCV removed. Re-select ZIP/CSV next time.",cacheUnavailable:"Persistent storage is unavailable in this browser; chart works this session, but you will need to re-import next time.",cacheNone:"No saved price data in this browser yet. The first ZIP/CSV import will be cached locally.",nearestSession:"{requested} is not a trading session in the file. Displaying {actual} instead.",dateOutOfRange:"Date outside available history; adjusted to {actual}.",focusMarker:"Selected date",dayOpen:"Open",dayHigh:"High",dayLow:"Low",dayClose:"Close",dayVolume:"Volume",selectedDay:"Selected session",cachePrivate:"Stored only in this browser; you can erase it anytime.",
+fileTooLarge:"File exceeds 10 MB",unsupportedZip:"ZIP decompression not available in this browser; import the CSV instead",invalidCsv:"Invalid CSV format or OHLC values",eventMarker:"Breakout",after:"After event"
 }};
 const FIELDS=[
 ["typeId","case_id","string","事件唯一識別碼","Unique event identifier","typeInput"],
@@ -255,13 +282,16 @@ function svgNode(tag,attrs,txt){
 }
 function showChart(){
  if(!dailyBars.length)return;
- const eventDate=el("eventSelect").value, index=dailyBars.findIndex(b=>b.date===eventDate);
+ const eventDate=el("focusDate").value, index=dailyBars.findIndex(b=>b.date===eventDate);
+ const isResearchEvent=el("eventSelect").value!=="custom" && el("eventSelect").value===eventDate;
  const svg=el("dailyChart");svg.replaceChildren();
  if(index<0){
   el("chartHolder").hidden=true;el("chartEmpty").hidden=false;
   el("chartStatus").textContent=t("eventNotFound")+eventDate;return;
  }
- const windowBars=dailyBars.slice(Math.max(0,index-120),Math.min(dailyBars.length,index+253));
+ const mode=el("windowSelect").value;
+ const lengths=mode==="60"?[30,29]:mode==="252"?[126,125]:mode==="outcome"?[120,252]:[60,59];
+ const windowBars=dailyBars.slice(Math.max(0,index-lengths[0]),Math.min(dailyBars.length,index+lengths[1]+1));
  const eventPos=windowBars.findIndex(b=>b.date===eventDate),after=dailyBars.slice(index+1,index+253);
  const min=Math.min(...windowBars.map(b=>b.low)),max=Math.max(...windowBars.map(b=>b.high)),range=Math.max(0.01,max-min),maxVol=Math.max(...windowBars.map(b=>b.volume),1);
  const W=1120,H=525,left=64,right=22,top=44,bottom=42,chartBottom=390,volTop=404,volBottom=476,cwidth=W-left-right;
@@ -281,9 +311,9 @@ function showChart(){
   add("text",{x:x(i),y:514,"text-anchor":"middle",fill:"#98aecb","font-size":11},windowBars[i].date);
  }
  const eventX=x(eventPos);
- add("rect",{x:eventX,y:top,width:Math.max(0,W-right-eventX),height:chartBottom-top,fill:"#1d5a57","fill-opacity":"0.12"});
+ if(isResearchEvent)add("rect",{x:eventX,y:top,width:Math.max(0,W-right-eventX),height:chartBottom-top,fill:"#1d5a57","fill-opacity":"0.12"});
  add("line",{x1:eventX,y1:top,x2:eventX,y2:volBottom,stroke:"#ffca78","stroke-width":2,"stroke-dasharray":"6,5"});
- const eventTag=add("text",{x:Math.min(W-190,eventX+6),y:top+16,fill:"#ffda9e","font-size":12},t("eventMarker")+" "+eventDate);
+ const eventTag=add("text",{x:Math.min(W-190,eventX+6),y:top+16,fill:"#ffda9e","font-size":12},t(isResearchEvent?"eventMarker":"focusMarker")+" "+eventDate);
  eventTag.setAttribute("font-weight","bold");
  if(el("chartType").value==="close"){
   let path="";
@@ -310,23 +340,156 @@ function showChart(){
  const highest=after.length?Math.max(...after.map(b=>b.close)):null;
  const peakReturn=highest===null?null:(highest/item.close-1)*100;
  const doubled=complete?highest>=2*item.close:null;
- const kpis=[[t("eventPrice"),"$"+item.close.toFixed(2)],[t("maxGain"),peakReturn===null?"—":(peakReturn>=0?"+":"")+peakReturn.toFixed(2)+"%"],[t("doubleLabel"),doubled===null?"CENSORED":doubled?t("yes"):t("no")],[t("daysShown"),String(windowBars.length)]];
+ const kpis=isResearchEvent?[[t("eventPrice"),"$"+item.close.toFixed(2)],[t("maxGain"),peakReturn===null?"—":(peakReturn>=0?"+":"")+peakReturn.toFixed(2)+"%"],[t("doubleLabel"),doubled===null?"CENSORED":doubled?t("yes"):t("no")],[t("daysShown"),String(windowBars.length)]]
+ :[[t("dayOpen"),"$"+item.open.toFixed(2)],[t("dayHigh"),"$"+item.high.toFixed(2)],[t("dayLow"),"$"+item.low.toFixed(2)],[t("dayClose"),"$"+item.close.toFixed(2)],[t("dayVolume"),item.volume.toLocaleString("en-US")]];
  const holder=el("localKpis");holder.replaceChildren();
  for(const [label,value] of kpis){const box=document.createElement("div"),small=document.createElement("small"),strong=document.createElement("strong");box.className="stat";small.textContent=label;strong.textContent=value;box.append(small,strong);holder.append(box)}
- el("chartStatus").textContent=t("loadOk").replace("{n}",String(dailyBars.length)).replace("{first}",dailyBars[0].date).replace("{last}",dailyBars[dailyBars.length-1].date)+(complete?"":" "+t("limited"));
+ el("chartStatus").textContent=t("loadOk").replace("{n}",String(dailyBars.length)).replace("{first}",dailyBars[0].date).replace("{last}",dailyBars[dailyBars.length-1].date)+(isResearchEvent&&!complete?" "+t("limited"):"");
  el("hoverDetails").textContent=t("chartDetail").replace("{date}",item.date).replace("{o}",item.open.toFixed(2)).replace("{h}",item.high.toFixed(2)).replace("{l}",item.low.toFixed(2)).replace("{c}",item.close.toFixed(2)).replace("{v}",item.volume.toLocaleString("en-US"));
+}
+// AAPL historical market data is device-private. No market data is kept in localStorage,
+// fetched from an external host, or committed to public GitHub Pages assets.
+const OHLCV_DB="qulla_r001_private_ohlcv_v1";
+const OHLCV_STORE="series";
+const OHLCV_ID="R001-AAPL-01:2005-2009";
+const FOCUS_KEY="qulla_r001_focus_date_v1"; // Only the displayed date; not price bars.
+let dataGeneration=0;
+let cacheWriteSequence=Promise.resolve();
+function enqueueCacheWrite(operation){
+ const next=cacheWriteSequence.catch(()=>{}).then(operation);
+ cacheWriteSequence=next;
+ return next;
+}
+function openPrivateDb(){
+ return new Promise((resolve,reject)=>{
+  if(typeof indexedDB==="undefined")return reject(Error("IndexedDB unavailable"));
+  const req=indexedDB.open(OHLCV_DB,1);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(OHLCV_STORE))req.result.createObjectStore(OHLCV_STORE,{keyPath:"id"})};
+  req.onsuccess=()=>resolve(req.result);
+  req.onerror=()=>reject(req.error||Error("IndexedDB open failed"));
+  req.onblocked=()=>reject(Error("IndexedDB blocked"));
+ });
+}
+async function privateDbRequest(mode,operation){
+ const db=await openPrivateDb();
+ return new Promise((resolve,reject)=>{
+  let settled=false,result;
+  const success=value=>{if(!settled){settled=true;db.close();resolve(value)}};
+  const failure=err=>{if(!settled){settled=true;db.close();reject(err||Error("IndexedDB failure"))}};
+  try{
+   const tx=db.transaction(OHLCV_STORE,mode),request=operation(tx.objectStore(OHLCV_STORE));
+   request.onsuccess=()=>{result=request.result};
+   request.onerror=()=>failure(request.error);
+   tx.oncomplete=()=>success(result);
+   tx.onerror=()=>failure(tx.error);
+   tx.onabort=()=>failure(tx.error);
+  }catch(err){failure(err)}
+ });
+}
+function validateStoredBars(bars){
+ if(!Array.isArray(bars)||bars.length<1||bars.length>30000)throw Error(t("invalidCsv"));
+ let last="";
+ for(const b of bars){
+  if(!b||typeof b.date!=="string"||!(/^\d{4}-\d{2}-\d{2}$/.test(b.date))||b.date<=last||
+   ["open","high","low","close","volume"].some(k=>!Number.isFinite(b[k]))||
+   Math.min(b.open,b.high,b.low,b.close)<=0||b.volume<0||
+   b.high<Math.max(b.open,b.low,b.close)||b.low>Math.min(b.open,b.high,b.close))
+   throw Error(t("invalidCsv"));
+  last=b.date;
+ }
+ return bars;
+}
+function saveFocus(){try{localStorage.setItem(FOCUS_KEY,el("focusDate").value)}catch{}}
+function applyCoverage(){
+ if(!dailyBars.length)return;
+ el("focusDate").min=dailyBars[0].date;
+ el("focusDate").max=dailyBars[dailyBars.length-1].date;
+}
+function chooseDate(requested,mode){
+ if(!dailyBars.length){el("chartStatus").textContent=t("cacheNone");return}
+ const first=dailyBars[0].date,last=dailyBars[dailyBars.length-1].date;
+ if(!requested||!(/^\d{4}-\d{2}-\d{2}$/.test(requested))){
+  el("dateNotice").textContent=t("eventNotFound")+String(requested);return;
+ }
+ let low=0,high=dailyBars.length-1;
+ while(low<=high){const mid=Math.floor((low+high)/2);if(dailyBars[mid].date<=requested)low=mid+1;else high=mid-1}
+ const index=Math.max(0,high),resolved=dailyBars[index].date;
+ el("focusDate").value=resolved;
+ // Research-event labels are only shown when selected by their named preset.
+ el("eventSelect").value=(mode==="preset"&&(resolved==="2006-01-06"||resolved==="2007-01-10"))?resolved:"custom";
+ el("dateNotice").textContent=resolved===requested?"":t(requested<first||requested>last?"dateOutOfRange":"nearestSession").replace("{requested}",requested).replace("{actual}",resolved);
+ saveFocus();showChart();
+}
+function moveSession(delta){
+ if(!dailyBars.length){el("chartStatus").textContent=t("cacheNone");return}
+ const idx=dailyBars.findIndex(b=>b.date===el("focusDate").value);
+ const next=Math.min(dailyBars.length-1,Math.max(0,(idx<0?0:idx)+delta));
+ chooseDate(dailyBars[next].date,"custom");
+}
+async function writePrivateBars(bars,filename){
+ await enqueueCacheWrite(()=>privateDbRequest("readwrite",store=>store.put({id:OHLCV_ID,bars:bars,sourceName:filename,savedAt:new Date().toISOString()})));
+}
+async function restorePrivateBars(){
+ const generation=dataGeneration;
+ try{
+  const record=await privateDbRequest("readonly",store=>store.get(OHLCV_ID));
+  if(generation!==dataGeneration)return; // Do not overwrite an import or clear in progress.
+  if(!record){el("cacheState").textContent=t("cacheNone");return}
+  dailyBars=validateStoredBars(record.bars);
+  applyCoverage();
+  let savedDate;
+  try{savedDate=localStorage.getItem(FOCUS_KEY)}catch{}
+  const preferred=savedDate&&/^\d{4}-\d{2}-\d{2}$/.test(savedDate)?savedDate:"2006-01-06";
+  chooseDate(preferred,preferred==="2006-01-06"?"preset":"custom");
+  el("cacheState").textContent=t("cacheRestored");
+ }catch(err){
+  if(generation===dataGeneration)el("cacheState").textContent=t("cacheUnavailable");
+ }
 }
 el("fileInput").addEventListener("change",async e=>{
  const file=e.target.files&&e.target.files[0];if(!file)return;
+ const generation=++dataGeneration;
  try{
   if(file.size>10_000_000)throw Error(t("fileTooLarge"));
   const csv=file.name.toLowerCase().endsWith(".zip")?await extractZipCsv(file):await file.text();
   const incoming=readCSV(csv);
-  dailyBars=incoming;showChart();
- }catch(err){dailyBars=[];el("chartHolder").hidden=true;el("chartEmpty").hidden=false;el("chartStatus").textContent=t("loadError")+err.message}
+  if(generation!==dataGeneration)return;
+  dailyBars=incoming;applyCoverage();
+  chooseDate(el("focusDate").value,"preset");
+  try{
+   await writePrivateBars(incoming,file.name);
+   if(generation===dataGeneration)el("cacheState").textContent=t("cacheSaved");
+  }catch(err){
+   if(generation===dataGeneration)el("cacheState").textContent=t("cacheUnavailable");
+  }
+ }catch(err){
+  if(generation!==dataGeneration)return;
+  el("chartStatus").textContent=t("loadError")+err.message;
+  // Do not discard a previously valid display/cache when a new import fails.
+ }finally{el("fileInput").value=""}
 });
-el("eventSelect").addEventListener("change",showChart);
+el("clearCache").addEventListener("click",async()=>{
+ const generation=++dataGeneration;
+ dailyBars=[];el("chartHolder").hidden=true;el("chartEmpty").hidden=false;
+ el("chartStatus").textContent="";el("dateNotice").textContent="";
+ try{localStorage.removeItem(FOCUS_KEY)}catch{}
+ try{
+  await enqueueCacheWrite(()=>privateDbRequest("readwrite",store=>store.delete(OHLCV_ID)));
+  if(generation===dataGeneration)el("cacheState").textContent=t("cacheCleared");
+ }catch(err){if(generation===dataGeneration)el("cacheState").textContent=t("cacheUnavailable")}
+});
+el("eventSelect").addEventListener("change",()=>{
+ const selected=el("eventSelect").value;
+ if(selected==="custom"){if(dailyBars.length)chooseDate(el("focusDate").value,"custom");return}
+ chooseDate(selected,"preset");
+});
+el("focusDate").addEventListener("change",()=>chooseDate(el("focusDate").value,"custom"));
+el("jumpDate").addEventListener("click",()=>chooseDate(el("focusDate").value,"custom"));
+el("prevSession").addEventListener("click",()=>moveSession(-1));
+el("nextSession").addEventListener("click",()=>moveSession(1));
+el("windowSelect").addEventListener("change",showChart);
 el("chartType").addEventListener("change",showChart);
 applyLanguage();
+restorePrivateBars();
 </script>
 </body></html>
