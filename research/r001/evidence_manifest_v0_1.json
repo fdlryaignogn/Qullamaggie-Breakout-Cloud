@@ -1,0 +1,105 @@
+{
+  "schema_version": "0.1.0",
+  "directive": "C-002",
+  "research_id": "R-001",
+  "status": "SOURCE_DISCOVERY_ONLY_NOT_VALIDATED_TRANCHE",
+  "methodology": "research/r001/methodology_v0_1.md",
+  "cases": [
+    {
+      "case_id": "R001-MNST-01",
+      "symbol": "MNST",
+      "historical_identity": "Hansen Natural / HANS; verify at event",
+      "breakout_date": null,
+      "event_as_of": null,
+      "ohlcv_source": null,
+      "winner_label": null,
+      "evidence": [
+        {
+          "id": "MNST-01",
+          "source": "2002 10-K index",
+          "url": "https://investors.monsterbevcorp.com/sec-filings/sec-filing/10-k/0000865752-03-000004",
+          "publication_date": "2003-03-31",
+          "fact": "FY2002 10-K filing indexed; original filing contents not yet independently transcribed",
+          "eligibility": "CONDITIONAL_ON_EVENT_DATE"
+        },
+        {
+          "id": "MNST-02",
+          "source": "2004 10-K index",
+          "url": "https://investors.monsterbevcorp.com/sec-filings/sec-filing/10-k/0000865752-05-000008",
+          "publication_date": "2005-03-16",
+          "fact": "FY2004 filing exists; not eligible for 2004 event",
+          "eligibility": "CONDITIONAL_ON_EVENT_DATE"
+        }
+      ]
+    },
+    {
+      "case_id": "R001-NVDA-01",
+      "symbol": "NVDA",
+      "historical_identity": "NVIDIA Corporation; verify at event",
+      "breakout_date": null,
+      "event_as_of": null,
+      "ohlcv_source": null,
+      "winner_label": null,
+      "evidence": [
+        {
+          "id": "NVDA-01",
+          "source": "1999 10-Q secondary mirror",
+          "url": "https://companiesmarketcap.com/nvidia/sec-reports-10q/0001012870-99-004592/",
+          "publication_date": null,
+          "fact": "Quarter report discusses RIVA TNT2, GeForce 256 and Quadro; original filing date to verify",
+          "eligibility": "UNVERIFIED_DATE"
+        },
+        {
+          "id": "NVDA-02",
+          "source": "contemporaneous industry news",
+          "url": "https://www.edn.com/nvidia-sales-increase-more-than-400-percent/",
+          "publication_date": "1999-02-24",
+          "fact": "Reported fiscal 1999 revenue acceleration; SEC reconciliation pending",
+          "eligibility": "CONDITIONAL_ON_EVENT_DATE"
+        }
+      ]
+    },
+    {
+      "case_id": "R001-AAPL-01",
+      "symbol": "AAPL",
+      "historical_identity": "Apple Inc.; verify at event",
+      "breakout_date": null,
+      "event_as_of": null,
+      "ohlcv_source": null,
+      "winner_label": null,
+      "evidence": [
+        {
+          "id": "AAPL-01",
+          "source": "Apple product announcement",
+          "url": "https://www.apple.com/uk/newsroom/2007/01/09Apple-Reinvents-the-Phone-with-iPhone/",
+          "publication_date": "2007-01-09",
+          "fact": "iPhone announced; not evidence of future sales",
+          "eligibility": "CONDITIONAL_ON_EVENT_DATE"
+        },
+        {
+          "id": "AAPL-02",
+          "source": "Apple quarterly earnings announcement",
+          "url": "https://www.apple.com/newsroom/2007/07/25Apple-Reports-Third-Quarter-Results/",
+          "publication_date": "2007-07-25",
+          "fact": "Reported quarterly revenue $5.41b versus $4.37b prior-year quarter",
+          "eligibility": "CONDITIONAL_ON_EVENT_DATE"
+        }
+      ]
+    }
+  ],
+  "quality": {
+    "candidate_cases": 3,
+    "verified_breakout_cases": 0,
+    "ohlcv_verified": 0,
+    "controls_selected": 0,
+    "missing": [
+      "breakout_dates",
+      "OHLCV_adjustment_provenance",
+      "historical_market_caps",
+      "benchmark_series",
+      "control_universe",
+      "winner_labels"
+    ],
+    "limitation": "Publication dates are source-level, not automatically valid before unknown breakout dates."
+  }
+}
