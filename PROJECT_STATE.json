@@ -333,7 +333,7 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "DATE_BROWSER_AND_INDEXEDDB_ENHANCEMENT_BRANCH_PENDING_REVIEW",
+        "status": "MERGED_TO_MAIN_DATE_BROWSER_LOCAL_CACHE_LIVE_PAGES_NOT_VERIFIED",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
@@ -346,9 +346,9 @@
           "static": "PASS: language/storage/nav, no credentials, no embedded OHLCV",
           "csv_parser": "PASS 2006/2007 July 10 examples",
           "zip": "PASS: Chromium DEFLATE-RAW recovered 51527-byte CSV from owner ZIP",
-          "live_github_pages": "NOT VERIFIED for new version",
-          "ci": "PENDING",
-          "main_branch_readback": "PASS: HTML and Research Lab navigation fetched from main; translation/parser static checks passed",
+          "live_github_pages": "NOT INDEPENDENTLY VERIFIED: public Pages URL inaccessible via available web fetch",
+          "ci": "Verify cloud scanner GitHub Actions run 40167222967 success (does not validate page functionality)",
+          "main_branch_readback": "PASS: updated HTML fetched from main, date/cache controls present, JavaScript syntax valid",
           "source_js_syntax": "PASS from exact GitHub revision",
           "date_navigation": "PASS 5 date boundary/nearest session cases",
           "private_cache_validation": "PASS valid/reversed/invalid OHLC",
@@ -373,7 +373,9 @@
           ],
           "read_write_delete": "tested against simulated IndexedDB event API; real browser persistence not yet verified"
         },
-        "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c"
+        "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c",
+        "feature_pr": 28,
+        "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb"
       }
     }
   },
