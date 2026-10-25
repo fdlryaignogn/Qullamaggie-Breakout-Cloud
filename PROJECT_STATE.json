@@ -3,12 +3,21 @@
   "updated_at": "2026-10-25",
   "source_of_truth": "GitHub repository fdlryaignogn/Qullamaggie-Breakout-Cloud",
   "coordination": {
-    "status": "initialized",
+    "status": "research_first_directive_approved",
     "live_cross_thread_notifications": false,
     "project_instructions_updated": false,
     "history_retrieval": "best_effort",
     "handoff_contract": "docs/research_trading_sync_skill.md",
-    "workflow": "skills/project_coordination/develop_sync_skill.md"
+    "workflow": "skills/project_coordination/develop_sync_skill.md",
+    "active_directive": "coordination/C-001-research-first.md",
+    "execution_priority": [
+      "R-001 historical superstocks",
+      "B-001 gated by validated research tranche",
+      "P-001 deferred until approved dependency"
+    ],
+    "daily_scan": "temporary_pause_permitted; workflow not disabled; reversible plan requires owner confirmation",
+    "thread_notification": "owner_to_notify_manually",
+    "directive_issued_at": "2026-10-25"
   },
   "workstreams": {
     "research_lab": {
