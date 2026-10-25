@@ -1,0 +1,114 @@
+{
+  "case_id": "R001-AAPL-01",
+  "status": "PROVISIONAL_NOT_VALIDATED_TRANCHE",
+  "methodology": "research/r001/methodology_v0_1.md",
+  "source": {
+    "provider": "FMP",
+    "endpoint": "stable/historical-price-eod/full",
+    "symbol": "AAPL",
+    "requested_window": [
+      "2005-01-01",
+      "2009-12-31"
+    ],
+    "download_utc": "2026-10-25T04:36:24.594230+00:00",
+    "sessions": 1259,
+    "start": "2005-01-03",
+    "end": "2009-12-31",
+    "input_csv_sha256": "bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
+    "raw_file_committed": false
+  },
+  "selection": {
+    "scope": "first observed after 252-session warmup in truncated 2005-2009 data",
+    "candidates": 75,
+    "forward_labels": {
+      "winner": 11,
+      "nonwinner": 37,
+      "censored": 27
+    },
+    "event_date": "2006-01-06",
+    "first_event": {
+      "open": 2.69,
+      "high": 2.74,
+      "low": 2.66,
+      "close": 2.72,
+      "volume": 704558208,
+      "prior_60_high": 2.71,
+      "prior_20_avg_dollar_volume_proxy": 1543581642.036,
+      "winner_252": false,
+      "returns_pct": {
+        "63": -8.4559,
+        "126": -27.9412,
+        "252": 21.6912
+      },
+      "max_forward_closing_gain_pct": 21.6912,
+      "max_forward_closing_loss_vs_event_pct": -33.4559
+    }
+  },
+  "pre_event_evidence": [
+    {
+      "id": "AAPL-2005-INTEL",
+      "release_date": "2005-06-06",
+      "type": "product_plan",
+      "fact": "Intel transition announced"
+    },
+    {
+      "id": "AAPL-2005-NANO",
+      "release_date": "2005-09-07",
+      "type": "product_launch",
+      "fact": "iPod nano introduced"
+    },
+    {
+      "id": "AAPL-2005-Q4",
+      "release_date": "2005-10-11",
+      "type": "quarterly_financial",
+      "revenue_usd_bn": 3.68,
+      "prior_year_quarter_revenue_usd_bn": 2.35,
+      "revenue_yoy_pct_derived": 56.5957,
+      "ipod_units": 6451000,
+      "ipod_units_yoy_pct_reported": 220,
+      "mac_units": 1236000,
+      "mac_units_yoy_pct_reported": 48
+    },
+    {
+      "id": "AAPL-2005-VIDEO",
+      "release_date": "2005-10-12",
+      "type": "product_launch",
+      "fact": "video iPod introduced"
+    },
+    {
+      "id": "AAPL-2005-10K",
+      "release_date": "2005-12-01",
+      "type": "filing",
+      "reported_shares_outstanding_asof": "2005-11-18",
+      "shares": 842767948
+    }
+  ],
+  "estimated_cap": {
+    "value_usd_bn": 64.1852,
+    "status": "ESTIMATED_STALE_SHARES_NOT_VALIDATED_EVENT_CAP",
+    "assumptions": "2006 adjusted close 2.72 x later 2014 7:1 x 2020 4:1 x November 18 2005 shares"
+  },
+  "excluded_future": [
+    "2007-01-09 iPhone announcement",
+    "2007 Q3 and Q4 results"
+  ],
+  "quality": {
+    "data_file_hash": "PASS",
+    "date_ohlcv_integrity": "PASS",
+    "independent_candidate_recalculation": "PASS",
+    "local_negative_tests": "5/5 PASS",
+    "xnys_calendar_proxy": "PASS 1259/1259",
+    "yahoo_crosscheck": "same rounded OHLC Jan 6 2006, non-identical volume",
+    "full_adjustment_provenance": "PARTIAL",
+    "historical_market_cap": "ESTIMATE_ONLY",
+    "control_universe": "MISSING",
+    "b001_handoff": "NOT_READY"
+  },
+  "limitations": [
+    "pre-2005 history absent; event left-censored",
+    "2-decimal OHLC",
+    "full vendor split/volume factor lineage incomplete",
+    "no PIT delisted control universe",
+    "no raw price CSV public GitHub"
+  ]
+}
