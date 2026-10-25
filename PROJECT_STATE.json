@@ -9,7 +9,7 @@
     "history_retrieval": "best_effort",
     "handoff_contract": "docs/research_trading_sync_skill.md",
     "workflow": "skills/project_coordination/develop_sync_skill.md",
-    "active_directive": "coordination/C-002-first-tranche-dual-source.md",
+    "active_directive": "coordination/C-003-handoff-standard.md",
     "execution_priority": [
       "R-001 historical superstocks",
       "B-001 gated by validated research tranche",
@@ -18,10 +18,16 @@
     "daily_scan": "temporary_pause_permitted; workflow not disabled; reversible plan requires owner confirmation",
     "thread_notification": "owner_to_notify_manually",
     "directive_issued_at": "2026-10-25",
-    "previous_directive": "coordination/C-001-research-first.md",
+    "previous_directive": "coordination/C-002-first-tranche-dual-source.md",
     "research_first_tranche": "R-001 authorized: proposed MNST/NVDA/AAPL; validation not yet complete",
     "breakout_research_design": "A Qullamaggie baseline / B historical superstock features / C combined; B-001 execution awaits owner activation",
-    "last_coordination_update": "2026-10-25"
+    "last_coordination_update": "2026-10-25",
+    "handoff_summaries": {
+      "historical_superstocks": "coordination/handoffs/historical-superstocks.md",
+      "breakout_research": "coordination/handoffs/breakout-research.md",
+      "trading_platform": "coordination/handoffs/trading-platform.md"
+    },
+    "handoff_policy": "update at milestone, approved material decision or thread rollover; no automatic thread notification"
   },
   "workstreams": {
     "research_lab": {
