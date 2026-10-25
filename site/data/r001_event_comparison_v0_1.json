@@ -1,0 +1,440 @@
+{
+  "schema_version": "0.1.0",
+  "research_id": "R-001",
+  "data_status": "PROVISIONAL_NOT_APPROVED_FOR_TRAINING",
+  "methodology_path": "research/r001/methodology_v0_1.md",
+  "price_series_included": false,
+  "training_notice": "Only role=input fields may be features. Labels and future outcomes must never leak. Both AAPL events overlap; they are not independent samples.",
+  "field_definitions": [
+    {
+      "name_zh": "識別碼",
+      "name_en": "Event ID",
+      "key": "event_id",
+      "type": "string",
+      "group": "identity",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "股票",
+      "name_en": "Ticker",
+      "key": "symbol",
+      "type": "string",
+      "group": "identity",
+      "role": "input"
+    },
+    {
+      "name_zh": "公司當時名稱",
+      "name_en": "Historical company name",
+      "key": "company_name_asof",
+      "type": "string",
+      "group": "identity",
+      "role": "input"
+    },
+    {
+      "name_zh": "研究定位",
+      "name_en": "Research role",
+      "key": "research_role",
+      "type": "category",
+      "group": "identity",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "事件日期",
+      "name_en": "Event date",
+      "key": "event_date",
+      "type": "date",
+      "group": "identity",
+      "role": "input"
+    },
+    {
+      "name_zh": "日期截止基準",
+      "name_en": "As-of cutoff",
+      "key": "asof_cutoff",
+      "type": "string",
+      "group": "identity",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "價格來源",
+      "name_en": "Price data source",
+      "key": "ohlcv_provider",
+      "type": "string",
+      "group": "source",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "價格調整口徑",
+      "name_en": "Price adjustment basis",
+      "key": "adjustment_basis",
+      "type": "string",
+      "group": "quality",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "歷史資料校驗值",
+      "name_en": "Source CSV SHA-256",
+      "key": "ohlcv_source_sha256",
+      "type": "string",
+      "group": "source",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "突破日開盤價 USD",
+      "name_en": "Event open (USD)",
+      "key": "event_open_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "突破日最高價 USD",
+      "name_en": "Event high (USD)",
+      "key": "event_high_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "突破日最低價 USD",
+      "name_en": "Event low (USD)",
+      "key": "event_low_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "突破日收盤價 USD",
+      "name_en": "Event close (USD)",
+      "key": "event_close_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "突破日成交量 股",
+      "name_en": "Event volume (shares)",
+      "key": "event_volume_shares",
+      "type": "int",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "前60日最高價 USD",
+      "name_en": "Prior 60-session high (USD)",
+      "key": "prior_60_high_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "前20日平均成交額 USD",
+      "name_en": "Prior 20-day turnover (USD)",
+      "key": "prior_20_dollar_turnover_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "前20日報酬 %",
+      "name_en": "Prior 20-day return (%)",
+      "key": "prior_return_20_pct",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "前60日報酬 %",
+      "name_en": "Prior 60-day return (%)",
+      "key": "prior_return_60_pct",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "前252日報酬 %",
+      "name_en": "Prior 252-day return (%)",
+      "key": "prior_return_252_pct",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "前20日均線 USD",
+      "name_en": "Prior 20-day SMA (USD)",
+      "key": "prior_sma20_usd",
+      "type": "float",
+      "group": "technical",
+      "role": "input"
+    },
+    {
+      "name_zh": "已公開最近季度營收年增 %",
+      "name_en": "Publicly released revenue YoY (%)",
+      "key": "revenue_yoy_asof_pct",
+      "type": "float?",
+      "group": "fundamental",
+      "role": "input"
+    },
+    {
+      "name_zh": "營收公告日期",
+      "name_en": "Revenue release date",
+      "key": "revenue_release_date",
+      "type": "date?",
+      "group": "fundamental",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "產品／催化事件",
+      "name_en": "Product/catalyst evidence",
+      "key": "product_evidence",
+      "type": "string?",
+      "group": "product",
+      "role": "input"
+    },
+    {
+      "name_zh": "產品公告日期",
+      "name_en": "Product release date",
+      "key": "product_release_date",
+      "type": "date?",
+      "group": "product",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "事件日實際市值 USD",
+      "name_en": "Verified cap (USD)",
+      "key": "market_cap_verified_usd",
+      "type": "float?",
+      "group": "fundamental",
+      "role": "input"
+    },
+    {
+      "name_zh": "相對強度指標",
+      "name_en": "Relative strength vs index",
+      "key": "relative_strength_spx",
+      "type": "float?",
+      "group": "market",
+      "role": "input"
+    },
+    {
+      "name_zh": "252日後是否翻倍",
+      "name_en": "Doubled within 252 sessions",
+      "key": "winner_252",
+      "type": "boolean?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "後63日收盤報酬 %",
+      "name_en": "Forward 63-session close return (%)",
+      "key": "forward_return_63_pct",
+      "type": "float?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "後126日收盤報酬 %",
+      "name_en": "Forward 126-session close return (%)",
+      "key": "forward_return_126_pct",
+      "type": "float?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "後252日收盤報酬 %",
+      "name_en": "Forward 252-session close return (%)",
+      "key": "forward_return_252_pct",
+      "type": "float?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "後252日最高收盤漲幅 %",
+      "name_en": "Max forward 252-session close gain (%)",
+      "key": "max_forward_close_gain_pct",
+      "type": "float?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "後252日最大收盤回撤 %",
+      "name_en": "Max adverse close vs event (%)",
+      "key": "max_adverse_close_pct",
+      "type": "float?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "第一次翻倍日期",
+      "name_en": "First 2x close date",
+      "key": "first_double_close_date",
+      "type": "date?",
+      "group": "outcome",
+      "role": "label"
+    },
+    {
+      "name_zh": "完整252日觀察",
+      "name_en": "252-session label complete",
+      "key": "forward_252_complete",
+      "type": "boolean",
+      "group": "outcome",
+      "role": "metadata"
+    },
+    {
+      "name_zh": "完整歷史調整驗證",
+      "name_en": "Split/volume audit status",
+      "key": "adjustment_provenance_status",
+      "type": "category",
+      "group": "quality",
+      "role": "quality"
+    },
+    {
+      "name_zh": "案例審計狀態",
+      "name_en": "Case verification status",
+      "key": "case_quality",
+      "type": "category",
+      "group": "quality",
+      "role": "quality"
+    },
+    {
+      "name_zh": "歷史對照組狀態",
+      "name_en": "Control cohort status",
+      "key": "control_cohort_status",
+      "type": "category",
+      "group": "quality",
+      "role": "quality"
+    },
+    {
+      "name_zh": "資料可供正式訓練",
+      "name_en": "Ready for ML training",
+      "key": "ml_training_ready",
+      "type": "boolean",
+      "group": "quality",
+      "role": "quality"
+    }
+  ],
+  "events": [
+    {
+      "event_id": "R001-AAPL-2006-01-06",
+      "symbol": "AAPL",
+      "company_name_asof": "Apple Computer, Inc.",
+      "research_role": "SELECTED_FIRST_IN_WINDOW",
+      "event_date": "2006-01-06",
+      "asof_cutoff": "2006-01-06 US market close",
+      "ohlcv_provider": "FMP stable historical-price-eod/full",
+      "adjustment_basis": "FMP split adjusted dividend unadjusted (factor audit pending)",
+      "ohlcv_source_sha256": "bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
+      "event_open_usd": 2.69,
+      "event_high_usd": 2.74,
+      "event_low_usd": 2.66,
+      "event_close_usd": 2.72,
+      "event_volume_shares": 704558208,
+      "prior_60_high_usd": 2.71,
+      "prior_20_dollar_turnover_usd": 1543581642.036,
+      "prior_return_20_pct": 3.030303,
+      "prior_return_60_pct": 47.826087,
+      "prior_return_252_pct": 136.521739,
+      "prior_sma20_usd": 2.6205,
+      "revenue_yoy_asof_pct": 56.5957,
+      "revenue_release_date": "2005-10-11",
+      "product_evidence": "2005 Mac Intel transition; iPod nano; video iPod; Q4 iPod shipment +220% YoY",
+      "product_release_date": "2005-10-12",
+      "market_cap_verified_usd": null,
+      "relative_strength_spx": null,
+      "winner_252": false,
+      "forward_return_63_pct": -8.455882,
+      "forward_return_126_pct": -27.941176,
+      "forward_return_252_pct": 21.691176,
+      "max_forward_close_gain_pct": 21.691176,
+      "max_adverse_close_pct": -33.455882,
+      "first_double_close_date": null,
+      "forward_252_complete": true,
+      "adjustment_provenance_status": "PARTIAL",
+      "case_quality": "PROVISIONAL",
+      "control_cohort_status": "MISSING",
+      "ml_training_ready": false
+    },
+    {
+      "event_id": "R001-AAPL-2007-01-10",
+      "symbol": "AAPL",
+      "company_name_asof": "Apple Computer, Inc.",
+      "research_role": "NON_SELECTED_SENSITIVITY",
+      "event_date": "2007-01-10",
+      "asof_cutoff": "2007-01-10 US market close",
+      "ohlcv_provider": "FMP stable historical-price-eod/full",
+      "adjustment_basis": "FMP split adjusted dividend unadjusted (factor audit pending)",
+      "ohlcv_source_sha256": "bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
+      "event_open_usd": 3.38,
+      "event_high_usd": 3.49,
+      "event_low_usd": 3.34,
+      "event_close_usd": 3.46,
+      "event_volume_shares": 2954916424,
+      "prior_60_high_usd": 3.33,
+      "prior_20_dollar_turnover_usd": 3104373580.07,
+      "prior_return_20_pct": 9.84127,
+      "prior_return_60_pct": 28.624535,
+      "prior_return_252_pct": 27.205882,
+      "prior_sma20_usd": 3.056,
+      "revenue_yoy_asof_pct": null,
+      "revenue_release_date": null,
+      "product_evidence": "iPhone announced 2007-01-09 (before 2007-01-10 event only)",
+      "product_release_date": "2007-01-09",
+      "market_cap_verified_usd": null,
+      "relative_strength_spx": null,
+      "winner_252": true,
+      "forward_return_63_pct": -4.913295,
+      "forward_return_126_pct": 38.439306,
+      "forward_return_252_pct": 83.815029,
+      "max_forward_close_gain_pct": 106.358382,
+      "max_adverse_close_pct": -14.16185,
+      "first_double_close_date": "2007-12-07",
+      "forward_252_complete": true,
+      "adjustment_provenance_status": "PARTIAL",
+      "case_quality": "PROVISIONAL",
+      "control_cohort_status": "MISSING",
+      "ml_training_ready": false
+    }
+  ],
+  "evidence": [
+    {
+      "event_id": "R001-AAPL-2006-01-06",
+      "publication_date": "2005-06-06",
+      "fact_zh": "Mac 宣布轉用 Intel 處理器",
+      "fact_en": "Mac Intel transition announced",
+      "source_url": "https://www.apple.com/newsroom/2005/06/06Apple-to-Use-Intel-Microprocessors-Beginning-in-2006/"
+    },
+    {
+      "event_id": "R001-AAPL-2006-01-06",
+      "publication_date": "2005-09-07",
+      "fact_zh": "iPod nano 推出",
+      "fact_en": "iPod nano introduced",
+      "source_url": "https://www.apple.com/newsroom/2005/09/07Apple-Introduces-iPod-nano/"
+    },
+    {
+      "event_id": "R001-AAPL-2006-01-06",
+      "publication_date": "2005-10-11",
+      "fact_zh": "營收 $3.68bn / 去年 $2.35bn；iPod 出貨 +220%",
+      "fact_en": "Revenue $3.68bn vs $2.35bn; iPod units +220%",
+      "source_url": "https://www.apple.com/newsroom/2005/10/11Apple-Reports-Fourth-Quarter-Results/"
+    },
+    {
+      "event_id": "R001-AAPL-2006-01-06",
+      "publication_date": "2005-10-12",
+      "fact_zh": "新款可播放影片 iPod",
+      "fact_en": "Video-enabled iPod announced",
+      "source_url": "https://www.apple.com/newsroom/2005/10/12Apple-Unveils-the-New-iPod/"
+    },
+    {
+      "event_id": "R001-AAPL-2007-01-10",
+      "publication_date": "2007-01-09",
+      "fact_zh": "iPhone 公布（只適用 2007 年事件）",
+      "fact_en": "iPhone announced (2007 case only)",
+      "source_url": "https://www.apple.com/uk/newsroom/2007/01/09Apple-Reinvents-the-Phone-with-iPhone/"
+    }
+  ],
+  "provenance": {
+    "source": "Owner-held R001 FMP Colab ZIP",
+    "source_csv_sha256": "bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
+    "ohlcv_rows": 1259,
+    "download_utc": "2026-10-25T04:36:24Z",
+    "raw_price_series_public": false
+  }
+}
