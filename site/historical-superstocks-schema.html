@@ -273,77 +273,53 @@ function svgNode(tag,attrs,txt){
 }
 function showChart(){
  if(!dailyBars.length)return;
- const eventDate=el("focusDate").value, index=dailyBars.findIndex(b=>b.date===eventDate);
- const isResearchEvent=el("eventSelect").value!=="custom" && el("eventSelect").value===eventDate;
- const svg=el("dailyChart");svg.replaceChildren();
- if(index<0){
-  el("chartHolder").hidden=true;el("chartEmpty").hidden=false;
-  el("chartStatus").textContent=t("eventNotFound")+eventDate;return;
+ const start=el("startDate").value,end=el("endDate").value,svg=el("dailyChart");
+ svg.replaceChildren();
+ if(!start||!end||start>end){el("dateNotice").textContent=t("rangeInvalid");el("chartHolder").hidden=true;el("chartEmpty").hidden=false;return}
+ const rows=dailyBars.filter(b=>b.date>=start&&b.date<=end);
+ if(!rows.length){el("dateNotice").textContent=t("rangeNoData");el("chartHolder").hidden=true;el("chartEmpty").hidden=false;return}
+ el("dateNotice").textContent=t("selectedEventsLabel");
+ const min=Math.min(...rows.map(b=>b.low)),max=Math.max(...rows.map(b=>b.high)),range=Math.max(.01,max-min),maxVol=Math.max(...rows.map(b=>b.volume),1);
+ const W=1120,L=69,R=24,T=42,B=390,V0=403,V1=476,CW=W-L-R;
+ const x=i=>L+(i+.5)*CW/rows.length,y=v=>B-(v-min)/range*(B-T);
+ const add=(tag,attrs,txt)=>{const n=svgNode(tag,attrs,txt);svg.appendChild(n);return n};
+ add("text",{x:L,y:24,fill:"#dfecff","font-size":16,"font-weight":700},"AAPL · "+t("chartName")+" · "+start+" → "+end);
+ for(let k=0;k<=4;k++){let py=T+k*(B-T)/4;add("line",{x1:L,y1:py,x2:W-R,y2:py,stroke:"#30465d"});add("text",{x:L-8,y:py+4,"text-anchor":"end",fill:"#a5bbd8","font-size":12},(max-k*range/4).toFixed(2))}
+ add("text",{x:L,y:499,fill:"#a9bedc","font-size":11},t("volume"));
+ const step=Math.max(1,Math.floor(rows.length/5));
+ for(let i=0;i<rows.length;i+=step)add("text",{x:x(i),y:516,"text-anchor":"middle",fill:"#aabbd2","font-size":11},rows[i].date);
+ const last=rows[rows.length-1];
+ add("text",{x:W-R,y:516,"text-anchor":"end",fill:"#aabbd2","font-size":11},last.date);
+ const candleWidth=Math.max(1,Math.min(7,CW/rows.length*.72));
+ for(let i=0;i<rows.length;i++){
+  const b=rows[i],color=b.close>=b.open?"#66e0b9":"#f28e9a",vx=CW/rows.length;
+  add("line",{x1:x(i),y1:y(b.high),x2:x(i),y2:y(b.low),stroke:color,"stroke-width":1});
+  add("rect",{x:x(i)-candleWidth/2,y:Math.min(y(b.open),y(b.close)),width:candleWidth,height:Math.max(1,Math.abs(y(b.open)-y(b.close))),fill:color});
+  add("rect",{x:x(i)-Math.max(1,vx*.25),y:V1-b.volume/maxVol*(V1-V0),width:Math.max(1,vx*.5),height:Math.max(1,b.volume/maxVol*(V1-V0)),fill:color,"fill-opacity":.6});
+  const hit=add("rect",{x:x(i)-vx/2,y:T,width:vx,height:V1-T,fill:"transparent",tabindex:0,"aria-label":b.date+" OHLC"});
+  hit.appendChild(svgNode("title",{},b.date+" O "+b.open+" H "+b.high+" L "+b.low+" C "+b.close+" Vol "+b.volume));
+  const inspect=()=>{el("hoverDetails").textContent=t("chartDetail").replace("{date}",b.date).replace("{o}",b.open.toFixed(2)).replace("{h}",b.high.toFixed(2)).replace("{l}",b.low.toFixed(2)).replace("{c}",b.close.toFixed(2)).replace("{v}",b.volume.toLocaleString("en-US"))};
+  hit.addEventListener("pointerenter",inspect);hit.addEventListener("focus",inspect);
  }
- const mode=el("windowSelect").value;
- const lengths=mode==="60"?[30,29]:mode==="252"?[126,125]:mode==="outcome"?[120,252]:[60,59];
- const windowBars=dailyBars.slice(Math.max(0,index-lengths[0]),Math.min(dailyBars.length,index+lengths[1]+1));
- const eventPos=windowBars.findIndex(b=>b.date===eventDate),after=dailyBars.slice(index+1,index+253);
- const min=Math.min(...windowBars.map(b=>b.low)),max=Math.max(...windowBars.map(b=>b.high)),range=Math.max(0.01,max-min),maxVol=Math.max(...windowBars.map(b=>b.volume),1);
- const W=1120,H=525,left=64,right=22,top=44,bottom=42,chartBottom=390,volTop=404,volBottom=476,cwidth=W-left-right;
- const x=i=>left+(i+0.5)*cwidth/windowBars.length;
- const y=p=>chartBottom-(p-min)/range*(chartBottom-top);
- const add=(tag,attrs,txt)=>{const o=svgNode(tag,attrs,txt);svg.appendChild(o);return o};
- // Title and axes
- add("text",{x:left,y:25,fill:"#dbeeff","font-size":17,"font-weight":700},t("chartName")+" · AAPL · "+eventDate);
- for(let k=0;k<=4;k++){
-  const gy=top+k*(chartBottom-top)/4;
-  add("line",{x1:left,y1:gy,x2:W-right,y2:gy,stroke:"#334760","stroke-opacity":0.65});
-  add("text",{x:left-8,y:gy+4,"text-anchor":"end",fill:"#a8bad4","font-size":12},(max-k*range/4).toFixed(2));
- }
- add("text",{x:left,y:500,fill:"#96abc9","font-size":11},t("volume"));
- const stride=Math.max(1,Math.floor(windowBars.length/5));
- for(let i=0;i<windowBars.length;i+=stride){
-  add("text",{x:x(i),y:514,"text-anchor":"middle",fill:"#98aecb","font-size":11},windowBars[i].date);
- }
- const eventX=x(eventPos);
- if(isResearchEvent)add("rect",{x:eventX,y:top,width:Math.max(0,W-right-eventX),height:chartBottom-top,fill:"#1d5a57","fill-opacity":"0.12"});
- add("line",{x1:eventX,y1:top,x2:eventX,y2:volBottom,stroke:"#ffca78","stroke-width":2,"stroke-dasharray":"6,5"});
- const eventTag=add("text",{x:Math.min(W-190,eventX+6),y:top+16,fill:"#ffda9e","font-size":12},t(isResearchEvent?"eventMarker":"focusMarker")+" "+eventDate);
- eventTag.setAttribute("font-weight","bold");
- if(el("chartType").value==="close"){
-  let path="";
-  windowBars.forEach((b,i)=>{path+=(i===0?"M":"L")+x(i).toFixed(2)+","+y(b.close).toFixed(2)+" "});
-  add("path",{d:path,stroke:"#8bbaff","stroke-width":2.5,fill:"none"});
- }else{
-  const width=Math.max(1,Math.min(7,cwidth/windowBars.length*0.72));
-  for(let i=0;i<windowBars.length;i++){
-   const b=windowBars[i],color=b.close>=b.open?"#66e0b9":"#f28e9a";
-   add("line",{x1:x(i),y1:y(b.high),x2:x(i),y2:y(b.low),stroke:color,"stroke-width":1});
-   add("rect",{x:x(i)-width/2,y:Math.min(y(b.open),y(b.close)),width,height:Math.max(1,Math.abs(y(b.open)-y(b.close))),fill:color});
-  }
- }
- for(let i=0;i<windowBars.length;i++){
-  const b=windowBars[i],vw=cwidth/windowBars.length;
-  add("rect",{x:x(i)-Math.max(1,vw*0.25),y:volBottom-b.volume/maxVol*(volBottom-volTop),width:Math.max(1,vw*0.5),height:Math.max(1,b.volume/maxVol*(volBottom-volTop)),fill:b.close>=b.open?"#347c69":"#8e535e","fill-opacity":0.7});
-  const target=add("rect",{x:x(i)-vw*0.5,y:top,width:vw,height:volBottom-top,fill:"transparent",tabindex:0,"aria-label":b.date+" OHLC"});
-  target.appendChild(svgNode("title",{},b.date+" OHLC "+[b.open,b.high,b.low,b.close].join("/")+" Vol "+b.volume));
-  target.addEventListener("pointerenter",()=>{el("hoverDetails").textContent=t("chartDetail").replace("{date}",b.date).replace("{o}",b.open.toFixed(2)).replace("{h}",b.high.toFixed(2)).replace("{l}",b.low.toFixed(2)).replace("{c}",b.close.toFixed(2)).replace("{v}",b.volume.toLocaleString("en-US"))});
-  target.addEventListener("focus",()=>target.dispatchEvent(new Event("pointerenter")));
+ for(const eventDate of ["2006-01-06","2007-01-10"]){
+  const i=rows.findIndex(b=>b.date===eventDate);if(i<0)continue;
+  add("line",{x1:x(i),y1:T,x2:x(i),y2:V1,stroke:"#ffca78","stroke-width":1.5,"stroke-dasharray":"5,5"});
+  add("text",{x:Math.min(W-125,x(i)+5),y:T+17,fill:"#ffda9e","font-size":12},eventDate);
  }
  el("chartEmpty").hidden=true;el("chartHolder").hidden=false;
- const item=dailyBars[index], complete=after.length===252;
- const highest=after.length?Math.max(...after.map(b=>b.close)):null;
- const peakReturn=highest===null?null:(highest/item.close-1)*100;
- const doubled=complete?highest>=2*item.close:null;
- const kpis=isResearchEvent?[[t("eventPrice"),"$"+item.close.toFixed(2)],[t("maxGain"),peakReturn===null?"—":(peakReturn>=0?"+":"")+peakReturn.toFixed(2)+"%"],[t("doubleLabel"),doubled===null?"CENSORED":doubled?t("yes"):t("no")],[t("daysShown"),String(windowBars.length)]]
- :[[t("dayOpen"),"$"+item.open.toFixed(2)],[t("dayHigh"),"$"+item.high.toFixed(2)],[t("dayLow"),"$"+item.low.toFixed(2)],[t("dayClose"),"$"+item.close.toFixed(2)],[t("dayVolume"),item.volume.toLocaleString("en-US")]];
- const holder=el("localKpis");holder.replaceChildren();
- for(const [label,value] of kpis){const box=document.createElement("div"),small=document.createElement("small"),strong=document.createElement("strong");box.className="stat";small.textContent=label;strong.textContent=value;box.append(small,strong);holder.append(box)}
- el("chartStatus").textContent=t("loadOk").replace("{n}",String(dailyBars.length)).replace("{first}",dailyBars[0].date).replace("{last}",dailyBars[dailyBars.length-1].date)+(isResearchEvent&&!complete?" "+t("limited"):"");
- el("hoverDetails").textContent=t("chartDetail").replace("{date}",item.date).replace("{o}",item.open.toFixed(2)).replace("{h}",item.high.toFixed(2)).replace("{l}",item.low.toFixed(2)).replace("{c}",item.close.toFixed(2)).replace("{v}",item.volume.toLocaleString("en-US"));
+ el("hoverDetails").textContent=t("chartDetail").replace("{date}",last.date).replace("{o}",last.open.toFixed(2)).replace("{h}",last.high.toFixed(2)).replace("{l}",last.low.toFixed(2)).replace("{c}",last.close.toFixed(2)).replace("{v}",last.volume.toLocaleString("en-US"));
+ const kpis=el("localKpis");kpis.replaceChildren();
+ for(const [key,value] of [[t("daysShown"),rows.length],[t("dayOpen"),last.open.toFixed(2)],[t("dayHigh"),last.high.toFixed(2)],[t("dayLow"),last.low.toFixed(2)],[t("dayClose"),last.close.toFixed(2)]]){
+  const box=document.createElement("div"),small=document.createElement("small"),strong=document.createElement("strong");box.className="stat";small.textContent=key;strong.textContent=String(value);box.append(small,strong);kpis.appendChild(box);
+ }
+ el("chartStatus").textContent=t("rangeShown").replace("{start}",rows[0].date).replace("{end}",last.date).replace("{n}",rows.length);
 }
 // AAPL historical market data is device-private. No market data is kept in localStorage,
 // fetched from an external host, or committed to public GitHub Pages assets.
 const OHLCV_DB="qulla_r001_private_ohlcv_v1";
 const OHLCV_STORE="series";
 const OHLCV_ID="R001-AAPL-01:2005-2009";
-const FOCUS_KEY="qulla_r001_focus_date_v1"; // Only the displayed date; not price bars.
+const RANGE_KEY="qulla_r001_chart_range_v1"; // Date bounds only, no OHLCV
 let dataGeneration=0;
 let cacheWriteSequence=Promise.resolve();
 function enqueueCacheWrite(operation){
@@ -390,32 +366,18 @@ function validateStoredBars(bars){
  }
  return bars;
 }
-function saveFocus(){try{localStorage.setItem(FOCUS_KEY,el("focusDate").value)}catch{}}
+function saveRange(){try{localStorage.setItem(RANGE_KEY,JSON.stringify([el("startDate").value,el("endDate").value]))}catch{}}
+function restoreRange(){
+ try{
+  const bounds=JSON.parse(localStorage.getItem(RANGE_KEY)||"null");
+  if(Array.isArray(bounds)&&bounds.length===2&&bounds.every(d=>/^\d{4}-\d{2}-\d{2}$/.test(d))){
+   el("startDate").value=bounds[0];el("endDate").value=bounds[1];
+  }
+ }catch{}
+}
 function applyCoverage(){
  if(!dailyBars.length)return;
- el("focusDate").min=dailyBars[0].date;
- el("focusDate").max=dailyBars[dailyBars.length-1].date;
-}
-function chooseDate(requested,mode){
- if(!dailyBars.length){el("chartStatus").textContent=t("cacheNone");return}
- const first=dailyBars[0].date,last=dailyBars[dailyBars.length-1].date;
- if(!requested||!(/^\d{4}-\d{2}-\d{2}$/.test(requested))){
-  el("dateNotice").textContent=t("eventNotFound")+String(requested);return;
- }
- let low=0,high=dailyBars.length-1;
- while(low<=high){const mid=Math.floor((low+high)/2);if(dailyBars[mid].date<=requested)low=mid+1;else high=mid-1}
- const index=Math.max(0,high),resolved=dailyBars[index].date;
- el("focusDate").value=resolved;
- // Research-event labels are only shown when selected by their named preset.
- el("eventSelect").value=(mode==="preset"&&(resolved==="2006-01-06"||resolved==="2007-01-10"))?resolved:"custom";
- el("dateNotice").textContent=resolved===requested?"":t(requested<first||requested>last?"dateOutOfRange":"nearestSession").replace("{requested}",requested).replace("{actual}",resolved);
- saveFocus();showChart();
-}
-function moveSession(delta){
- if(!dailyBars.length){el("chartStatus").textContent=t("cacheNone");return}
- const idx=dailyBars.findIndex(b=>b.date===el("focusDate").value);
- const next=Math.min(dailyBars.length-1,Math.max(0,(idx<0?0:idx)+delta));
- chooseDate(dailyBars[next].date,"custom");
+ for(const id of ["startDate","endDate"]){el(id).min=dailyBars[0].date;el(id).max=dailyBars[dailyBars.length-1].date}
 }
 async function writePrivateBars(bars,filename){
  await enqueueCacheWrite(()=>privateDbRequest("readwrite",store=>store.put({id:OHLCV_ID,bars:bars,sourceName:filename,savedAt:new Date().toISOString()})));
@@ -428,10 +390,7 @@ async function restorePrivateBars(){
   if(!record){el("cacheState").textContent=t("cacheNone");return}
   dailyBars=validateStoredBars(record.bars);
   applyCoverage();
-  let savedDate;
-  try{savedDate=localStorage.getItem(FOCUS_KEY)}catch{}
-  const preferred=savedDate&&/^\d{4}-\d{2}-\d{2}$/.test(savedDate)?savedDate:"2006-01-06";
-  chooseDate(preferred,preferred==="2006-01-06"?"preset":"custom");
+  restoreRange();showChart();
   el("cacheState").textContent=t("cacheRestored");
  }catch(err){
   if(generation===dataGeneration)el("cacheState").textContent=t("cacheUnavailable");
@@ -446,7 +405,7 @@ el("fileInput").addEventListener("change",async e=>{
   const incoming=readCSV(csv);
   if(generation!==dataGeneration)return;
   dailyBars=incoming;applyCoverage();
-  chooseDate(el("focusDate").value,"preset");
+  restoreRange();showChart();
   try{
    await writePrivateBars(incoming,file.name);
    if(generation===dataGeneration)el("cacheState").textContent=t("cacheSaved");
@@ -463,24 +422,16 @@ el("clearCache").addEventListener("click",async()=>{
  const generation=++dataGeneration;
  dailyBars=[];el("chartHolder").hidden=true;el("chartEmpty").hidden=false;
  el("chartStatus").textContent="";el("dateNotice").textContent="";
- try{localStorage.removeItem(FOCUS_KEY)}catch{}
+ try{localStorage.removeItem(RANGE_KEY)}catch{}
  try{
   await enqueueCacheWrite(()=>privateDbRequest("readwrite",store=>store.delete(OHLCV_ID)));
   if(generation===dataGeneration)el("cacheState").textContent=t("cacheCleared");
  }catch(err){if(generation===dataGeneration)el("cacheState").textContent=t("cacheUnavailable")}
 });
-el("eventSelect").addEventListener("change",()=>{
- const selected=el("eventSelect").value;
- if(selected==="custom"){if(dailyBars.length)chooseDate(el("focusDate").value,"custom");return}
- chooseDate(selected,"preset");
-});
-el("focusDate").addEventListener("change",()=>chooseDate(el("focusDate").value,"custom"));
-el("jumpDate").addEventListener("click",()=>chooseDate(el("focusDate").value,"custom"));
-el("prevSession").addEventListener("click",()=>moveSession(-1));
-el("nextSession").addEventListener("click",()=>moveSession(1));
-el("windowSelect").addEventListener("change",showChart);
-el("chartType").addEventListener("change",showChart);
+for(const id of ["startDate","endDate"])el(id).addEventListener("change",()=>{saveRange();showChart()});
 applyLanguage();
+loadComparison();
+restoreRange();
 restorePrivateBars();
 </script>
 </body></html>
