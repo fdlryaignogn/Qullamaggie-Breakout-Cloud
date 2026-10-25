@@ -301,37 +301,58 @@
       }
     },
     "historical_superstocks_product_research": {
-      "status": "R-001_first_tranche_source_discovery_committed_not_validated",
+      "status": "R-001_AAPL_single_case_provisional_audited_not_accepted",
       "scope": "research_only",
       "plan": "docs/historical_superstocks_product_research_plan.md",
       "plan_commit": "bbbc8ff4b20200123a46f3f193ab14f28ac57fb2",
       "sample_target": 20,
       "outputs": "Native Google Sheets workbook with 6 tabs and 20 unverified research candidates",
       "tests": {
-        "status": "local_analog_smoke_passed_repository_script_not_executed",
-        "details": "Local structural validator on equivalent manifest passed and py_compile passed; committed GitHub test script not executed in CI; no market data or historical outcome tests"
+        "status": "local_exact_committed_script_and_five_tests_PASS_CI_unexecuted",
+        "details": "Owner-supplied ZIP SHA256 matches; deterministic auditor and 5 positive/adversarial unit tests executed locally; py_compile PASS; 1259 XNYS calendar proxy sessions match; Yahoo Jan06 OHLC agrees to cents but reported volume differs. No CI or independent full split-factor check."
       },
       "deployment": "none",
-      "next_action": "Verify historical OHLCV source and mechanically determine first qualifying event; confirm source filing dates and controls feasibility",
+      "next_action": "Owner review of provisional negative AAPL case before broader tranche; independent precise split/volume lineage, pre-2005 history, point-in-time shares, benchmark and delisted control universe remain necessary.",
       "google_sheet_url": "https://docs.google.com/spreadsheets/d/1UQIrx6OI4E2R_G4G7ecEbTkV3AratRwneN8U9jlec5s/edit",
       "candidate_queue_count": 20,
       "verified_cases": 0,
       "directive": "coordination/C-002-first-tranche-dual-source.md",
-      "milestone": "v0.1 source leads and preregistered protocol; validated case count 0",
+      "milestone": "AAPL 2005–2009 FMP user-supplied OHLCV 1259 bars validated structurally; 75 candidates; first in-window breakout 2006-01-06; forward 252-session doubling FALSE; historical case remains PROVISIONAL",
       "research_paths": [
         "research/r001/methodology_v0_1.md",
         "research/r001/evidence_manifest_v0_1.json",
         "research/r001/quality_report_v0_1.md",
-        "research/r001/test_manifest_v0_1.py"
+        "research/r001/test_manifest_v0_1.py",
+        "research/r001/aapl_case_audit_v0_2.md",
+        "research/r001/aapl_case_summary_v0_2.json",
+        "research/r001/audit_aapl_zip_v0_2.py",
+        "research/r001/test_audit_aapl_zip_v0_2.py",
+        "coordination/handoffs/historical-superstocks.md"
       ],
-      "source_commit": "a1c02b9a975a4dc57b51ca8f90ec2c4dae2f31da",
+      "source_commit": "8f1fd9f76fb9e0d078af14406d262f8af979c6ba",
       "controls_selected": 0,
       "blockers": [
-        "Point-in-time historical OHLCV and corporate action provenance",
-        "historical shares outstanding and listed/delisted universe",
-        "actual breakout dates and as-of feature eligibility"
+        "FMP split-factor/raw price and volume ledger not independently downloaded; current OHLC two-decimal breakout threshold",
+        "Full pre-2005 company price history unavailable in sample; first observed candidate is left-truncated",
+        "Contemporaneous exact shares/market capitalization and S&P500 benchmark not fully validated",
+        "Time-stamped listed/delisted control cohort not available",
+        "CI replay cannot run without owner-held input ZIP"
       ],
-      "handoff_status": "NOT_READY_B001_WAITING"
+      "handoff_status": "NOT_READY_B001_WAITING",
+      "provisional_audited_cases": 1,
+      "aapl_case_v0_2": {
+        "case_id": "R001-AAPL-01",
+        "status": "PROVISIONAL_FIRST_IN_WINDOW_NOT_TRANCHE_VALIDATED",
+        "input_csv_sha256": "bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
+        "event_date": "2006-01-06",
+        "winner_252": false,
+        "ohlcv_rows": 1259,
+        "candidate_count": 75,
+        "tests": "5_of_5_local_passed",
+        "source_commit": "8f1fd9f76fb9e0d078af14406d262f8af979c6ba",
+        "owner_review": "pending",
+        "raw_fmp_csv_in_public_repo": false
+      }
     }
   },
   "strategy_registry": {
