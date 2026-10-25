@@ -333,28 +333,47 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "MERGED_TO_MAIN_PUBLIC_PAGES_NOT_BROWSER_VERIFIED",
+        "status": "DATE_BROWSER_AND_INDEXEDDB_ENHANCEMENT_BRANCH_PENDING_REVIEW",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
         "language_switch": "zh-Hant/en; reuses qulla_breakout_dashboard_language",
-        "chart": "client-side AAPL OHLCV ZIP/CSV import; daily candlestick/close-line and volume; no public raw FMP bars",
+        "chart": "AAPL daily candles and volumes loaded once from owner ZIP/CSV and cached in browser IndexedDB; inspect arbitrary session/previous/next/zoom; no public raw FMP price bars",
         "licensing": "FMP default personal subscription does not authorize public display; no price history or API secret in public repo",
         "tests": {
-          "status": "source_syntax_structural_and_parser_passed_browser_deployment_unverified",
+          "status": "date_and_cache_unit_checks_passed_live_browser_pending",
           "js_syntax": "PASS: compiled fetched inline script",
           "static": "PASS: language/storage/nav, no credentials, no embedded OHLCV",
-          "csv_parser": "PASS 5/5 including negative fixtures",
+          "csv_parser": "PASS 2006/2007 July 10 examples",
           "zip": "PASS: Chromium DEFLATE-RAW recovered 51527-byte CSV from owner ZIP",
-          "live_github_pages": "NOT VERIFIED (web request inaccessible)",
-          "ci": "PR verify cloud scanner success (not schema viewer browser coverage); page-specific CI not run",
-          "main_branch_readback": "PASS: HTML and Research Lab navigation fetched from main; translation/parser static checks passed"
+          "live_github_pages": "NOT VERIFIED for new version",
+          "ci": "PENDING",
+          "main_branch_readback": "PASS: HTML and Research Lab navigation fetched from main; translation/parser static checks passed",
+          "source_js_syntax": "PASS from exact GitHub revision",
+          "date_navigation": "PASS 5 date boundary/nearest session cases",
+          "private_cache_validation": "PASS valid/reversed/invalid OHLC",
+          "indexeddb_api_simulated": "PASS upgrade/save/read/serialized clear; NOT browser-backed",
+          "lang_i18n": "PASS 60/60 zh/en"
         },
         "source_commit": "e02bf792632a23263038cd03dbed745a16c12bea",
         "documentation": "docs/r001_schema_web_viewer.md",
         "model_training": "NOT_READY_UNCHANGED",
         "pr": 27,
-        "merge_commit": "78092fd38c277579aad9a487eec9ddd763add6e9"
+        "merge_commit": "78092fd38c277579aad9a487eec9ddd763add6e9",
+        "local_cache": {
+          "scope": "per browser/origin only, not cloud synchronized",
+          "storage": "IndexedDB qulla_r001_private_ohlcv_v1 / series",
+          "last_focus": "localStorage key qulla_r001_focus_date_v1 (date only)",
+          "clear_ui": true,
+          "chart_custom_date": true,
+          "nearest_prior_trading_day": true,
+          "date_examples": [
+            "2006-07-10",
+            "2007-07-10"
+          ],
+          "read_write_delete": "tested against simulated IndexedDB event API; real browser persistence not yet verified"
+        },
+        "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c"
       }
     }
   },
