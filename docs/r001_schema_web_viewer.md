@@ -73,3 +73,25 @@ Reason: Previously users had to reselect the FMP ZIP on **every visit** and coul
 - Chromium GUI / GitHub Pages live rendering, actual IndexedDB on the user’s browser and private-mode behavior: **NOT YET independently verified**. The user should test after publication, and share any issues for fixes.
 
 No strategy, labels, OHLC adjustment contract or R-001->B-001 approval changed.
+ 
+## Version 0.2 — two-date daily chart + machine-ready side-by-side event comparison (2026-10-25)
+
+Owner requirements: **only two date fields** for historical chart inspection (start and end); human-readable comparison grid with **A=Name, B=Schema, C=INPUT/OUTPUT/META role, D..=historical event values**. Old event-selection/dropdown and step-navigation UI removed. The previously implemented IndexedDB owner-owned OHLCV local cache is retained; the historical data are not redistributed on GitHub Pages. A date range filters local daily candles; two pre-registered event markers are displayed if they fall inside that range, but arbitrary dates do not become new research signals.
+
+Canonical **public metadata only** artifact: `site/data/r001_event_comparison_v0_2.json`. V0.1 is preserved as history. The bilingual webpage fetches v0.2 for the matrix (no raw FMP bars); users can open the separately verified native Google Sheets document:
+https://docs.google.com/spreadsheets/d/1HjClNJgZsxLPMYelzanZG0WFbZGn0RvZZVgIDzwk7vk/edit
+
+The Sheet contains:
+- `Event_Compare`: **73 schema features/metadata/labels**, first columns Name, Schema, I/O Role, followed by 2006 selected and 2007 non-selected AAPL events.
+- `Events_ML`: machine-friendly one row per event and stable schema keys as the first row; blank = null, **not zero**.
+- `Schema_Dictionary`: types, semantic role plus I/O role.
+- `Financials_PIT`: eight actually released fiscal quarters (FY2005 Q1–Q4; FY2006 Q1–Q4) with release date, period end, published sales, EPS, growth and official Apple press-release URL.
+- `Evidence_PIT`: event-tagged product evidence plus dated financial releases; `README`: formulas/limitations.
+
+**Role separation:** `INPUT` is a *candidate* observable predictor at the time of event; `OUTPUT` is a future-determined label and MUST NEVER feed the model's X; `META` joins, dates, sources, missingness, quality and eligibility, not X/y. The JSON preserves `role` as well as strict `io_role` and can be checked by `research/r001/validate_event_comparison_v0_2.mjs`.
+
+**Financial methodology:** The newest publicly released quarter is FY2005-Q4 (published 2005-10-11) at 2006-01-06, and FY2006-Q4 (published 2006-10-18) at 2007-01-10. Data published after an event are explicitly excluded even where the financial period ended before it. Sales/earnings *amounts* rising for 3 reported quarters is **not the same feature** as 3 quarters of rising sales/earnings *YoY growth rates*. The dataset calculates both as separate Boolean features, latest YoY rates, q0-vs-q1 acceleration (percentage points), and q0..q3 reported quarter observations. EPS by-quarter nominal reported figures require split-aware care, especially FY2005 Q1 pre-2005-02-28 2-for-1 split. 2005 Q4 EPS benefited from tax items; 2006 Q4 was preliminary and could be restated. No retroactive later statement leaks back. `ROIC`, `ROE`, `ROA`, TTM CFO/FCF fields exist as **null** until audited contemporaneous underlying accounts and definitions are available. Do not invent ROI or treat missing as zero.
+
+**Source links:** eight per-quarter Apple press releases are embedded in `Financials_PIT` and JSON. Financial figures shown are historical reported values or transparent computations therefrom, not a later revised financial service's series.
+
+**Validation (as-executed):** native Google Sheets metadata and bounded range readback confirms 6 tabs including correct A/B/C/D/E header and multiple input/output/metadata rows; exact committed JSON 73 fields / 2 events / 8 fiscal quarters. Repo's `validate_event_comparison_v0_2.mjs` function executed on fetched content: PASS, with three intentionally corrupt data variants rejected (wrong I/O role, wrong release date, wrong growth acceleration). HTML inline JS parsing PASS; 45/45 translatable UI keys available in each language; **exactly 2** date input elements. Browser Pages full UI and actual browser IndexedDB persistence remain **NOT VERIFIED**; user should check after merge. No A/B/C strategy changes, no production model training; B-001 remains gated.
