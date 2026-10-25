@@ -48,10 +48,10 @@
       ]
     },
     "trading_system": {
-      "status": "stage3_two_trigger_labels_single_eligible_stage2_ready_hidden_pending_pr_ci",
-      "deployment": "feature_branch_not_merged_or_deployed",
-      "last_change": "Stage3 displays both Trigger EOD subtypes, max one selectable, blocked checklists expandable; Stage2 hides every READY record only in UI/table/count/filter while preserving parent approvals and audit JSON for Stage3.",
-      "next_action": "Create PR, run CI, fix failures then merge; verify Pages shows no READY in Stage2 and NIQ/RBRK/RPD remain Stage3 WATCH; validate selectable Trigger mode when a fresh eligible EOD exists",
+      "status": "pr22_merged_dual_trigger_single_eligible_stage2_ready_hidden_from_web",
+      "deployment": "main_source_merged; public_Pages_visual_and_real_reviewer_submission_not_verified",
+      "last_change": "Merged PR #22: Stage2 view (table, counter, status dropdown) hides every READY, while preserving original Stage2 approved parent records in both JSON stores; Stage3 continues showing WATCH/TRIGGERED. Stage3 shows two EOD Trigger choices, at most one enabled and both checklists inspectable; backend receives canonical CONFIRM_TRIGGER and independently verifies subtype.",
+      "next_action": "Verify actual GitHub Pages Stage2 excludes READY, Stage3 shows NIQ/RBRK/RPD WATCH, both Trigger options displayed and disabled on published October 23 sample; validate eligible future EOD + authorized action when available.",
       "last_feature_commit": "674934d03e40bca1e427044eeb5dd690a1b9a298",
       "scope": "EOD_ONLY",
       "tests": {
@@ -69,9 +69,9 @@
         "live_eod_refresh": "not_verified",
         "stage3_watch_count_at_last_verified_scan": 3
       },
-      "latest_merged_pr": 21,
-      "latest_merge_commit": "259add65f7f850d284c2a0db979dfd2eba03e312",
-      "pending_feature_branch": "feature/stage3-dual-visible-single-eligible-and-stage2-linkage",
+      "latest_merged_pr": 22,
+      "latest_merge_commit": "a6c1db687e92754167e09ee08480b15ed3c4112e",
+      "pending_feature_branch": null,
       "audit_note": "Historical chart data from 2026-10-23 exists for NIQ/RBRK/RPD; EOD calculations are derivable, but live page rendering could not be independently verified.",
       "latest_audit_pr": 13,
       "eod_publication_audit": {
@@ -85,7 +85,7 @@
         "revision": 1792797151,
         "original_last_success": "2026-10-23T23:12:25+00:00"
       },
-      "pending_pr": "to_be_created",
+      "pending_pr": null,
       "pr_inventory": {
         "checked_on": "2026-10-24",
         "open_prs": 0,
@@ -155,13 +155,20 @@
         "oauth_gateway_config": "disabled_in_site/auth-config.json",
         "authentication": "GitHub App when explicitly enabled and deployed; otherwise transient fine-grained PAT",
         "tests": {
-          "status": "pending_PR_CI",
-          "source_tests": "review-auth/tests/stage3_eod_actions.test.mjs",
-          "python": "unchanged Stage3 state lineage / parent validation tests"
+          "status": "PR_CI_passed",
+          "github_actions_run_id": 40145871419,
+          "python_pytest": "117 passed",
+          "node_tests": "53 passed",
+          "strict_eod_audit": "passed",
+          "experimental_v2_smoke": "passed",
+          "dashboard_js_syntax": "passed",
+          "live_browser": "not_verified",
+          "real_auth_action": "not_exercised",
+          "first_pr_ci_failure": "UI conflicting-pairs diagnostic wording test fixed and rerun succeeded"
         },
         "public_page": "not_verified",
         "latest_commit": "a6a0a46cdba32aca610e9b06aa027fc8e73db738",
-        "latest_merge_commit": "259add65f7f850d284c2a0db979dfd2eba03e312",
+        "latest_merge_commit": "a6c1db687e92754167e09ee08480b15ed3c4112e",
         "authenticated_submission": "not_exercised_live",
         "trigger_rule": "EOD_CLOSE_CROSS_MANUAL_V1",
         "trigger_reference_fields": [
@@ -190,10 +197,10 @@
         "no_retroactive_entry": true,
         "first_confirmation": "FIRST_EOD_CROSS / EOD_CLOSE_CROSS_MANUAL_V1",
         "delayed_confirmation": "POST_APPROVAL_HOLD / EOD_POST_APPROVAL_MANUAL_V1",
-        "trigger_option_display": "two visible selectable subtype labels (FIRST_EOD_CROSS/POST_APPROVAL_HOLD), at most one enabled per EOD, disabled reasons viewable in two detail panels",
-        "trigger_submission": "either eligible UI selection maps to canonical CONFIRM_TRIGGER; backend independently recalculates and stores subtype; no eligible/ambiguous => no Trigger selection",
+        "trigger_option_display": "two visible labels FIRST_EOD_CROSS and POST_APPROVAL_HOLD; at most one selectable after browser EOD checks, both listed and disabled if not eligible",
+        "trigger_submission": "eligible UI subtype dispatches one CONFIRM_TRIGGER; backend independently rechecks EOD source, READY parent and persists verified rule/subtype",
         "last_inspected_published_session": "2026-10-23",
-        "last_inspected_sample": "NIQ/RBRK/RPD first EOD cross, manual READY 2026-10-24; ineligible for both on 2026-10-23",
+        "last_inspected_sample": "NIQ/RBRK/RPD stored Stage2 READY + Stage3 WATCH; 2026-10-24 READY after Oct23 EOD means no eligible Trigger yet",
         "trigger_subtypes": {
           "first": "FIRST_EOD_CROSS / EOD_CLOSE_CROSS_MANUAL_V1",
           "hold": "POST_APPROVAL_HOLD / EOD_POST_APPROVAL_MANUAL_V1",
@@ -204,7 +211,7 @@
         "client_authorization_cutoff": "NY 16:00:00 exactly, matches backend",
         "legacy_public_trigger_actions": "removed from browser and Actions workflow/gateway; legacy backend validator aliases only",
         "browser_approval_cutoff": "exact 16:00:00 America/New_York",
-        "stage2_lineage_UI": "all Stage2 READY records hidden in Stage2 browser table/count/filter; source JSON and approval/pivot/history unchanged, Stage3 WATCH/TRIGGERED remains displayed",
+        "stage2_lineage_UI": "all READY hidden from Stage2 table/tab count/status filter; parent approvals/pivot and original JSON retained for Stage3 validation",
         "stage2_hidden_ready_in_display": true,
         "stage2_parent_json_preserved": true,
         "stage2_promotion": "existing authenticated review_setup.py automatically creates Stage3 WATCH for manual READY",
@@ -227,7 +234,11 @@
             "stage2_display": "hidden",
             "stage3_display": "WATCH"
           }
-        ]
+        ],
+        "trigger_display_diagnostics": "both expandable mode checklists, including when selector option disabled",
+        "stage2_ready_hidden_display_only": true,
+        "stage2_ready_source_preserved": true,
+        "stage2_ready_creates_stage3_watch": "existing review_setup.py READY flow"
       },
       "stage4": {
         "status": "merged_to_main_live_not_verified",
