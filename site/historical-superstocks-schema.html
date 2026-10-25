@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a101e">
+<title>Historical Superstocks · Research Schema | Qullamaggie</title>
+<style>
+:root{color-scheme:dark;--bg:#0a101e;--panel:#121d30;--panel2:#172740;--border:#31425d;--text:#edf4ff;--muted:#adc0db;--accent:#70e2ca;--blue:#89b5ff;--warn:#f3cc82;--red:#f3a1a7}
+*{box-sizing:border-box}
+body{margin:0;font:14px/1.6 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:var(--text);background:radial-gradient(ellipse 75% 27% at 50% -4%,#1e3b46,transparent),var(--bg)}
+button,input,select{font:inherit}button{cursor:pointer}a{color:var(--accent)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.shell{max-width:1270px;margin:auto;padding:0 24px 54px}.header{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:19px 0;border-bottom:1px solid var(--border)}
+.logo{display:flex;gap:11px;align-items:center;text-decoration:none;color:var(--text);font-weight:800;letter-spacing:.08em}.logo-mark{width:34px;height:34px;border-radius:10px;border:1px solid #56a99b;color:var(--accent);display:grid;place-items:center;font-size:21px}
+.header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.link-pill,.lang button{padding:8px 12px;border:1px solid var(--border);border-radius:9px;text-decoration:none;color:var(--text);background:var(--panel);font-weight:650}
+.lang{display:flex;gap:3px;padding:3px;border-radius:10px;border:1px solid var(--border);background:#0f1b2c}.lang button{border:0;background:transparent;padding:6px 12px;font-size:12px;color:var(--muted)}.lang button[aria-pressed=true]{background:#245a50;color:#b7ffee}
+.hero{padding:30px 0 18px}.eyebrow{font-size:12px;font-weight:750;letter-spacing:.13em;color:var(--accent)}h1{font-size:clamp(25px,3.3vw,38px);line-height:1.2;margin:6px 0 10px}h2{font-size:19px;margin:0 0 10px}h3{font-size:15px;margin:8px 0}p{margin:8px 0 12px}.muted{color:var(--muted)}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.pill{font-size:12px;color:#bfd5ed;background:#1a2940;border:1px solid #36506a;border-radius:999px;padding:4px 11px}.pill.warn{color:var(--warn);border-color:#725b39}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px;padding:19px;min-width:0;margin-bottom:16px}
+.note{border:1px solid #476072;background:#15263a;padding:12px 14px;border-radius:10px;color:#d9e9fb}.note.warn{border-color:#76613d;background:#29271f}
+.feature-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.stat{border-radius:11px;padding:14px;background:#101a2b;border:1px solid #2d405c}.stat small{display:block;color:var(--muted);font-size:12px}.stat strong{display:block;font-size:20px;margin-top:4px;overflow-wrap:anywhere}.stat em{font-size:11px;font-style:normal;color:var(--muted)}
+.table-wrap{max-height:480px;overflow:auto;border:1px solid var(--border);border-radius:11px}table{width:100%;border-collapse:collapse;min-width:720px}th,td{padding:10px 13px;border-bottom:1px solid #2b3a51;text-align:left;vertical-align:top}th{position:sticky;top:0;background:#20304b;color:#edf4ff;z-index:1;font-size:12px}td{font-size:12.5px}td:first-child{font-weight:750;color:#a8d8ff}td:nth-child(2){color:#bad9ff}tr:hover td{background:#1b2b43}.group-tag{color:var(--accent);font-size:11px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:13px 0}.controls select,.controls input[type=file]{background:#0d1929;color:var(--text);border:1px solid #47617d;border-radius:9px;padding:10px;max-width:100%}.controls input[type=file]{width:min(100%,370px)}.controls label{font-weight:650}.controls button{border:1px solid #426d65;background:#1c4a43;border-radius:9px;color:#d5fff1;padding:9px 12px}
+.chart-holder{position:relative}.chart-holder svg{display:block;width:100%;height:auto;border:1px solid #31405b;border-radius:12px;background:#0d1827}
+.chart-placeholder{display:grid;place-content:center;min-height:320px;border:1px dashed #49617a;border-radius:13px;background:#0e1a2b;text-align:center;padding:24px}
+#hoverDetails{font-size:12px;min-height:22px;color:#dcecff;line-height:1.5}.status{min-height:24px;color:#c1ddf2;font-size:13px}footer{font-size:12px;color:var(--muted);padding:10px 0 24px}
+button[hidden],section[hidden],div[hidden]{display:none!important}
+@media(max-width:820px){.grid{grid-template-columns:1fr}.feature-grid{grid-template-columns:1fr 1fr}.shell{padding:0 14px 30px}.header{align-items:flex-start}}
+@media(max-width:490px){.feature-grid{grid-template-columns:1fr}.logo{font-size:12px}.controls{align-items:stretch;flex-direction:column}.controls label,.controls input,.controls select{width:100%}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="header">
+  <a class="logo" href="./research.html" aria-label="Research Lab"><span class="logo-mark">Q</span><span>QULLAMAGGIE / RESEARCH LAB</span></a>
+  <div class="header-actions">
+    <a class="link-pill" href="./research.html" data-i18n="back">← 返回研究實驗室</a>
+    <div class="lang" role="group" aria-label="Language / 語言">
+      <button type="button" id="langZh" lang="zh-Hant" aria-pressed="true">繁中</button>
+      <button type="button" id="langEn" lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+<main>
+<section class="hero">
+ <div class="eyebrow">R-001 · HUMAN-READABLE RESEARCH SCHEMA</div>
+ <h1 data-i18n="title">歷史飆股研究：資料欄位與日線圖</h1>
+ <p class="muted" data-i18n="hero">將點時間可觀察的特徵、未來結果與資料品質分開展示。AAPL 僅作示範案例，並非已通過驗收的訓練樣本。</p>
+ <div class="pills"><span class="pill">AAPL / R001-AAPL-01</span><span class="pill warn" data-i18n="provisional">PROVISIONAL · 尚未完成驗證</span><span class="pill" data-i18n="noOrders">研究展示 · 不產生交易訊號</span></div>
+</section>
+<section class="panel" aria-labelledby="summaryTitle">
+<h2 id="summaryTitle" data-i18n="summaryTitle">案例重點（研究審計）</h2>
+<div class="feature-grid">
+  <div class="stat"><small data-i18n="selectedDate">規則選定事件</small><strong>2006-01-06</strong><em data-i18n="firstWindow">僅為 2005–2009 樣本中的首個候選</em></div>
+  <div class="stat"><small data-i18n="firstOutcome">首個事件的 252 日標籤</small><strong data-i18n="nonWinner">未達兩倍</strong><em>PROVISIONAL</em></div>
+  <div class="stat"><small data-i18n="laterDate">後續比較候選</small><strong>2007-01-10</strong><em data-i18n="nonSelected">不能事後取代首個事件</em></div>
+  <div class="stat"><small data-i18n="laterOutcome">後續候選的 252 日標籤</small><strong data-i18n="winner">達到兩倍</strong><em data-i18n="explore">探索性對照，非新選定案例</em></div>
+</div>
+<p class="note warn" data-i18n="guard">嚴格時間順序：2007 年 iPhone 公布不可用於 2006 年事件的輸入特徵。結果欄位亦不可當成機器學習輸入。上述事件標籤仍待獨立價格調整驗證。</p>
+</section>
+<div class="grid">
+<section class="panel">
+<h2 data-i18n="schemaTitle">機器學習資料 Schema（人類閱讀表）</h2>
+<p class="muted" data-i18n="schemaDesc">每一行是一個資料欄位。技術、基本面與產品屬於當時可得的輸入；未來報酬屬於結果標籤，不可提前使用。</p>
+<div class="table-wrap"><table aria-label="Historical superstock schema"><thead><tr><th data-i18n="colGroup">分類</th><th data-i18n="colKey">欄位代碼</th><th data-i18n="colType">類型</th><th data-i18n="colMeaning">人類說明</th><th data-i18n="colUse">模型用途</th></tr></thead><tbody id="schemaRows"></tbody></table></div>
+</section>
+<section class="panel">
+<h2 data-i18n="evidenceTitle">突破前已公開的證據</h2>
+<p class="muted" data-i18n="evidenceDesc">以 2006-01-06 為截止日，不加入 2007 年才公布的產品。</p>
+<div class="table-wrap"><table aria-label="Pre-event evidence"><thead><tr><th data-i18n="colDate">公開日期</th><th data-i18n="colEvent">歷史事件</th></tr></thead><tbody id="evidenceRows"></tbody></table></div>
+<p class="note" data-i18n="caseLimit">觀察窗口自 2005 年開始，並非 Apple 上市以來的第一個突破。歷史市值和控制組仍待驗證。</p>
+<p class="muted"><a href="https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/26" target="_blank" rel="noopener noreferrer" data-i18n="auditLink">查看 R-001 案例審計 PR #26</a></p>
+</section>
+</div>
+<section class="panel">
+<h2 data-i18n="chartTitle">AAPL 歷史日線圖</h2>
+<p class="muted" data-i18n="chartDesc">為遵守行情資料授權，公開網站不內嵌 FMP 歷史日線。請選擇自己的 r001_aapl_audit.zip 或其 CSV；檔案只在你的瀏覽器本機處理，不會上傳到伺服器。</p>
+<div class="controls">
+  <label for="fileInput" data-i18n="fileLabel">載入本機 ZIP 或 CSV</label>
+  <input id="fileInput" type="file" accept=".zip,.csv,text/csv,application/zip" aria-describedby="fileHelp">
+  <label for="eventSelect" data-i18n="eventLabel">研究事件</label>
+  <select id="eventSelect"><option value="2006-01-06" data-i18n="firstOpt">2006-01-06 · 首個候選（未翻倍）</option><option value="2007-01-10" data-i18n="laterOpt">2007-01-10 · 後續候選（翻倍）</option></select>
+  <label for="chartType" data-i18n="chartTypeLabel">圖表類型</label>
+  <select id="chartType"><option value="candles" data-i18n="candles">日 K 線</option><option value="close" data-i18n="closeLine">日收盤線</option></select>
+</div>
+<p class="muted" id="fileHelp" data-i18n="fileHelp">接受原始審計 ZIP 或包含 date,open,high,low,close,volume 欄位的 CSV。支援 120 日突破前與 252 日突破後視窗。</p>
+<div id="chartEmpty" class="chart-placeholder" role="status">
+  <strong data-i18n="chartEmptyTitle">等待本機歷史資料</strong>
+  <span class="muted" data-i18n="chartEmptyDesc">載入 ZIP／CSV 後，這裏會顯示真實日 K 線、成交量及突破位置。</span>
+</div>
+<div class="chart-holder" id="chartHolder" hidden>
+  <svg id="dailyChart" viewBox="0 0 1120 525" role="img" aria-label="AAPL historical daily candlestick chart"></svg>
+  <p id="hoverDetails" aria-live="polite"></p>
+  <div class="feature-grid" id="localKpis"></div>
+</div>
+<p id="chartStatus" class="status" aria-live="polite"></p>
+<p class="note warn" data-i18n="qualityCaveat">圖表採 CSV 原有的調整價格；FMP 僅保留兩位小數的歷史價格會影響接近門檻的突破判定。本頁不自動交易，也不將圖表視為已完成的獨立驗證。</p>
+</section>
+<section class="panel">
+<h2 data-i18n="modelTitle">日後訓練模型時怎樣使用？</h2>
+<div class="grid">
+<div class="note"><strong data-i18n="inputsTitle">輸入特徵（X）</strong><p data-i18n="inputsDesc">股票身份、突破前價格量能、已公開的季度財務、產品及市場背景；每項都保留公告時間及資料品質。</p></div>
+<div class="note"><strong data-i18n="labelsTitle">未來標籤（y）</strong><p data-i18n="labelsDesc">252 個交易日內的翻倍與否、63／126／252 日報酬和最大不利波動。只有事件日後完整觀察才能計算，訓練期間必須隔離。</p></div>
+</div>
+<p class="muted" data-i18n="controlsNote">目前缺少同期未成功／退市股票的對照樣本，不能用單一 AAPL 案例訓練或宣稱預測能力。B-001 仍未獲准啟動。</p>
+</section>
+</main>
+<footer><span data-i18n="footer">Qullamaggie Research Lab · 獨立研究示範 · 非投資建議 · 不儲存上傳行情到 GitHub 或伺服器</span></footer>
+</div>
+<script>
+"use strict";
+const LANGUAGE_KEY="qulla_breakout_dashboard_language";
+const STRINGS={
+zh:{
+back:"← 返回研究實驗室",title:"歷史飆股研究：資料欄位與日線圖",hero:"將點時間可觀察的特徵、未來結果與資料品質分開展示。AAPL 僅作示範案例，並非已通過驗收的訓練樣本。",
+provisional:"PROVISIONAL · 尚未完成驗證",noOrders:"研究展示 · 不產生交易訊號",summaryTitle:"案例重點（研究審計）",selectedDate:"規則選定事件",firstWindow:"僅為 2005–2009 樣本中的首個候選",firstOutcome:"首個事件的 252 日標籤",nonWinner:"未達兩倍",laterDate:"後續比較候選",nonSelected:"不能事後取代首個事件",laterOutcome:"後續候選的 252 日標籤",winner:"達到兩倍",explore:"探索性對照，非新選定案例",guard:"嚴格時間順序：2007 年 iPhone 公布不可用於 2006 年事件的輸入特徵。結果欄位亦不可當成機器學習輸入。上述事件標籤仍待獨立價格調整驗證。",
+schemaTitle:"機器學習資料 Schema（人類閱讀表）",schemaDesc:"每一行是一個資料欄位。技術、基本面與產品屬於當時可得的輸入；未來報酬屬於結果標籤，不可提前使用。",
+colGroup:"分類",colKey:"欄位代碼",colType:"類型",colMeaning:"人類說明",colUse:"模型用途",evidenceTitle:"突破前已公開的證據",evidenceDesc:"以 2006-01-06 為截止日，不加入 2007 年才公布的產品。",colDate:"公開日期",colEvent:"歷史事件",caseLimit:"觀察窗口自 2005 年開始，並非 Apple 上市以來的第一個突破。歷史市值和控制組仍待驗證。",auditLink:"查看 R-001 案例審計 PR #26",
+chartTitle:"AAPL 歷史日線圖",chartDesc:"為遵守行情資料授權，公開網站不內嵌 FMP 歷史日線。請選擇自己的 r001_aapl_audit.zip 或其 CSV；檔案只在你的瀏覽器本機處理，不會上傳到伺服器。",
+fileLabel:"載入本機 ZIP 或 CSV",eventLabel:"研究事件",chartTypeLabel:"圖表類型",firstOpt:"2006-01-06 · 首個候選（未翻倍）",laterOpt:"2007-01-10 · 後續候選（翻倍）",candles:"日 K 線",closeLine:"日收盤線",
+fileHelp:"接受原始審計 ZIP 或包含 date,open,high,low,close,volume 欄位的 CSV。支援 120 日突破前與 252 日突破後視窗。",
+chartEmptyTitle:"等待本機歷史資料",chartEmptyDesc:"載入 ZIP／CSV 後，這裏會顯示真實日 K 線、成交量及突破位置。",
+qualityCaveat:"圖表採 CSV 原有的調整價格；FMP 僅保留兩位小數的歷史價格會影響接近門檻的突破判定。本頁不自動交易，也不將圖表視為已完成的獨立驗證。",
+modelTitle:"日後訓練模型時怎樣使用？",inputsTitle:"輸入特徵（X）",inputsDesc:"股票身份、突破前價格量能、已公開的季度財務、產品及市場背景；每項都保留公告時間及資料品質。",
+labelsTitle:"未來標籤（y）",labelsDesc:"252 個交易日內的翻倍與否、63／126／252 日報酬和最大不利波動。只有事件日後完整觀察才能計算，訓練期間必須隔離。",
+controlsNote:"目前缺少同期未成功／退市股票的對照樣本，不能用單一 AAPL 案例訓練或宣稱預測能力。B-001 仍未獲准啟動。",
+footer:"Qullamaggie Research Lab · 獨立研究示範 · 非投資建議 · 不儲存上傳行情到 GitHub 或伺服器",
+typeInput:"輸入",typeLabel:"結果標籤",typeQuality:"品質註記",typeId:"識別",typePrice:"技術",typeFund:"基本面",typeProduct:"產品",typeMarket:"市場",
+loadOk:"已在本機載入 {n} 個交易日（{first} 至 {last}）。",loadError:"資料載入失敗：",eventNotFound:"資料中沒有指定事件日期：",chartDetail:"日期 {date}｜開 {o}｜高 {h}｜低 {l}｜收 {c}｜量 {v}",
+eventPrice:"事件收盤價",maxGain:"其後 252 日最高收盤漲幅",doubleLabel:"252 日翻倍",daysShown:"顯示交易日",limited:"不足 252 個後續交易日：結果為 CENSORED",yes:"是",no:"否",volume:"成交量",price:"調整價格 (USD)",chartName:"歷史日 K 線",fileTooLarge:"檔案過大（最多 10 MB）",unsupportedZip:"瀏覽器不支援 ZIP 解壓，請改為選擇 CSV",invalidCsv:"CSV 格式或 OHLC 資料不正確",eventMarker:"突破日",after:"事件後"
+},
+en:{
+back:"← Back to Research Lab",title:"Historical Superstocks: Schema & Daily Charts",hero:"Separate point-in-time observable features, future outcomes and data quality. AAPL is a demonstration, not an accepted model-training case.",
+provisional:"PROVISIONAL · Not independently validated",noOrders:"Research display · No trading signal",summaryTitle:"Case summary (research audit)",selectedDate:"Rule-selected event",firstWindow:"Earliest candidate only in the 2005–2009 sample",firstOutcome:"252-day label for first event",nonWinner:"Did not double",laterDate:"Later comparison event",nonSelected:"Cannot replace the first event retrospectively",laterOutcome:"252-day label for later event",winner:"Doubled",explore:"Exploratory comparator, not selected event",guard:"Strict point-in-time: the 2007 iPhone announcement cannot be an input for the 2006 event. Future outcome labels must never become ML input features. Split-adjustment checks remain incomplete.",
+schemaTitle:"ML Dataset Schema (human-readable)",schemaDesc:"Each row defines one field. Technical, fundamental and product features must be known at the event cutoff; future outcomes are targets, never inputs.",
+colGroup:"Group",colKey:"Field",colType:"Type",colMeaning:"Human explanation",colUse:"Model use",evidenceTitle:"Evidence published before breakout",evidenceDesc:"Cutoff: January 6, 2006. Do not add products announced in 2007.",colDate:"Published",colEvent:"Historical evidence",caseLimit:"The price sample begins in 2005 and cannot establish Apple's first-ever breakout. Historical cap and control cohort remain unverified.",auditLink:"View the R-001 case audit PR #26",
+chartTitle:"AAPL Historical Daily Chart",chartDesc:"Public GitHub Pages do not embed FMP historical daily prices due to data licensing. Select your local r001_aapl_audit.zip or CSV: the browser handles it locally and does not upload it.",
+fileLabel:"Load local ZIP or CSV",eventLabel:"Research event",chartTypeLabel:"Chart style",firstOpt:"2006-01-06 · First candidate (non-winner)",laterOpt:"2007-01-10 · Later candidate (winner)",candles:"Daily candlesticks",closeLine:"Daily closing line",
+fileHelp:"Use the original audit ZIP or a CSV with date,open,high,low,close,volume. The chart includes 120 pre-event sessions and up to 252 post-event sessions.",
+chartEmptyTitle:"Waiting for local price data",chartEmptyDesc:"After importing a ZIP/CSV, historical daily candles, volumes and breakout markers appear here.",
+qualityCaveat:"The chart follows the imported CSV's price adjustment basis. FMP's two-decimal historical prices can change near-threshold breakout classification. This is neither auto-trading nor independent validation.",
+modelTitle:"How will models use this later?",inputsTitle:"Input features (X)",inputsDesc:"Security identity, prior price/volume, publicly released financials, product releases and market context; each with publication time and quality flags.",
+labelsTitle:"Future labels (y)",labelsDesc:"Doubling within 252 trading sessions, 63/126/252-session returns and adverse excursion. They require forward observations and must be isolated from the inputs.",
+controlsNote:"No contemporaneous non-winner/delisted-stock controls are available yet. A single AAPL case cannot train or validate a predictive model. B-001 is not authorized.",
+footer:"Qullamaggie Research Lab · Standalone research example · Not investment advice · No price series uploaded or published",
+typeInput:"Input",typeLabel:"Target label",typeQuality:"Quality flag",typeId:"Identity",typePrice:"Technical",typeFund:"Fundamentals",typeProduct:"Product",typeMarket:"Market",
+loadOk:"Loaded {n} sessions locally ({first} to {last}).",loadError:"Could not load data: ",eventNotFound:"Selected date is absent from the data: ",chartDetail:"Date {date} | O {o} | H {h} | L {l} | C {c} | Vol {v}",
+eventPrice:"Event close",maxGain:"Max closing gain over next 252",doubleLabel:"Doubled within 252",daysShown:"Trading sessions shown",limited:"Fewer than 252 subsequent sessions: outcome CENSORED",yes:"Yes",no:"No",volume:"Volume",price:"Adjusted price (USD)",chartName:"Daily historical candles",fileTooLarge:"File exceeds 10 MB",unsupportedZip:"ZIP decompression not available in this browser; import the CSV instead",invalidCsv:"Invalid CSV format or OHLC values",eventMarker:"Breakout",after:"After event"
+}};
+const FIELDS=[
+["typeId","case_id","string","事件唯一識別碼","Unique event identifier","typeInput"],
+["typeId","symbol","string","股票代號及歷史身份","Ticker and security identity","typeInput"],
+["typeId","event_date","date","機械選出的候選突破日","Mechanically selected breakout event date","typeInput"],
+["typePrice","event_close","number","事件當天拆股調整收盤價","Split-adjusted closing price on event date","typeInput"],
+["typePrice","prior_60_high","number","事件前 60 交易日最高價","Maximum high in 60 sessions before event","typeInput"],
+["typePrice","prior_20_dollar_volume","number","事件前 20 日平均成交額","Prior 20-session average dollar turnover","typeInput"],
+["typePrice","momentum_20_60_252","number[]","突破前 20／60／252 日股價動能","20/60/252-session pre-event momentum","typeInput"],
+["typePrice","volume_ratio_20_50","number","突破前短期相對成交量","Pre-event relative volume","typeInput"],
+["typeMarket","relative_strength_spx","number","相對 S&P 500 的強度","Strength relative to S&P 500","typeInput"],
+["typeFund","revenue_yoy_pct","number?","當時最新已公布營收年增率","Latest publicly released revenue growth YoY","typeInput"],
+["typeFund","shares_outstanding_asof","number?","附公告日期的歷史流通股數","Point-in-time share count with publication date","typeInput"],
+["typeFund","market_cap_asof","number?","當時市值，估算需註明","Historical market cap (flag estimates)","typeInput"],
+["typeProduct","product_event","category?","產品推出或需求加速（需編碼）","Dated product launch or demand acceleration","typeInput"],
+["typeProduct","publication_timestamp","datetime?","產品及財報實際公開時間","Actual public release time of cited evidence","typeInput"],
+["typeLabel","winner_252","boolean|null","事件後 252 個交易日內收盤是否翻倍","Double-close label in 252 sessions (null = censored)","typeLabel"],
+["typeLabel","return_63_126_252","number[]|null","事件後報酬率（未來標籤）","Forward returns (target only)","typeLabel"],
+["typeLabel","max_adverse_close_pct","number|null","事件後最大收盤逆向波動","Maximum adverse closing excursion","typeLabel"],
+["typeQuality","source_provenance","string[]","資料來源、調整口徑及校驗值","Data source, adjustments and checksums","typeQuality"],
+["typeQuality","quality_status","enum","VERIFIED / ESTIMATED / MISSING","VERIFIED / ESTIMATED / MISSING","typeQuality"]
+];
+const EVIDENCE=[
+["2005-06-06","Mac 宣布轉用 Intel 處理器","Mac announced its planned Intel transition","https://www.apple.com/newsroom/2005/06/06Apple-to-Use-Intel-Microprocessors-Beginning-in-2006/"],
+["2005-09-07","推出 iPod nano","iPod nano introduced","https://www.apple.com/newsroom/2005/09/07Apple-Introduces-iPod-nano/"],
+["2005-10-11","季度營收約年增 56.6%；iPod 出貨量約年增 220%","Quarterly sales grew ~56.6% YoY; iPod units ~220% YoY","https://www.apple.com/newsroom/2005/10/11Apple-Reports-Fourth-Quarter-Results/"],
+["2005-10-12","推出可播影片的 iPod","Video-enabled iPod introduced","https://www.apple.com/newsroom/2005/10/12Apple-Unveils-the-New-iPod/"],
+["2005-12-01","公開 2005 年 10-K；股數報告日期更早","FY2005 10-K publicly filed (share count as-of is earlier)","https://www.sec.gov/Archives/edgar/data/320193/000110465905058421/a05-20674_110k.htm"]
+];
+const el=id=>document.getElementById(id);let language="zh",dailyBars=[];
+try{language=localStorage.getItem(LANGUAGE_KEY)==="en"?"en":"zh"}catch{}
+const t=k=>STRINGS[language][k]||k;
+function applyLanguage(){
+document.documentElement.lang=language==="en"?"en":"zh-Hant";
+document.querySelectorAll("[data-i18n]").forEach(n=>{n.textContent=t(n.dataset.i18n)});
+el("langZh").setAttribute("aria-pressed",String(language==="zh"));
+el("langEn").setAttribute("aria-pressed",String(language==="en"));
+el("schemaRows").replaceChildren();
+for(const [g,key,type,zh,en,use] of FIELDS){
+ const tr=document.createElement("tr");
+ for(const str of [t(g),key,type,language==="en"?en:zh,t(use)]){const td=document.createElement("td");td.textContent=str;tr.appendChild(td)}
+ el("schemaRows").appendChild(tr);
+}
+el("evidenceRows").replaceChildren();
+for(const [date,zh,en,url] of EVIDENCE){
+ const tr=document.createElement("tr"),d=document.createElement("td"),detail=document.createElement("td"),a=document.createElement("a");
+ d.textContent=date;a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=language==="en"?en:zh;
+ detail.appendChild(a);tr.append(d,detail);el("evidenceRows").appendChild(tr);
+}
+if(dailyBars.length){showChart()}else{el("chartStatus").textContent=""}
+}
+function setLanguage(value){language=value;try{localStorage.setItem(LANGUAGE_KEY,value)}catch{}applyLanguage()}
+el("langZh").addEventListener("click",()=>setLanguage("zh"));
+el("langEn").addEventListener("click",()=>setLanguage("en"));
+window.addEventListener("storage",e=>{if(e.key===LANGUAGE_KEY){language=e.newValue==="en"?"en":"zh";applyLanguage()}});
+function readCSV(text){
+ const lines=text.replace(/^\uFEFF/,"").trim().split(/\r?\n/);if(lines.length<2)throw Error(t("invalidCsv"));
+ const columns=lines.shift().split(",").map(v=>v.trim().toLowerCase());
+ const idx=["date","open","high","low","close","volume"].map(k=>columns.indexOf(k));
+ if(idx.some(i=>i<0))throw Error(t("invalidCsv"));
+ const bars=[];let last="";
+ for(const line of lines){
+  if(!line.trim())continue;const values=line.split(",");
+  const date=values[idx[0]].trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||date<=last||Number.isNaN(Date.parse(date+"T00:00:00Z")))throw Error(t("invalidCsv"));
+  const nums=idx.slice(1).map(i=>Number(values[i]));
+  if(nums.some(x=>!Number.isFinite(x))||nums.slice(0,4).some(x=>x<=0)||nums[4]<0)throw Error(t("invalidCsv"));
+  const [open,high,low,close,volume]=nums;
+  if(high<Math.max(open,low,close)||low>Math.min(open,high,close))throw Error(t("invalidCsv"));
+  bars.push({date,open,high,low,close,volume});last=date;
+ }
+ if(!bars.length)throw Error(t("invalidCsv"));
+ return bars;
+}
+async function extractZipCsv(file){
+ const buffer=await file.arrayBuffer(),v=new DataView(buffer),bytes=new Uint8Array(buffer);
+ let end=-1;
+ for(let i=buffer.byteLength-22;i>=Math.max(0,buffer.byteLength-65557);i--){if(v.getUint32(i,true)===0x06054b50){end=i;break}}
+ if(end<0)throw Error("ZIP central directory missing");
+ const n=v.getUint16(end+10,true);let off=v.getUint32(end+16,true);const decoder=new TextDecoder("utf-8");
+ for(let i=0;i<n;i++){
+  if(off+46>buffer.byteLength||v.getUint32(off,true)!==0x02014b50)throw Error("Invalid ZIP directory");
+  const method=v.getUint16(off+10,true),packed=v.getUint32(off+20,true),size=v.getUint32(off+24,true),nameLen=v.getUint16(off+28,true),extra=v.getUint16(off+30,true),comment=v.getUint16(off+32,true),local=v.getUint32(off+42,true);
+  if(off+46+nameLen>buffer.byteLength)throw Error("ZIP invalid name");
+  const name=decoder.decode(bytes.subarray(off+46,off+46+nameLen));off+=46+nameLen+extra+comment;
+  if(!name.endsWith("aapl_fmp_2005_2009_ohlcv.csv"))continue;
+  if(size>2000000||local+30>buffer.byteLength||v.getUint32(local,true)!==0x04034b50)throw Error("Invalid ZIP entry");
+  const dataAt=local+30+v.getUint16(local+26,true)+v.getUint16(local+28,true);
+  if(dataAt+packed>buffer.byteLength)throw Error("Truncated ZIP data");
+  const packedBytes=bytes.slice(dataAt,dataAt+packed);
+  if(method===0)return decoder.decode(packedBytes);
+  if(method!==8||typeof DecompressionStream==="undefined")throw Error(t("unsupportedZip"));
+  try{
+   const decompressed=new Blob([packedBytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+   const body=await new Response(decompressed).arrayBuffer();
+   if(body.byteLength!==size)throw Error("Uncompressed length mismatch");
+   return decoder.decode(body);
+  }catch(err){throw Error(t("unsupportedZip")+" ("+err.message+")")}
+ }
+ throw Error("AAPL OHLCV CSV not found inside ZIP");
+}
+function svgNode(tag,attrs,txt){
+ const node=document.createElementNS("http://www.w3.org/2000/svg",tag);
+ for(const [k,v] of Object.entries(attrs||{}))node.setAttribute(k,String(v));
+ if(txt!==undefined)node.textContent=txt;return node;
+}
+function showChart(){
+ if(!dailyBars.length)return;
+ const eventDate=el("eventSelect").value, index=dailyBars.findIndex(b=>b.date===eventDate);
+ const svg=el("dailyChart");svg.replaceChildren();
+ if(index<0){
+  el("chartHolder").hidden=true;el("chartEmpty").hidden=false;
+  el("chartStatus").textContent=t("eventNotFound")+eventDate;return;
+ }
+ const windowBars=dailyBars.slice(Math.max(0,index-120),Math.min(dailyBars.length,index+253));
+ const eventPos=windowBars.findIndex(b=>b.date===eventDate),after=dailyBars.slice(index+1,index+253);
+ const min=Math.min(...windowBars.map(b=>b.low)),max=Math.max(...windowBars.map(b=>b.high)),range=Math.max(0.01,max-min),maxVol=Math.max(...windowBars.map(b=>b.volume),1);
+ const W=1120,H=525,left=64,right=22,top=44,bottom=42,chartBottom=390,volTop=404,volBottom=476,cwidth=W-left-right;
+ const x=i=>left+(i+0.5)*cwidth/windowBars.length;
+ const y=p=>chartBottom-(p-min)/range*(chartBottom-top);
+ const add=(tag,attrs,txt)=>{const o=svgNode(tag,attrs,txt);svg.appendChild(o);return o};
+ // Title and axes
+ add("text",{x:left,y:25,fill:"#dbeeff","font-size":17,"font-weight":700},t("chartName")+" · AAPL · "+eventDate);
+ for(let k=0;k<=4;k++){
+  const gy=top+k*(chartBottom-top)/4;
+  add("line",{x1:left,y1:gy,x2:W-right,y2:gy,stroke:"#334760","stroke-opacity":0.65});
+  add("text",{x:left-8,y:gy+4,"text-anchor":"end",fill:"#a8bad4","font-size":12},(max-k*range/4).toFixed(2));
+ }
+ add("text",{x:left,y:500,fill:"#96abc9","font-size":11},t("volume"));
+ const stride=Math.max(1,Math.floor(windowBars.length/5));
+ for(let i=0;i<windowBars.length;i+=stride){
+  add("text",{x:x(i),y:514,"text-anchor":"middle",fill:"#98aecb","font-size":11},windowBars[i].date);
+ }
+ const eventX=x(eventPos);
+ add("rect",{x:eventX,y:top,width:Math.max(0,W-right-eventX),height:chartBottom-top,fill:"#1d5a57","fill-opacity":"0.12"});
+ add("line",{x1:eventX,y1:top,x2:eventX,y2:volBottom,stroke:"#ffca78","stroke-width":2,"stroke-dasharray":"6,5"});
+ const eventTag=add("text",{x:Math.min(W-190,eventX+6),y:top+16,fill:"#ffda9e","font-size":12},t("eventMarker")+" "+eventDate);
+ eventTag.setAttribute("font-weight","bold");
+ if(el("chartType").value==="close"){
+  let path="";
+  windowBars.forEach((b,i)=>{path+=(i===0?"M":"L")+x(i).toFixed(2)+","+y(b.close).toFixed(2)+" "});
+  add("path",{d:path,stroke:"#8bbaff","stroke-width":2.5,fill:"none"});
+ }else{
+  const width=Math.max(1,Math.min(7,cwidth/windowBars.length*0.72));
+  for(let i=0;i<windowBars.length;i++){
+   const b=windowBars[i],color=b.close>=b.open?"#66e0b9":"#f28e9a";
+   add("line",{x1:x(i),y1:y(b.high),x2:x(i),y2:y(b.low),stroke:color,"stroke-width":1});
+   add("rect",{x:x(i)-width/2,y:Math.min(y(b.open),y(b.close)),width,height:Math.max(1,Math.abs(y(b.open)-y(b.close))),fill:color});
+  }
+ }
+ for(let i=0;i<windowBars.length;i++){
+  const b=windowBars[i],vw=cwidth/windowBars.length;
+  add("rect",{x:x(i)-Math.max(1,vw*0.25),y:volBottom-b.volume/maxVol*(volBottom-volTop),width:Math.max(1,vw*0.5),height:Math.max(1,b.volume/maxVol*(volBottom-volTop)),fill:b.close>=b.open?"#347c69":"#8e535e","fill-opacity":0.7});
+  const target=add("rect",{x:x(i)-vw*0.5,y:top,width:vw,height:volBottom-top,fill:"transparent",tabindex:0,"aria-label":b.date+" OHLC"});
+  target.appendChild(svgNode("title",{},b.date+" OHLC "+[b.open,b.high,b.low,b.close].join("/")+" Vol "+b.volume));
+  target.addEventListener("pointerenter",()=>{el("hoverDetails").textContent=t("chartDetail").replace("{date}",b.date).replace("{o}",b.open.toFixed(2)).replace("{h}",b.high.toFixed(2)).replace("{l}",b.low.toFixed(2)).replace("{c}",b.close.toFixed(2)).replace("{v}",b.volume.toLocaleString("en-US"))});
+  target.addEventListener("focus",()=>target.dispatchEvent(new Event("pointerenter")));
+ }
+ el("chartEmpty").hidden=true;el("chartHolder").hidden=false;
+ const item=dailyBars[index], complete=after.length===252;
+ const highest=after.length?Math.max(...after.map(b=>b.close)):null;
+ const peakReturn=highest===null?null:(highest/item.close-1)*100;
+ const doubled=complete?highest>=2*item.close:null;
+ const kpis=[[t("eventPrice"),"$"+item.close.toFixed(2)],[t("maxGain"),peakReturn===null?"—":(peakReturn>=0?"+":"")+peakReturn.toFixed(2)+"%"],[t("doubleLabel"),doubled===null?"CENSORED":doubled?t("yes"):t("no")],[t("daysShown"),String(windowBars.length)]];
+ const holder=el("localKpis");holder.replaceChildren();
+ for(const [label,value] of kpis){const box=document.createElement("div"),small=document.createElement("small"),strong=document.createElement("strong");box.className="stat";small.textContent=label;strong.textContent=value;box.append(small,strong);holder.append(box)}
+ el("chartStatus").textContent=t("loadOk").replace("{n}",String(dailyBars.length)).replace("{first}",dailyBars[0].date).replace("{last}",dailyBars[dailyBars.length-1].date)+(complete?"":" "+t("limited"));
+ el("hoverDetails").textContent=t("chartDetail").replace("{date}",item.date).replace("{o}",item.open.toFixed(2)).replace("{h}",item.high.toFixed(2)).replace("{l}",item.low.toFixed(2)).replace("{c}",item.close.toFixed(2)).replace("{v}",item.volume.toLocaleString("en-US"));
+}
+el("fileInput").addEventListener("change",async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ try{
+  if(file.size>10_000_000)throw Error(t("fileTooLarge"));
+  const csv=file.name.toLowerCase().endsWith(".zip")?await extractZipCsv(file):await file.text();
+  const incoming=readCSV(csv);
+  dailyBars=incoming;showChart();
+ }catch(err){dailyBars=[];el("chartHolder").hidden=true;el("chartEmpty").hidden=false;el("chartStatus").textContent=t("loadError")+err.message}
+});
+el("eventSelect").addEventListener("change",showChart);
+el("chartType").addEventListener("change",showChart);
+applyLanguage();
+</script>
+</body></html>
