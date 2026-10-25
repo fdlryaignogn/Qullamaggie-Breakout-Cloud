@@ -206,26 +206,41 @@ test('two Trigger options enforce mutually exclusive qualification, neither and 
  assert.equal(result.CONFIRM_POST_APPROVAL.canSelect,false);
  assert.ok(result.CONFIRM_EOD_TRIGGER.failed.some(x=>x.label.includes('矛盾')));
 });
-test('Stage 2 READY retains source setup while displaying linked Stage 3 WATCH and a navigation path',()=>{
+test('Stage2 display excludes READY while preserving all source records for Stage3 validators',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
- const start=html.indexOf('function stage3LinkedSetup(row){');
- const end=html.indexOf('function cellValue(',start);
- assert.ok(start>=0&&end>start);
- const rows=[
-  {symbol:'NIQ',setup_id:'NIQ-20261023',status:'WATCH'},
-  {symbol:'RBRK',setup_id:'RBRK-20261023',status:'WATCH'},
-  {symbol:'RPD',setup_id:'RPD-20261023',status:'WATCH'}
+ const begin=html.indexOf('function visibleStageRows(stage,records){');
+ const finish=html.indexOf('function cellValue(',begin);
+ assert.ok(begin>=0 && finish>begin);
+ const view=vm.runInNewContext(html.slice(begin,finish)+'\nvisibleStageRows',{statusOf:(r)=>r.setup_status});
+ const source=[
+  {symbol:'NIQ',setup_id:'NIQ-20261023',setup_status:'READY'},
+  {symbol:'RBRK',setup_id:'RBRK-20261023',setup_status:'READY'},
+  {symbol:'RPD',setup_id:'RPD-20261023',setup_status:'READY'},
+  {symbol:'XYZ',setup_id:'XYZ-20261022',setup_status:'FORMING'},
+  {symbol:'ABC',setup_id:'ABC-20261022',setup_status:'DEVELOPING'}
  ];
- const link=vm.runInNewContext(html.slice(start,end)+'\nstage3LinkedSetup',{state:{'3':rows}});
- for(const row of rows){
-  assert.equal(link({symbol:row.symbol,setup_id:row.setup_id,setup_status:'READY'}).status,'WATCH');
- }
- assert.equal(link({symbol:'NIQ',setup_id:'NIQ-new-setup',setup_status:'READY'}),null);
- assert.ok(html.includes("['stage3_link_status','第三輪進度']"));
- assert.ok(html.includes('data-act="stage3jump"'));
- assert.ok(html.includes("if(btn.dataset.act==='stage3jump'&&ui.stage===2)"));
- assert.ok(html.includes("ui.query=String(candidate.setup_id)"));
- assert.ok(html.includes('READY 會繼續保留原始 Setup'));
+ const visible=view(2,source);
+ assert.deepEqual(Array.from(visible,r=>r.symbol),['XYZ','ABC']);
+ assert.equal(source.length,5);
+ assert.equal(source.filter(r=>r.setup_status==='READY').length,3);
+ assert.equal(view(3,source).length,5);
+ assert.ok(html.includes('const stage=ui.stage,config=stages[stage],all=visibleStageRows(stage,state[stage])'));
+ assert.ok(html.includes('visibleStageRows(s,state[s]).length'));
+ assert.ok(html.includes("config.statuses.filter(v=>!(stage===2&&v==='READY'))"));
+ assert.ok(!html.includes("['stage3_link_status','第三輪進度']"));
+ assert.ok(!html.includes('data-act="stage3jump"'));
+ assert.ok(html.includes('READY 的原始核准和 Pivot 仍安全保存在資料中'));
+ assert.ok(html.includes('目前沒有待整理或待核准的 Setup'));
+});
+test('Stage2 READY hidden even without a Stage3 child; Stage3 data untouched',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const begin=html.indexOf('function visibleStageRows(stage,records){');
+ const finish=html.indexOf('function cellValue(',begin);
+ const visible=vm.runInNewContext(html.slice(begin,finish)+'\nvisibleStageRows',{statusOf:r=>r.setup_status});
+ const orphan=[{symbol:'ORPHAN',setup_id:'ORPHAN-20261024',setup_status:'READY'}];
+ assert.equal(visible(2,orphan).length,0);
+ assert.equal(orphan.length,1);
+ assert.equal(visible(3,orphan).length,1);
 });
 
 test('browser cutoff matches backend exact 16:00:00 New York rule',()=>{
