@@ -295,21 +295,37 @@
       }
     },
     "historical_superstocks_product_research": {
-      "status": "pilot_workbook_created_source_validation_pending",
+      "status": "R-001_first_tranche_source_discovery_committed_not_validated",
       "scope": "research_only",
       "plan": "docs/historical_superstocks_product_research_plan.md",
       "plan_commit": "bbbc8ff4b20200123a46f3f193ab14f28ac57fb2",
       "sample_target": 20,
       "outputs": "Native Google Sheets workbook with 6 tabs and 20 unverified research candidates",
       "tests": {
-        "status": "structure_created",
-        "checks": "Google Sheets batchUpdate succeeded; metadata confirmation pending; no historical data accuracy tests yet"
+        "status": "local_analog_smoke_passed_repository_script_not_executed",
+        "details": "Local structural validator on equivalent manifest passed and py_compile passed; committed GitHub test script not executed in CI; no market data or historical outcome tests"
       },
-      "deployment": "research workbook only; no trading deployment",
-      "next_action": "Verify pilot candidates and breakout-date methodology using point-in-time sources; populate validated historical price, cap, volume, product evidence and contemporaneous controls",
+      "deployment": "none",
+      "next_action": "Verify historical OHLCV source and mechanically determine first qualifying event; confirm source filing dates and controls feasibility",
       "google_sheet_url": "https://docs.google.com/spreadsheets/d/1UQIrx6OI4E2R_G4G7ecEbTkV3AratRwneN8U9jlec5s/edit",
       "candidate_queue_count": 20,
-      "verified_cases": 0
+      "verified_cases": 0,
+      "directive": "coordination/C-002-first-tranche-dual-source.md",
+      "milestone": "v0.1 source leads and preregistered protocol; validated case count 0",
+      "research_paths": [
+        "research/r001/methodology_v0_1.md",
+        "research/r001/evidence_manifest_v0_1.json",
+        "research/r001/quality_report_v0_1.md",
+        "research/r001/test_manifest_v0_1.py"
+      ],
+      "source_commit": "a1c02b9a975a4dc57b51ca8f90ec2c4dae2f31da",
+      "controls_selected": 0,
+      "blockers": [
+        "Point-in-time historical OHLCV and corporate action provenance",
+        "historical shares outstanding and listed/delisted universe",
+        "actual breakout dates and as-of feature eligibility"
+      ],
+      "handoff_status": "NOT_READY_B001_WAITING"
     }
   },
   "strategy_registry": {
