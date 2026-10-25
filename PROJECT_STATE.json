@@ -333,12 +333,12 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "V0_2_BRANCH_PENDING_PR_REVIEW",
+        "status": "MERGED_MAIN_EVENT_MATRIX_V0_2_PAGES_GUI_NOT_VERIFIED",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
         "language_switch": "zh-Hant/en; reuses qulla_breakout_dashboard_language",
-        "chart": "AAPL daily K line from locally cached owner ZIP/CSV, filtered by only start/end dates; website metadata matrix uses public versioned JSON v0.2",
+        "chart": "private locally cached AAPL OHLCV chart, only start/end date inputs; public JSON v0.2 schema matrix and 6-tab native Google Sheet",
         "licensing": "FMP default personal subscription does not authorize public display; no price history or API secret in public repo",
         "tests": {
           "status": "date_and_cache_unit_checks_passed_live_browser_pending",
@@ -375,10 +375,11 @@
         },
         "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c",
         "feature_pr": 28,
-        "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb"
+        "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb",
+        "data_json": "site/data/r001_event_comparison_v0_2.json"
       },
       "event_comparison_v0_2": {
-        "status": "BRANCH_SUBMITTED_PENDING_PR_REVIEW",
+        "status": "MERGED_MAIN_BROWSER_PAGES_GUI_NOT_VERIFIED",
         "schema_version": "0.2.0",
         "machine_json": "site/data/r001_event_comparison_v0_2.json",
         "schema_validator": "research/r001/validate_event_comparison_v0_2.mjs",
@@ -417,9 +418,14 @@
           "web_i18n_zh_en": "PASS 45/45",
           "web_date_controls": "PASS exactly two input[type=date]",
           "live_browser": "NOT VERIFIED",
-          "github_ci": "PENDING"
+          "github_ci": "PASS: Verify cloud scanner run 40183303937 (not end-to-end UI)",
+          "main_readback": "PASS: 73 fields roles, 2 date inputs, v0.2 JSON and page main branch fetched",
+          "sheet_readback": "PASS: 6 native Google Sheet tabs, frozen first 3 columns in Event_Compare, A name B schema C role D/E cases; PIT 8 quarters"
         },
-        "no_raw_fmp_ohlcv_public": true
+        "no_raw_fmp_ohlcv_public": true,
+        "pr": 29,
+        "pr_url": "https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/29",
+        "merge_commit": "a57fd1b7fc15e7ef00239b63f195303f72b729ed"
       }
     }
   },
