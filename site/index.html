@@ -116,7 +116,12 @@
 .review-guide{font-size:12px;line-height:1.75;color:var(--muted);margin-bottom:14px}
 .review-guide strong{color:var(--text)}
 .review-guide a{font-weight:700}
-.review-status{font-size:11px;color:var(--muted);white-space:nowrap}
+.stage3-trigger-details{border:1px solid var(--line);border-radius:9px;padding:9px 12px;margin:9px 0;background:#131f32}
+.stage3-trigger-details summary{cursor:pointer;display:flex;align-items:start;gap:11px;justify-content:space-between;flex-wrap:wrap;font-size:12px}
+.stage3-trigger-details summary strong{color:var(--text)}
+.stage3-trigger-details summary span{font-size:11px;overflow-wrap:anywhere;max-width:100%}
+.stage3-trigger-details .review-guide{margin:12px 0 7px}
+.review-status{font-size:11px;color:var(--muted);white-space:normal;overflow-wrap:anywhere}
 .review-authorized{border-color:#3f8d72;color:#9af3d1}
 .review-confirm{display:flex;align-items:start;gap:9px;font-size:12px;color:var(--text)}
 .review-confirm input{width:16px;height:16px;margin-top:2px;flex:0 0 auto}
@@ -202,7 +207,7 @@ const stages={
   1:{title:'第一輪：強勢股動能篩選',desc:'比較 1、3、6 個月報酬與排名，建立動能候選池；只產生觀察名單，不產生買入訊號。',workflow:'◇ 動能掃描 · 最少間隔 24 小時',note:'每期第一輪 CSV 會合併入候選池，不會覆寫第二輪 FORMING 或 READY 的狀態。',statuses:['NEW','ACTIVE','ARCHIVED','INSUFFICIENT_DATA'],fields:[
   ['symbol','股票代號','text',true],['market','市場','text'],['as_of_date','評估日期','date'],['return_1m','1 個月報酬 %','number'],['rank_pct_1m','1M 排名百分位 %','number'],['return_3m','3 個月報酬 %','number'],['rank_pct_3m','3M 排名百分位 %','number'],['return_6m','6 個月報酬 %','number'],['rank_pct_6m','6M 排名百分位 %','number'],['selected_windows','入選區間 (如 1M,3M)','text'],['pass_stage_1','通過第一輪 (YES / NO)','select-yes'],['status','追蹤狀態','select'],['first_seen_date','首次入選日期','date'],['last_screened_date','最近掃描日期','date'],['last_pass_date','最近通過日期','date'],['data_warnings','數據注意事項','textarea']
   ],columns:[['symbol','股票'],['as_of_date','評估日'],['return_1m','1M 報酬'],['rank_pct_1m','1M 百分位'],['return_3m','3M 報酬'],['rank_pct_3m','3M 百分位'],['return_6m','6M 報酬'],['rank_pct_6m','6M 百分位'],['selected_windows','入選區間'],['status','狀態'],['last_screened_date','最近掃描']]},
-  2:{title:'第二輪：整理形態確認',desc:'持續追蹤強勢股的整理底部、回撤與波動收縮；只有 READY 才可進入第三輪。',workflow:'◇ Setup 追蹤 · 不每日清空',note:'整理前 63 個交易日升幅 30% 僅作參考評分。READY CANDIDATE 是系統建議；READY 須在 GitHub 經登入後人工核准。',statuses:['NEW','FORMING','DEVELOPING','READY','REJECT','INVALIDATED','INSUFFICIENT_DATA','ARCHIVED'],fields:[
+  2:{title:'第二輪：整理形態確認',desc:'只顯示尚在整理與等候核准的 Setup；已核准 READY 轉往第三輪監察，不再顯示於第二輪工作清單。',workflow:'◇ Setup 追蹤 · 不每日清空',note:'整理前 63 個交易日升幅 30% 僅作參考評分。READY CANDIDATE 是系統建議；READY 須在 GitHub 經登入後人工核准。',statuses:['NEW','FORMING','DEVELOPING','READY','REJECT','INVALIDATED','INSUFFICIENT_DATA','ARCHIVED'],fields:[
   ['symbol','股票代號','text',true],['setup_id','Setup ID','text'],['as_of_date','評估日期','date'],['setup_status','形態狀態','select'],['prior_advance_pct','整理前63個交易日升幅 %','number'],['prior_advance_days','前段上漲天數','number'],['prior_advance_start','前段上漲起始日','date'],['prior_advance_end','前段上漲截止日','date'],['prior_advance_min_pct','最低參考升幅 %（預設30）','number'],['base_start','整理開始','date'],['base_end','整理結束／評估','date'],['base_length_days','整理天數','number'],['base_high','整理高點 / 突破參考','number'],['base_low','整理低點','number'],['pullback_pct','回撤 %','number'],['higher_lows','低點抬高','select-yes'],['volatility_contraction','波動收縮','select-yes'],['moving_average_context','均線描述','textarea'],['ready_since','READY 起始日','date'],['invalidation_reason','失效原因','textarea'],['status_reason','狀態原因 / 判斷依據','textarea'],['rationale','形態判斷理由','textarea'],['last_reviewed_at','最後覆核日','date']
   ],columns:[['symbol','股票 / Setup'],['setup_status','形態狀態'],['prior_advance_pct','整理前63日升幅'],['prior_advance_min_pct','最低參考升幅'],['prior_advance_ref_pass','符合參考？'],['readiness_recommendation','系統建議'],['readiness_score','準備分數'],['base_start','整理開始'],['base_length_days','整理天數'],['base_high','整理高點'],['base_low','整理低點'],['pullback_pct','回撤'],['higher_lows','低點抬高'],['volatility_contraction','波動收縮'],['ready_since','READY 起始'],['last_reviewed_at','最近覆核']]},
   3:{title:'第三輪：突破監察與風險規劃',desc:'僅以完成的日線監察第二輪已核准 READY 的 Setup；網頁可進行人工 WATCH / NO_TRADE / ARCHIVE 決定。',workflow:'◇ EOD READY → WATCH → 人工 Action',note:'日線突破屬觀察，不是即時觸發或成交；NO_TRADE 與 ARCHIVED 須有管理員授權及人工原因。',statuses:['WATCH','TRIGGERED','INVALIDATED','NO_TRADE','ARCHIVED'],fields:[
@@ -338,6 +343,13 @@ function eligible(row){const parent=state['2'].find(r=>String(r.setup_id).toUppe
 function newSetupId(symbol){const prefix=String(symbol).toUpperCase()+'-'+today().replaceAll('-','');let id=prefix,n=2;while(state['2'].some(r=>r.setup_id===id)){id=prefix+'-'+n;n++}return id}
 function pct(v,signed=false){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);if(!Number.isFinite(n))return esc(v);return (signed&&n>0?'+':'')+n.toLocaleString('en-US',{maximumFractionDigits:2})+'%'}
 function fmtNum(v){if(v===null||v===undefined||String(v).trim()==='')return '—';const n=Number(v);return Number.isFinite(n)?n.toLocaleString('en-US',{maximumFractionDigits:4}):esc(v)}
+/* READY remains persisted with its approved pivot and review metadata.
+   Stage 2 is now only the ACTIVE/FORMING review queue; the Stage 3
+   WATCH/TRIGGERED child takes over the visible tracking workflow.
+   Filtering applies to display only: never remove READY from stored data. */
+function visibleStageRows(stage,records){
+ return stage===2?records.filter(r=>statusOf(r,2)!=='READY'):records;
+}
 function cellValue(row,key,stage){
  const cached=stage===3 ? stage3EodMetrics.get(row.setup_id) : null;
  const derived=cached?.eod_as_of===serverMeta?.as_of_date ? cached : null;
@@ -482,17 +494,17 @@ function wireTopTableScrollbar(){
   observer.observe(viewport);observer.observe(byId('stocksTable'));
  }
 }
-function render(){const stage=ui.stage,config=stages[stage],all=state[stage];
+function render(){const stage=ui.stage,config=stages[stage],all=visibleStageRows(stage,state[stage]);
  byId('count4').textContent=state['3'].filter(r=>r.status==='TRIGGERED').length;
- for(let s=1;s<=3;s++){byId('count'+s).textContent=state[s].length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
- byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note)+(stage===3?tl(' 日線 Cross 不代表盤中確認或成交；風險參考不是實際止損建議。','EOD Cross is not an intraday trigger or fill; risk figures are hypothetical references.'):'');renderUpdatedTime();renderStage2ReviewGroups();
- const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
+ for(let s=1;s<=3;s++){byId('count'+s).textContent=visibleStageRows(s,state[s]).length;document.querySelector(`.tab[data-stage="${s}"]`).setAttribute('aria-selected',String(s===stage))}
+ byId('panelTitle').textContent=t(config.title);byId('panelDesc').textContent=t(config.desc);byId('workflow').textContent=t(config.workflow);byId('note').textContent='◈ '+t(config.note)+(stage===2?tl(' READY 的原始核准和 Pivot 仍安全保存在資料中供第三輪引用，但第二輪網頁僅顯示尚待處理的 Setup。','READY approvals and pivot remain in source records for Stage 3 verification, but Stage 2 displays only setups awaiting work.'): '')+(stage===3?tl(' 日線 Cross 不代表盤中確認或成交；風險參考不是實際止損建議。','EOD Cross is not an intraday trigger or fill; risk figures are hypothetical references.'):'');renderUpdatedTime();renderStage2ReviewGroups();
+ const sf=byId('statusFilter');sf.innerHTML='<option value="">'+t('全部狀態')+'</option>'+config.statuses.filter(v=>!(stage===2&&v==='READY')).map(s=>`<option value="${esc(s)}" ${ui.filter===s?'selected':''}>${esc(s)}</option>`).join('');
  byId('thead').innerHTML='<tr><th scope="col" title="'+esc(t('操作'))+'" aria-label="'+esc(t('操作'))+'">Act</th>'+config.columns.map(([key,name])=>`<th class="clickable" scope="col" data-sort="${esc(key)}" title="${esc(columnFullTitle(stage,key,name))}" aria-label="${esc(columnFullTitle(stage,key,name))}" tabindex="0">${esc(COLUMN_ABBREVIATIONS[key]||t(name))}${ui.sortBy===key?(ui.sortDir===1?' ↑':' ↓'):''}</th>`).join('')+'</tr>';
  let rows=all.filter(r=>{if(ui.filter&&statusOf(r,stage)!==ui.filter)return false;if(stage===2&&ui.reviewGroup&&stage2ReviewGroup(r)!==ui.reviewGroup)return false;const q=ui.query.toLowerCase();return !q||Object.values(r).some(v=>String(v??'').toLowerCase().includes(q))});sortRows(rows);
  byId('rowCount').textContent=tl(`顯示 ${rows.length} / ${all.length} 筆記錄`,`Showing ${rows.length} of ${all.length} records`);
  byId('stocksTable').hidden=rows.length===0;byId('empty').hidden=rows.length!==0;
  if(rows.length){byId('tbody').innerHTML=rows.map(row=>{const id=sid(row,stage);let promote='';if(stage===1)promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第二輪','→ Stage 2')}</button>`;if(stage===2&&statusOf(row,2)==='READY')promote=`<button class="link-btn" data-act="promote" data-id="${esc(id)}">${tl('→ 第三輪','→ Stage 3')}</button>`;const reviewAction=CLOUD_MODE&&reviewAuthenticated()&&stage===2&&['READY','FORMING','DEVELOPING'].includes(statusOf(row,2))?`<button class="link-btn" data-act="review" data-id="${esc(id)}">${tl('審核 / 核准','Review setup')}</button>`:'';const stage3Actions=CLOUD_MODE&&stage===3?`<button class="link-btn" data-act="stage3view" data-id="${esc(id)}">${tl('查看 EOD','EOD details')}</button>${statusOf(row,3)==='WATCH'?`<button class="link-btn" data-act="stage3action" data-id="${esc(id)}">${tl('Action ▾','Action ▾')}</button>`:statusOf(row,3)==='TRIGGERED'?`<a class="link-btn" href="./stage4.html?setup_id=${encodeURIComponent(row.setup_id)}">${tl('→ 第四輪計劃','→ Stage 4 plan')}</a>`:''} `:'';const regularActions=CLOUD_MODE?'':`<button class="link-btn" data-act="edit" data-id="${esc(id)}">${t('編輯')}</button>${promote}<button class="link-btn danger" data-act="remove" data-id="${esc(id)}">${t('刪除')}</button>`;return `<tr><td><div class="cell-actions">${regularActions}${reviewAction}${stage3Actions}</div></td>${config.columns.map(([key])=>`<td>${cellValue(row,key,stage)}</td>`).join('')}</tr>`}).join('')}
- else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'第二輪尚未有整理形態。先在第一輪選擇股票並送往第二輪，或匯入既有 setup 結果。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
+ else{let msg=t(all.length?'沒有符合搜尋或狀態條件的股票。':stage===1?'第一輪尚未有股票資料。你可以加入股票，或匯入篩選結果 CSV。':stage===2?'目前沒有待整理或待核准的 Setup。已核准 READY 的股票請到第三輪查看。':'第三輪尚未有突破觀察名單。請先將第二輪 READY 的 setup 送進來。');byId('empty').innerHTML=`<div class="empty-graphic">${stage===1?'↗':stage===2?'◈':'◎'}</div><strong>${all.length?t('搜尋無結果'):stage===2?tl('第二輪待處理清單為空','No pending Stage 2 setups'):tl('等待第 '+stage+' 輪數據','Waiting for Stage '+stage+' data')}</strong><p>${esc(msg)}</p><div class="actions">${!all.length?'<button type="button" class="solid-btn" id="emptyAdd">'+t(stage===1?'＋ 加入股票':'查看來源輪次')+'</button><button type="button" class="outline-btn" id="emptyImport">'+t('↥ 匯入 CSV / JSON')+'</button>':''}</div>`;byId('emptyAdd')?.addEventListener('click',()=>stage===1?openForm(1):switchTab(stage-1));byId('emptyImport')?.addEventListener('click',()=>byId('fileInput').click())}
  byId('addBtn').textContent=t(stage===1?'＋ 加入股票':stage===2?'＋ 從第一輪建立':'＋ 從 READY 建立');
  syncTopTableScrollbar();
  if(stage===3)scheduleStage3Eod();
@@ -1454,6 +1466,33 @@ function stage3ActionAvailability(mode,firstChecks,laterChecks,eodEvent=null){
  });
  return {isTrigger,canSubmit:!isTrigger||failed.length===0,failed,report,pattern};
 }
+/* EOD close-cross and hold are exclusive. Two labels are shown; at most
+   one option can be selected. Conflicting double-pass fails closed. */
+function stage3TwoTriggerOptions(firstChecks,laterChecks){
+ const a=firstChecks.checks.filter(c=>c.required&&!c.pass);
+ const b=laterChecks.checks.filter(c=>c.required&&!c.pass);
+ const conflict=a.length===0&&b.length===0;
+ const paradox={label:tl('EOD 型態互相矛盾，需核實資料','Conflicting EOD patterns; verify source data'),description:tl('請重新核實 EOD 來源','Recheck original EOD bars'),required:true,pass:false};
+ return {
+  CONFIRM_EOD_TRIGGER:{canSelect:a.length===0&&!conflict,failed:conflict?[paradox]:a,report:firstChecks,pattern:'FIRST_EOD_CROSS'},
+  CONFIRM_POST_APPROVAL:{canSelect:b.length===0&&!conflict,failed:conflict?[paradox]:b,report:laterChecks,pattern:'POST_APPROVAL_HOLD'},
+  conflict
+ };
+}
+function stage3BothTriggerChecklistsHtml(firstChecks,laterChecks){
+ const status=stage3TwoTriggerOptions(firstChecks,laterChecks);
+ const entries=[
+  ['CONFIRM_EOD_TRIGGER',tl('TRIGGERED ① · READY 後首次 EOD 突破','TRIGGERED ① · First EOD close-cross')],
+  ['CONFIRM_POST_APPROVAL',tl('TRIGGERED ② · READY 後延後確認','TRIGGERED ② · Post-approval hold')]
+ ];
+ return '<p class="review-guide">'+tl('兩種 Trigger 都列出，同一 EOD 最多只有一種可選；灰色模式可展開檢查原因。提交時 GitHub 仍會驗證日線。','Both Trigger paths are visible; at most one qualifies. Expand blocked paths to inspect reasons. GitHub verifies original daily bars.')+'</p>'+
+  entries.map(([k,title])=>{
+   const item=status[k];
+   const summary=item.canSelect?tl('✓ 可選擇','✓ Eligible'):
+    tl('✕ 不符合：','✕ Blocked: ')+item.failed.map(c=>c.label).join('、');
+   return '<details class="stage3-trigger-details"'+(item.canSelect?' open':'')+'><summary><strong>'+esc(title)+'</strong><span class="'+(item.canSelect?'positive':'negative')+'">'+esc(summary)+'</span></summary>'+stage3TriggerChecklistHtml(item.report)+'</details>';
+  }).join('');
+}
 function openStage3Action(row){
  if(!reviewAuthenticated()||row?.status!=='WATCH')return;
  const date=serverMeta?.as_of_date;
@@ -1462,18 +1501,22 @@ function openStage3Action(row){
  const lateChecks=stage3TriggerChecklist(row,'CONFIRM_POST_APPROVAL');
  const options=[
   ['KEEP_WATCH',tl('繼續 WATCH + 記錄人工覆核','Keep WATCH + add review note')],
-  ['CONFIRM_TRIGGER',tl('確認 TRIGGERED（自動判斷突破類型）','Confirm TRIGGERED (automatic EOD classification)')],
+  ['CONFIRM_EOD_TRIGGER',tl('TRIGGERED ①：首次 EOD 突破','TRIGGERED ①: first EOD close-cross')],
+  ['CONFIRM_POST_APPROVAL',tl('TRIGGERED ②：延後確認','TRIGGERED ②: post-approval hold')],
   ['NO_TRADE',tl('NO_TRADE：本個 Setup 不交易','NO_TRADE: skip this setup')],
   ['ARCHIVE',tl('ARCHIVED：結束第三輪追蹤','ARCHIVED: close this watch')]
  ];
  modal.open(tl('Stage 3 · 人工 EOD Action','Stage 3 · Manual EOD action'),
   esc(row.symbol+' · '+row.setup_id+' · EOD '+date),
   '<p class="review-guide">'+tl('僅處理已核准 READY 的 WATCH。執行後會寫入 GitHub，公開保留審核者、時間及原因。NO_TRADE / ARCHIVED 為結束狀態，不能由此介面重新啟動。','Only a human-approved READY WATCH can be changed. GitHub stores the reviewer, time and reason. NO_TRADE / ARCHIVED are terminal for this setup.')+'</p>'+
-  '<div id="stage3Checklist">'+stage3TriggerChecklistHtml(checks)+'</div>'+
-  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action（只需一次 Trigger 確認）','Choose action (one Trigger confirmation)')+'</label><select id="stage3Decision">'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></div>'+
+  '<div id="stage3Checklist">'+stage3BothTriggerChecklistsHtml(checks,lateChecks)+'</div>'+
+  '<div class="field" style="margin-top:12px"><label for="stage3Decision">'+tl('選擇 Action（最多只有一種 Trigger 可選）','Choose action (at most one Trigger eligible)')+'</label><select id="stage3Decision">'+options.map(([k,v])=>{
+   const gate=stage3TwoTriggerOptions(checks,lateChecks)[k];
+   return '<option value="'+k+'"'+(gate&&!gate.canSelect?' disabled':'')+'>'+v+(gate&&!gate.canSelect?tl('（未通過）',' (blocked)'):'')+'</option>';
+  }).join('')+'</select></div>'+
   '<p class="review-status" id="stage3DecisionStatus" role="status" aria-live="polite"></p>'+
   '<div class="field" style="margin-top:12px"><label for="stage3Reason">'+tl('人工原因（公開，必填）','Reason (public, required)')+'</label><textarea id="stage3Reason" maxlength="500" placeholder="'+tl('僅描述日線結構、EOD 訊號及不交易理由；勿填帳戶資料。','EOD observations only; do not enter account details.')+'"></textarea></div>'+
-  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我確認這是人工決定；系統根據已核實 EOD 自動區分首次突破或延後確認。TRIGGERED 不代表成交或自動下單。','I confirm the verified EOD determines the breakout subtype; TRIGGERED is not a fill or order.')+'</span></label>'+
+  '<label class="review-confirm" id="stage3ConfirmWrap" style="margin-top:14px" hidden><input type="checkbox" id="stage3Confirm"><span>'+tl('我已檢查所選突破類型；GitHub 會再次驗證原始日線。TRIGGERED 不表示買入、成交或自動下單。','I reviewed the selected Trigger type; GitHub rechecks source EOD. TRIGGERED is not an order or fill.')+'</span></label>'+
   '<p class="review-status">'+tl('若雲端資料已被更新，GitHub 會拒絕舊版本操作。','GitHub rejects requests against a stale published revision.')+'</p>'+
   '<p class="review-status" id="stage3SubmitError" role="alert"></p>',
   '<button type="button" class="outline-btn" id="stage3Cancel">'+tl('取消','Cancel')+'</button>'+
@@ -1483,41 +1526,34 @@ function openStage3Action(row){
   const data=stage3CurrentEod(row);
   return data?.eod_as_of===date?data?.eod_event:null;
  };
+ const triggerChoices=stage3TwoTriggerOptions(checks,lateChecks);
  decision.onchange=()=>{
-  const availability=stage3ActionAvailability(decision.value,checks,lateChecks,currentEodEvent());
-  confirmWrap.hidden=decision.value==='KEEP_WATCH';confirm.checked=false;
-  byId('stage3Checklist').innerHTML=stage3TriggerChecklistHtml(availability.report);
-  const status=byId('stage3DecisionStatus');
-  const submit=byId('stage3Submit');
-  const kind=availability.pattern==='FIRST_EOD_CROSS'
-    ?tl('首次 EOD 收盤突破','First EOD close-cross')
-    :availability.pattern==='POST_APPROVAL_HOLD'
-    ?tl('突破後延後確認','Post-approval hold')
-    :tl('未有合格 EOD 型態','No eligible EOD pattern');
-  if(!availability.canSubmit){
-   const failed=availability.failed.map(c=>c.label).join('、');
-   status.textContent=availability.isTrigger?
-    tl('系統判斷：'+kind+'。目前不可提交 Trigger。未通過：'+failed+'。EOD 日期：'+(date||'—')+'；READY 核准時間：'+(state['2'].find(p=>p.setup_id===row.setup_id)?.manual_reviewed_at||'—')+'。',
-       'Detected pattern: '+kind+'. Cannot submit. Failed: '+availability.failed.map(c=>c.description).join('; ')+'. EOD: '+(date||'—')+'.'):
-    '';
-   submit.disabled=true;
-   submit.textContent=tl('條件未通過 · 不能提交 Trigger','Requirements not met · Trigger unavailable');
+  const mode=decision.value,gate=triggerChoices[mode];
+  confirmWrap.hidden=mode==='KEEP_WATCH';confirm.checked=false;
+  const status=byId('stage3DecisionStatus'),submit=byId('stage3Submit');
+  if(gate&&!gate.canSelect){
+   status.textContent=tl('所選 Trigger 不符合：'+gate.failed.map(c=>c.label).join('、'),'Selected Trigger blocked: '+gate.failed.map(c=>c.description).join('; '));
+   submit.disabled=true;submit.textContent=tl('條件未通過 · 不能提交 Trigger','Requirements not met · Trigger unavailable');
   }else{
-   status.textContent=availability.isTrigger?
-    tl('系統判斷：'+kind+'。必要條件通過；GitHub 會依已核實日線自行確認種類。','Detected: '+kind+'. Checks pass; GitHub reclassifies from verified daily bars.'):
-    tl('可提交人工追蹤決定；不涉及下單。','Ready to record a manual watch decision; no order is placed.');
-   submit.disabled=false;
-   submit.textContent=tl('提交 GitHub Action','Submit GitHub action');
+   const any=triggerChoices.CONFIRM_EOD_TRIGGER.canSelect||triggerChoices.CONFIRM_POST_APPROVAL.canSelect;
+   status.textContent=gate?tl('已選符合的 EOD 突破類型；GitHub 會再次驗證。','Eligible daily pattern selected; GitHub revalidates.'):
+    any?tl('兩個 Trigger 都列在上方，只有符合的一種可選；不能選的模式可展開查看原因。','Both Trigger modes are listed; only the eligible mode is selectable. Expand blocked modes for reasons.'):
+    tl('目前沒有符合條件的 Trigger。兩種模式都列在上方，可展開查看未通過原因。','Neither Trigger qualifies. Expand the two mode panels above to inspect blockers.');
+   submit.disabled=false;submit.textContent=tl('提交 GitHub Action','Submit GitHub action');
   }
  };
  decision.onchange();
  byId('stage3Cancel').onclick=modal.close;
  byId('stage3Submit').onclick=async()=>{
-  const action=decision.value,reason=byId('stage3Reason').value.trim();
-  if(!stage3ActionAvailability(action,checks,lateChecks,currentEodEvent()).canSubmit){
-   byId('stage3SubmitError').textContent=tl('EOD Trigger 必要條件未通過，請檢查上方逐項結果','EOD Trigger blocked by the failed requirements above');
+  const selectedAction=decision.value,reason=byId('stage3Reason').value.trim();
+  const gate=stage3TwoTriggerOptions(checks,lateChecks)[selectedAction];
+  if(gate&&!gate.canSelect){
+   byId('stage3SubmitError').textContent=tl('該 Trigger 不符合 EOD 必要條件，不能提交','This Trigger type does not meet EOD requirements');
    return;
   }
+  // The UI shows both human-readable subtypes, but GitHub accepts ONE
+  // canonical action and independently chooses the verified subtype.
+  const action=gate?'CONFIRM_TRIGGER':selectedAction;
   if(!reason||reason.length>500||/[\u0000-\u001f\u007f]/.test(reason)){
    byId('stage3SubmitError').textContent=tl('請填寫不包含換行或控制字元的 1–500 字原因','Enter a 1–500 character reason without line breaks or control characters');return;
   }

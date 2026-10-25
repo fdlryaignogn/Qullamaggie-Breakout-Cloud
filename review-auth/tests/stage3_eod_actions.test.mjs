@@ -92,22 +92,23 @@ test('human EOD trigger dispatch demands confirmation and pinned snapshot',async
  assert.equal(body.inputs.confirmed,'true');
  assert.equal(body.inputs.expected_as_of_date,'2026-10-23');
 });
-test('Stage3 Action shows required pass/fail evidence and blocks unqualified triggers',()=>{
+test('both Trigger labels are visible while their eligibility is independent',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
  assert.ok(html.includes('function stage3TriggerChecklist(row,mode='));
  assert.ok(html.includes('function stage3TriggerChecklistHtml(summary)'));
- assert.ok(html.includes("data?.eod_event==='EOD_CROSS'"));
- assert.ok(html.includes("function stage3ActionAvailability("));
- assert.ok(html.includes("!stage3ActionAvailability(action,checks,lateChecks,currentEodEvent()).canSubmit"));
- assert.ok(html.includes("submit.disabled=true"));
- assert.ok(html.includes("stage3DecisionStatus"));
+ assert.ok(html.includes('function stage3TwoTriggerOptions('));
+ assert.ok(html.includes('function stage3BothTriggerChecklistsHtml('));
  assert.ok(html.includes('成交量比率 RVOL20（不設硬門檻）'));
- assert.ok(html.includes("['CONFIRM_TRIGGER',tl('確認 TRIGGERED（自動判斷突破類型）'"));
  const start=html.indexOf('function openStage3Action(row){');
  const modal=html.slice(start,html.indexOf('function openReviewForm(',start));
- assert.equal((modal.match(/\['CONFIRM_TRIGGER',tl\(/g)||[]).length,1);
- assert.ok(!modal.includes("['CONFIRM_EOD_TRIGGER',tl("));
- assert.ok(!modal.includes("['CONFIRM_POST_APPROVAL',tl("));
+ assert.equal((modal.match(/\['CONFIRM_EOD_TRIGGER',tl\(/g)||[]).length,1);
+ assert.equal((modal.match(/\['CONFIRM_POST_APPROVAL',tl\(/g)||[]).length,1);
+ assert.ok(!modal.includes("['CONFIRM_TRIGGER',tl("));
+ assert.ok(modal.includes("gate&&!gate.canSelect?' disabled'"));
+ assert.ok(modal.includes('stage3BothTriggerChecklistsHtml(checks,lateChecks)'));
+ assert.ok(modal.includes("const action=gate?'CONFIRM_TRIGGER':selectedAction"));
+ assert.ok(modal.includes('submit.disabled=true'));
+ assert.ok(modal.includes('stage3DecisionStatus'));
 });
 
 test('Stage 3 browser checklist computes pass/fail and does not gate on volume multiplier',()=>{
@@ -180,43 +181,68 @@ test('Saturday READY approval allows Monday above-pivot, but not older Friday ob
  assert.equal(check(row,'CONFIRM_POST_APPROVAL').requiredOK,false);
 });
 
-test('single Trigger action automatically shows only matching first/hold checklist',()=>{
+test('two Trigger options enforce mutually exclusive qualification, neither and conflicting fail closed',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
- const start=html.indexOf('function stage3ActionAvailability(');
+ const start=html.indexOf('function stage3TwoTriggerOptions(');
  const end=html.indexOf('function openStage3Action(row){',start);
  assert.ok(start>=0&&end>start);
- const decide=vm.runInNewContext(html.slice(start,end)+'\nstage3ActionAvailability',{tl:z=>z});
- const first={requiredOK:true,mode:'CONFIRM_EOD_TRIGGER',checks:[
-  {label:'First EOD close-cross',pass:true,required:true}]};
- const hold={requiredOK:true,mode:'CONFIRM_POST_APPROVAL',checks:[
-  {label:'Post approval hold',pass:true,required:true}]};
- let result=decide('CONFIRM_TRIGGER',first,hold,'EOD_CROSS');
- assert.equal(result.canSubmit,true);
- assert.equal(result.pattern,'FIRST_EOD_CROSS');
- assert.equal(result.report.mode,'CONFIRM_EOD_TRIGGER');
- result=decide('CONFIRM_TRIGGER',first,hold,'ABOVE_PIVOT');
- assert.equal(result.canSubmit,true);
- assert.equal(result.pattern,'POST_APPROVAL_HOLD');
- assert.equal(result.report.mode,'CONFIRM_POST_APPROVAL');
- result=decide('CONFIRM_TRIGGER',first,hold,'BELOW_PIVOT');
- assert.equal(result.canSubmit,false);
- assert.equal(result.pattern,null);
- assert.equal(result.failed.length,1);
- const block={requiredOK:false,mode:'CONFIRM_POST_APPROVAL',checks:[
-  {label:'READY approval too late',pass:false,required:true}]};
- result=decide('CONFIRM_TRIGGER',first,block,'ABOVE_PIVOT');
- assert.equal(result.canSubmit,false);
- assert.equal(result.failed[0].label,'READY approval too late');
- assert.equal(decide('KEEP_WATCH',first,block,'BELOW_PIVOT').canSubmit,true);
- const modalStart=html.indexOf('function openStage3Action(row){');
- const modal=html.slice(modalStart,html.indexOf('function openReviewForm(',modalStart));
- assert.ok(modal.includes("['CONFIRM_TRIGGER',tl("));
- assert.ok(!modal.includes("['CONFIRM_EOD_TRIGGER',tl("));
- assert.ok(!modal.includes("['CONFIRM_POST_APPROVAL',tl("));
- assert.ok(modal.includes('submit.disabled=true'));
- assert.ok(modal.includes('stage3DecisionStatus'));
- assert.ok(modal.includes('currentEodEvent()'));
+ const choose=vm.runInNewContext(html.slice(start,end)+'\nstage3TwoTriggerOptions',{tl:zh=>zh});
+ const passing={checks:[{label:'READY and EOD eligible',pass:true,required:true}]};
+ const failing={checks:[{label:'Latest daily EOD pattern failed',pass:false,required:true}]};
+ let result=choose(passing,failing);
+ assert.equal(result.CONFIRM_EOD_TRIGGER.canSelect,true);
+ assert.equal(result.CONFIRM_POST_APPROVAL.canSelect,false);
+ assert.equal(result.conflict,false);
+ result=choose(failing,passing);
+ assert.equal(result.CONFIRM_EOD_TRIGGER.canSelect,false);
+ assert.equal(result.CONFIRM_POST_APPROVAL.canSelect,true);
+ result=choose(failing,failing);
+ assert.equal(result.CONFIRM_EOD_TRIGGER.canSelect,false);
+ assert.equal(result.CONFIRM_POST_APPROVAL.canSelect,false);
+ assert.equal(result.CONFIRM_EOD_TRIGGER.failed.length,1);
+ result=choose(passing,passing);
+ assert.equal(result.conflict,true);
+ assert.equal(result.CONFIRM_EOD_TRIGGER.canSelect,false);
+ assert.equal(result.CONFIRM_POST_APPROVAL.canSelect,false);
+ assert.ok(result.CONFIRM_EOD_TRIGGER.failed.some(x=>x.label.includes('矛盾')));
 });
+test('Stage2 display excludes READY while preserving all source records for Stage3 validators',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const begin=html.indexOf('function visibleStageRows(stage,records){');
+ const finish=html.indexOf('function cellValue(',begin);
+ assert.ok(begin>=0 && finish>begin);
+ const view=vm.runInNewContext(html.slice(begin,finish)+'\nvisibleStageRows',{statusOf:(r)=>r.setup_status});
+ const source=[
+  {symbol:'NIQ',setup_id:'NIQ-20261023',setup_status:'READY'},
+  {symbol:'RBRK',setup_id:'RBRK-20261023',setup_status:'READY'},
+  {symbol:'RPD',setup_id:'RPD-20261023',setup_status:'READY'},
+  {symbol:'XYZ',setup_id:'XYZ-20261022',setup_status:'FORMING'},
+  {symbol:'ABC',setup_id:'ABC-20261022',setup_status:'DEVELOPING'}
+ ];
+ const visible=view(2,source);
+ assert.deepEqual(Array.from(visible,r=>r.symbol),['XYZ','ABC']);
+ assert.equal(source.length,5);
+ assert.equal(source.filter(r=>r.setup_status==='READY').length,3);
+ assert.equal(view(3,source).length,5);
+ assert.ok(html.includes('const stage=ui.stage,config=stages[stage],all=visibleStageRows(stage,state[stage])'));
+ assert.ok(html.includes('visibleStageRows(s,state[s]).length'));
+ assert.ok(html.includes("config.statuses.filter(v=>!(stage===2&&v==='READY'))"));
+ assert.ok(!html.includes("['stage3_link_status','第三輪進度']"));
+ assert.ok(!html.includes('data-act="stage3jump"'));
+ assert.ok(html.includes('READY 的原始核准和 Pivot 仍安全保存在資料中'));
+ assert.ok(html.includes('目前沒有待整理或待核准的 Setup'));
+});
+test('Stage2 READY hidden even without a Stage3 child; Stage3 data untouched',()=>{
+ const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
+ const begin=html.indexOf('function visibleStageRows(stage,records){');
+ const finish=html.indexOf('function cellValue(',begin);
+ const visible=vm.runInNewContext(html.slice(begin,finish)+'\nvisibleStageRows',{statusOf:r=>r.setup_status});
+ const orphan=[{symbol:'ORPHAN',setup_id:'ORPHAN-20261024',setup_status:'READY'}];
+ assert.equal(visible(2,orphan).length,0);
+ assert.equal(orphan.length,1);
+ assert.equal(visible(3,orphan).length,1);
+});
+
 test('browser cutoff matches backend exact 16:00:00 New York rule',()=>{
  const html=readFileSync(new URL('../../site/index.html',import.meta.url),'utf8');
  const start=html.indexOf('function stage3TriggerChecklist(row,mode=');
