@@ -1,0 +1,12 @@
+# R-001 first tranche — preregistered v0.1
+Status EXPERIMENTAL; authorized C-002, 2026-10-25. MNST (historical HANS), NVDA, AAPL are candidate identities, **not validated breakout events**.
+## Event definition (research hypothesis, not official Qullamaggie)
+For each security, use first chronologically qualifying daily event after 252 prior trading sessions: split-adjusted dividend-unadjusted close[t] exceeds maximum split-adjusted high over prior 60 sessions (excluding t); close[t]>open[t]; prior 20-session average nominal USD dollar volume >= $1m. Record all qualifying events for sensitivity analysis; do not choose based on later returns or product releases. Event as-of is market close t. No verified OHLCV => event date null.
+## Winner label fixed before measuring
+Maximum split-adjusted closing price over next 252 sessions >= 2x event close; require complete 252-session follow-up or label CENSORED. Record forward 63/126/252 returns, maximum adverse closing excursion, first +100% close. These are descriptive outcomes, not trade P&L.
+## Features
+As-of cutoff for each feature: public filing/release timestamp <= event close; OHLCV bars <= event t. Keep period end separately from public release. Record 20/60/252d returns, 20/50d volume, prior 20d dollar volume, 20/50d SMA, range contraction, volume ratio, relative strength versus S&P 500, sector/market context; historical shares outstanding and cap; quarterly revenue YoY, earnings, margins; core product, release, demand, customers, distribution, competition and catalyst. Null when unverified. Distinguish original transaction price, split-adjusted price/volume and CPI-adjusted nominal dollars. Later restatements cannot leak backward.
+## Controls
+Construct contemporaneous listed US universe including later delisted companies; apply identical event/outcome algorithm. Match calendar quarter, sector, historical market-cap band. Use deterministic seed 1001 and preserve full eligibility inventory. If point-in-time delisted universe unavailable, flag survivorship bias and do not claim unbiased results.
+## Handoff gate
+A validated tranche requires >=1 case with verified corporate identity, dated event and reproducible OHLCV, as-of evidence, missingness and test output, plus documented control feasibility. Context-only leads are not a validated tranche. B-001 remains gated pending coordinator review and owner approval. No production rule changes or platform work.
