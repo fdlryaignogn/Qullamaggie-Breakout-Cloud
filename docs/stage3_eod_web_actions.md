@@ -182,23 +182,31 @@ adjusted daily chart evidence. The user-facing selector is advisory: a
 successful GitHub dispatch is queued, not confirmed, and a stale or forged
 EOD submission is rejected. No automatic order or fill is implied.
 
-### Second-round READY is retained after entering Stage 3
+### Second-round READY remains in storage, but disappears from Stage 2 webpage
 
-`Stage2[setup_id]` is the **source Setup record**, preserving the original
-base/Pivot, dates, human review decisions and actual timestamp. The
-Stage3 record is a separate child keyed by matching **symbol + setup_id**;
-`READY` in Stage 2 and `WATCH` in Stage 3 is expected, not duplicate
-screening or failure to promote. Deleting or hiding READY in persistence
-would break the Stage3 validator's READY-parent integrity checks.
+After explicit owner clarification, the **Stage 2 browser tab excludes
+EVERY `setup_status=READY` row** from its main table, visible tab count and
+status filter, regardless of whether a Stage 3 child already exists. Stage 2
+is a pending *setup review* queue; once approved the stock is monitored in
+Stage 3. A newly approved READY creates its Stage 3 `WATCH` child in the
+existing authenticated `review_setup.py` workflow. The published
+2026-10-23 sample already has NIQ/RBRK/RPD Stage 2 READY parents and Stage 3
+WATCH children.
 
-The dashboard now displays a virtual **Stage 3 progress** column beside
-Stage2 status: `已進第三輪 · WATCH`, `已進第三輪 · TRIGGERED`, or the matching
-child's other status. A Stage2 row with a matching child provides
-`查看第三輪` navigation to that exact `setup_id` in Stage 3. An approved
-READY without a child is explicitly labeled not yet in Stage3. Nothing is
-copied, deleted, reapproved or automatically bought from this UI change.
+This is **display-only filtering**. The Stage 2 `READY` parent, its pivot,
+setup geometry, human reviewer, exact approval time and history remain in
+`data/tracking_state.json` and `site/data/latest.json` in the ordinary
+Stage 2 array. The Stage 3 backend must still read and validate that parent.
+The historical records remain available through the full-data backup and
+audit workflow; no parent setup is deleted or mutated. A `READY` without a
+child also stays hidden from the Stage 2 *table*, and should be flagged by
+future consistency monitoring rather than silently corrupting the audit.
 
-At the last verified 2026-10-23 published EOD, NIQ, RBRK and RPD each have
-Stage2 READY and Stage3 WATCH records linked by the same symbol/setup_id.
-Their October 24 READY approval cannot retroactively authorize an October 23
-Trigger, so both subtype choices are currently displayed but not enabled.
+The previous proposed Stage 2 `第三輪進度` virtual column and `查看第三輪`
+button were intentionally removed: READY rows must not appear in Stage 2
+in the first place. The Stage 3 tab is the operational follow-up.
+
+At the current saved EOD session October 23, NIQ/RBRK/RPD have no eligible
+Trigger for that session because human READY approval occurred October 24.
+Both Trigger options are visible but disabled, with independent checklist
+inspection.
