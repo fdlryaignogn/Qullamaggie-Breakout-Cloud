@@ -29,7 +29,7 @@
 - Publish first audited evidence tranche, tests, and GitHub references; request coordinator acceptance before B-001 activation.
 
 ## Research UI milestone — bilingual web schema viewer (2026-10-25)
-- Owner authorized a human-readable schema table and daily chart with Traditional Chinese / English switch. This UI-only deliverable is in [PR #27](https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/27).
+- Owner authorized a human-readable schema table and daily chart with Traditional Chinese / English switch. This UI-only deliverable **merged to main** in [PR #27](https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/27), merge SHA `78092fd38c277579aad9a487eec9ddd763add6e9`; source readback PASS, **live GitHub Pages not yet browser-verified**.
 - Page: `site/historical-superstocks-schema.html`; linked from `site/research.html`. Reuses dashboard language key.
 - Human-readable ML schema columns separate point-in-time observable inputs from forward outcomes/quality. Historic AAPL 2006 first-event vs 2007 later-success remains **provisional**; full case audit still pending in [PR #26](https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/26).
 - Daily candlesticks / volume / closing-line chart use **visitor's own local ZIP/CSV**; **no FMP raw OHLCV, API key or series bundled publicly** because ordinary FMP licenses do not allow public redistribution.
