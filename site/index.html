@@ -1472,7 +1472,7 @@ function stage3TwoTriggerOptions(firstChecks,laterChecks){
  const a=firstChecks.checks.filter(c=>c.required&&!c.pass);
  const b=laterChecks.checks.filter(c=>c.required&&!c.pass);
  const conflict=a.length===0&&b.length===0;
- const paradox={label:tl('兩個型態同時通過，資料異常','Conflicting daily patterns'),description:tl('請重新核實 EOD 來源','Recheck original EOD bars'),required:true,pass:false};
+ const paradox={label:tl('EOD 型態互相矛盾，需核實資料','Conflicting EOD patterns; verify source data'),description:tl('請重新核實 EOD 來源','Recheck original EOD bars'),required:true,pass:false};
  return {
   CONFIRM_EOD_TRIGGER:{canSelect:a.length===0&&!conflict,failed:conflict?[paradox]:a,report:firstChecks,pattern:'FIRST_EOD_CROSS'},
   CONFIRM_POST_APPROVAL:{canSelect:b.length===0&&!conflict,failed:conflict?[paradox]:b,report:laterChecks,pattern:'POST_APPROVAL_HOLD'},
