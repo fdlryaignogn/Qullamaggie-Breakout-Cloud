@@ -333,12 +333,12 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "MERGED_TO_MAIN_DATE_BROWSER_LOCAL_CACHE_LIVE_PAGES_NOT_VERIFIED",
+        "status": "V0_2_BRANCH_PENDING_PR_REVIEW",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
         "language_switch": "zh-Hant/en; reuses qulla_breakout_dashboard_language",
-        "chart": "AAPL daily candles and volumes loaded once from owner ZIP/CSV and cached in browser IndexedDB; inspect arbitrary session/previous/next/zoom; no public raw FMP price bars",
+        "chart": "AAPL daily K line from locally cached owner ZIP/CSV, filtered by only start/end dates; website metadata matrix uses public versioned JSON v0.2",
         "licensing": "FMP default personal subscription does not authorize public display; no price history or API secret in public repo",
         "tests": {
           "status": "date_and_cache_unit_checks_passed_live_browser_pending",
@@ -376,6 +376,50 @@
         "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c",
         "feature_pr": 28,
         "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb"
+      },
+      "event_comparison_v0_2": {
+        "status": "BRANCH_SUBMITTED_PENDING_PR_REVIEW",
+        "schema_version": "0.2.0",
+        "machine_json": "site/data/r001_event_comparison_v0_2.json",
+        "schema_validator": "research/r001/validate_event_comparison_v0_2.mjs",
+        "google_sheet_url": "https://docs.google.com/spreadsheets/d/1HjClNJgZsxLPMYelzanZG0WFbZGn0RvZZVgIDzwk7vk/edit",
+        "sheet_tabs": [
+          "Event_Compare",
+          "Events_ML",
+          "Schema_Dictionary",
+          "Evidence_PIT",
+          "Financials_PIT",
+          "README"
+        ],
+        "comparison_columns": "Name | Schema | I/O role (INPUT/OUTPUT/META) | AAPL 2006 | AAPL 2007",
+        "count_fields": 73,
+        "io_role_counts": {
+          "INPUT": 47,
+          "OUTPUT": 7,
+          "META": 19
+        },
+        "event_count": 2,
+        "financial_quarter_rows": 8,
+        "source_periods": [
+          "FY2005-Q1",
+          "FY2006-Q4"
+        ],
+        "data_status": "PROVISIONAL_NOT_TRAINING_READY",
+        "gating": "B-001_UNCHANGED_NOT_READY",
+        "tests": {
+          "native_sheet_metadata": "PASS: 6 tabs",
+          "native_sheet_bounded_data_readback": "PASS: 73 features, 2 event columns, distinct I/O roles and 8 quarters",
+          "schema_validator": "PASS: exact committed v0.2 JSON",
+          "negative_role": "PASS REJECTED",
+          "negative_release_date": "PASS REJECTED",
+          "negative_growth_accel": "PASS REJECTED",
+          "html_js_parse": "PASS",
+          "web_i18n_zh_en": "PASS 45/45",
+          "web_date_controls": "PASS exactly two input[type=date]",
+          "live_browser": "NOT VERIFIED",
+          "github_ci": "PENDING"
+        },
+        "no_raw_fmp_ohlcv_public": true
       }
     }
   },
