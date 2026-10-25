@@ -354,6 +354,12 @@ const OHLCV_STORE="series";
 const OHLCV_ID="R001-AAPL-01:2005-2009";
 const FOCUS_KEY="qulla_r001_focus_date_v1"; // Only the displayed date; not price bars.
 let dataGeneration=0;
+let cacheWriteSequence=Promise.resolve();
+function enqueueCacheWrite(operation){
+ const next=cacheWriteSequence.catch(()=>{}).then(operation);
+ cacheWriteSequence=next;
+ return next;
+}
 function openPrivateDb(){
  return new Promise((resolve,reject)=>{
   if(typeof indexedDB==="undefined")return reject(Error("IndexedDB unavailable"));
@@ -421,7 +427,7 @@ function moveSession(delta){
  chooseDate(dailyBars[next].date,"custom");
 }
 async function writePrivateBars(bars,filename){
- await privateDbRequest("readwrite",store=>store.put({id:OHLCV_ID,bars:bars,sourceName:filename,savedAt:new Date().toISOString()}));
+ await enqueueCacheWrite(()=>privateDbRequest("readwrite",store=>store.put({id:OHLCV_ID,bars:bars,sourceName:filename,savedAt:new Date().toISOString()})));
 }
 async function restorePrivateBars(){
  const generation=dataGeneration;
@@ -468,7 +474,7 @@ el("clearCache").addEventListener("click",async()=>{
  el("chartStatus").textContent="";el("dateNotice").textContent="";
  try{localStorage.removeItem(FOCUS_KEY)}catch{}
  try{
-  await privateDbRequest("readwrite",store=>store.delete(OHLCV_ID));
+  await enqueueCacheWrite(()=>privateDbRequest("readwrite",store=>store.delete(OHLCV_ID)));
   if(generation===dataGeneration)el("cacheState").textContent=t("cacheCleared");
  }catch(err){if(generation===dataGeneration)el("cacheState").textContent=t("cacheUnavailable")}
 });
