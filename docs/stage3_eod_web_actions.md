@@ -156,3 +156,49 @@ that session's close and still above the saved pivot.
 
 Selecting Trigger does not itself record a signal, order or trade. The
 existing KEEP_WATCH, NO_TRADE and ARCHIVE actions are unchanged.
+
+## Dual-visible / single-eligible Trigger UI (2026-10-25)
+
+The owner clarified that both historical EOD confirmation **subtypes** should
+remain visibly listed in the Stage 3 Action menu, but **no more than one may be
+selectable for a given complete EOD session**:
+
+- **TRIGGERED ① / FIRST_EOD_CROSS:** Prior close ≤ pivot, current close >
+  pivot, EOD first-cross flags and all mandatory checks passing. Only this
+  option is enabled; POST_APPROVAL_HOLD is disabled.
+- **TRIGGERED ② / POST_APPROVAL_HOLD:** Prior close > pivot and current close
+  > pivot, EOD hold flags and all mandatory checks passing. Only this option
+  is enabled; FIRST_EOD_CROSS is disabled.
+- **Neither qualifies:** Both choices are displayed but **disabled**.
+  Separate expandable, read-only checklists remain accessible even when
+  options are disabled; the user may still KEEP_WATCH, NO_TRADE or ARCHIVE.
+- **Conflicting double-pass:** Both choices disabled and source must be
+  reverified. Do not allow a user to resolve contradictory data arbitrarily.
+
+The browser submits the **canonical backend action** `CONFIRM_TRIGGER` for
+either selected user-facing subtype; the backend independently recalculates
+and saves `eod_trigger_confirmation_type` and `trigger_rule` from verified
+adjusted daily chart evidence. The user-facing selector is advisory: a
+successful GitHub dispatch is queued, not confirmed, and a stale or forged
+EOD submission is rejected. No automatic order or fill is implied.
+
+### Second-round READY is retained after entering Stage 3
+
+`Stage2[setup_id]` is the **source Setup record**, preserving the original
+base/Pivot, dates, human review decisions and actual timestamp. The
+Stage3 record is a separate child keyed by matching **symbol + setup_id**;
+`READY` in Stage 2 and `WATCH` in Stage 3 is expected, not duplicate
+screening or failure to promote. Deleting or hiding READY in persistence
+would break the Stage3 validator's READY-parent integrity checks.
+
+The dashboard now displays a virtual **Stage 3 progress** column beside
+Stage2 status: `已進第三輪 · WATCH`, `已進第三輪 · TRIGGERED`, or the matching
+child's other status. A Stage2 row with a matching child provides
+`查看第三輪` navigation to that exact `setup_id` in Stage 3. An approved
+READY without a child is explicitly labeled not yet in Stage3. Nothing is
+copied, deleted, reapproved or automatically bought from this UI change.
+
+At the last verified 2026-10-23 published EOD, NIQ, RBRK and RPD each have
+Stage2 READY and Stage3 WATCH records linked by the same symbol/setup_id.
+Their October 24 READY approval cannot retroactively authorize an October 23
+Trigger, so both subtype choices are currently displayed but not enabled.
