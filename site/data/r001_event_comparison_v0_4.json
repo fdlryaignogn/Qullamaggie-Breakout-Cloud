@@ -1226,7 +1226,7 @@
       "sales_surprise_evidence_grade": "DERIVED_FROM_SECONDARY_PRE_RELEASE_ARTICLE_AND_DATED_APPLE_RELEASE",
       "prior_earnings_next_session_raw_close_return_pct": -4.34782609,
       "prior_earnings_next_session_date": "2005-10-12",
-      "prior_earnings_reaction_confounder": "2005-10-12 video iPod product announcement overlaps next-session earnings-reaction window; no index-relative abnormal return; two-cent rounded FMP OHLCV",
+      "prior_earnings_reaction_confounder": "2005-10-12 video iPod product announcement overlaps next-session earnings-reaction window; no index-relative abnormal return; two-decimal rounded FMP OHLCV",
       "consensus_quote_time_precision": "PUBLICATION_DATE_ONLY_NO_VENDOR_UTC_SNAPSHOT",
       "earnings_release_clock_quality": "AFTER_CLOSE_REPORTED_IN_PERIOD_NEWS_EXACT_UTC_UNVERIFIED"
     },
@@ -1350,7 +1350,7 @@
       "sales_surprise_evidence_grade": "DERIVED_FROM_SECONDARY_PRE_RELEASE_ARTICLE_AND_DATED_APPLE_RELEASE",
       "prior_earnings_next_session_raw_close_return_pct": 6.01503759,
       "prior_earnings_next_session_date": "2006-10-19",
-      "prior_earnings_reaction_confounder": "Company reported preliminary FY2006 results with potential options-grant restatement; benchmark abnormal return not computed; two-cent-rounded FMP historical OHLCV",
+      "prior_earnings_reaction_confounder": "Company reported preliminary FY2006 results with potential options-grant restatement; benchmark abnormal return not computed; two-decimal rounded FMP historical OHLCV",
       "consensus_quote_time_precision": "PUBLICATION_DATE_ONLY_NO_VENDOR_UTC_SNAPSHOT",
       "earnings_release_clock_quality": "AFTER_CLOSE_REPORTED_IN_PERIOD_NEWS_EXACT_UTC_UNVERIFIED"
     }
