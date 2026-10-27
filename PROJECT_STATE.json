@@ -452,9 +452,15 @@
         "tests": {
           "github_module_v8": "PASS exact source, positive/negative signed scores, null missing/pit guard, safe surprise fixtures and labels nonleakage",
           "google_sheet": "PASS 10-tab native metadata and bounded values; 38 fields added; calibration/consensus sheets empty",
-          "html_js": "PENDING_BRANCH_TEST",
+          "html_js": "PASS: main research page inline JS syntax from branch source",
           "github_ci": "NOT RUN_YET",
-          "live_pages": "NOT VERIFIED"
+          "live_pages": "NOT VERIFIED",
+          "web_i18n": "PASS: 54/54 zh-Hant and EN translation keys",
+          "web_role_group_filter": "PASS: mock DOM 111 fields, 14 normalized, 8 priced-in, 10 expectation, 38 fundamental, 7 OUTPUT fields",
+          "two_dates": "PASS: exactly two date pickers",
+          "null_render": "PASS: absent consensus and normalized score shown as dash, not zero",
+          "v8_assertions": "PASS exact fetched module: 18 checks, synthetic tampering rejected",
+          "node_runner": "7 Node test cases committed but not yet run in GitHub CI"
         },
         "gates": "B001_NOT_READY_UNCHANGED"
       }
