@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-10-27",
+  "updated_at": "2026-10-28",
   "source_of_truth": "GitHub repository fdlryaignogn/Qullamaggie-Breakout-Cloud",
   "coordination": {
     "status": "research_first_directive_approved",
@@ -333,7 +333,7 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "MERGED_MAIN_V0_3_PRICE_IN_UI_LIVE_PAGES_NOT_VERIFIED",
+        "status": "V0_4_PRE_RELEASE_QUOTES_BRANCH_PENDING_PR",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
@@ -376,8 +376,8 @@
         "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c",
         "feature_pr": 28,
         "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb",
-        "data_json": "site/data/r001_event_comparison_v0_3.json",
-        "price_in_version": "0.3.0"
+        "data_json": "site/data/r001_event_comparison_v0_4.json",
+        "price_in_version": "0.4.0"
       },
       "event_comparison_v0_2": {
         "status": "MERGED_MAIN_BROWSER_PAGES_GUI_NOT_VERIFIED",
@@ -471,6 +471,74 @@
         "merge_commit": "b0519f065a0799783d33eaaf21d9355bfd4d17c5",
         "calibration_register_status": "EMPTY_BY_DESIGN_NO_FROZEN_COHORT",
         "authorized_scope": "R001_SCHEMA_AND_UI_ONLY"
+      },
+      "contemporaneous_expectations_v0_4": {
+        "status": "BRANCH_RESEARCH_ARCHIVED_NEWS_PROVISIONAL_PENDING_PR",
+        "schema_version": "0.4.0",
+        "machine_json": "site/data/r001_event_comparison_v0_4.json",
+        "methods": "research/r001/contemporaneous_expectations_v0_4.md",
+        "validator": "research/r001/validate_contemporaneous_expectations_v0_4.mjs",
+        "tests_file": "research/r001/test_contemporaneous_expectations_v0_4.mjs",
+        "case_count": 2,
+        "feature_count": 122,
+        "io_roles": {
+          "INPUT": 75,
+          "OUTPUT": 7,
+          "META": 40
+        },
+        "contemporary_quote_observations": 7,
+        "quote_source_grade": "CONTEMPORANEOUS_NEWS_PRE_EARNINGS_VENDOR_SNAPSHOT_NOT_VERIFIED",
+        "selected_quotes": [
+          {
+            "event": "2006-01-06",
+            "quarter": "FY2005-Q4",
+            "quote_date": "2005-10-09",
+            "expected_sales_usd_m": 3680,
+            "actual_sales_usd_m": 3680,
+            "provisional_revenue_surprise_pct": 0,
+            "alternative_pre_release_sales_quote_usd_m": 3720,
+            "alternative_surprise_pct": -1.07526882
+          },
+          {
+            "event": "2007-01-10",
+            "quarter": "FY2006-Q4",
+            "quote_date": "2006-10-13",
+            "expected_sales_usd_m": 4670,
+            "actual_sales_usd_m": 4840,
+            "provisional_revenue_surprise_pct": 3.64025696
+          }
+        ],
+        "eps_surprise": "NULL_EPS_REPORTING_BASIS_AND_PRELIMINARY_RESTATEMENT_NOT_AUDITED",
+        "raw_next_session_close_reaction_pct": [
+          -4.34782609,
+          6.01503759
+        ],
+        "benchmark_abnormal_price_reaction": "NULL_NO_MATCHED_INDEX",
+        "evidence_limits": [
+          "No timestamped original proprietary analyst vendor vintages; only pre-release dated public articles",
+          "2005 October 7, 9 and 11 sources differ; October 11 retrospective ineligible",
+          "EPS GAAP/non-GAAP/tax and stock-option restatement not verified",
+          "October 12 2005 video iPod event confounds next-close reaction",
+          "Index-relative and peer-adjusted market reaction missing",
+          "Independent historical controls and calibration absent"
+        ],
+        "google_sheets_url": "https://docs.google.com/spreadsheets/d/1HjClNJgZsxLPMYelzanZG0WFbZGn0RvZZVgIDzwk7vk/edit",
+        "google_sheets_tabs": 11,
+        "training_status": "NO_TRAINING_ALL_NORMALIZED_SCORE_FIELDS_NULL",
+        "b001_gate": "NOT_READY_UNCHANGED",
+        "tests": {
+          "exact_github_js_schema_validator": "PASS",
+          "adversarial_checks": "PASS 7 source/type/timing/score/reaction manipulations rejected",
+          "html_syntax": "PASS",
+          "bilingual_keys": "PASS 64/64",
+          "side_by_side_dom": "PASS 122 comparison field rows + 2 quote rows",
+          "date_inputs": "PASS exactly two",
+          "google_sheet": "PASS 11 tabs, 14 Expectations_PIT source rows and 2 PriceIn_Evidence rows, finance formulas readback",
+          "source_csv_hash": "PASS bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
+          "node_runner": "8 regression tests committed, not run in CI",
+          "ci": "NOT RUN_YET",
+          "live_pages": "NOT VERIFIED"
+        }
       }
     }
   },
