@@ -52,6 +52,7 @@
 - AAPL case selection and provisional labels unchanged; research handoff R-001 not accepted and B-001 not activated.
 
 ## R-001 signed normalization / Price-In research-schema v0.3 — 2026-10-27
+- **Merged main:** [PR #30](https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/30), merge SHA `b0519f065a0799783d33eaaf21d9355bfd4d17c5`. Github cloud scanner CI run 40452631793 SUCCESS; readback of main-branch v0.3 JSON and HTML script PASS. Native Google Sheets now 10 tabs and v0.3 renamed; live Pages URL not accessible to independent web checker, GUI not verified.
 - Owner approved continuing -1..+1 input-feature design with a distinction between F (fundamental strength), S (surprise versus market expectation) and P (already-priced-in proxy/headwind). This is **research metadata**, not a prediction of percent priced in or production screening feature.
 - Machine JSON `site/data/r001_event_comparison_v0_3.json` extends prior 73 fields to **111** (74 INPUT, 7 OUTPUT, 30 META). The 2 historical AAPL cases are unchanged and provisional; all consensus-dependent and 14 normalized/composite scores remain **null**, without any artificial scores.
 - Pure normalization module, regression tests and method: `research/r001/normalization_contract_v0_3.mjs`, `research/r001/test_normalization_contract_v0_3.mjs`, `research/r001/price_in_normalization_v0_3.md`. Signed tanh score refuses absent vintage, direction, frozen historical cohort or missing raw data; no future labels as model X.
