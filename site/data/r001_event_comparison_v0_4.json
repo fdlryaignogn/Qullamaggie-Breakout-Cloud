@@ -727,105 +727,6 @@
       "io_role": "META"
     },
     {
-      "name_zh": "分析師預期報導日",
-      "name_en": "Contemporaneous analyst-consensus report date",
-      "key": "consensus_quote_public_date",
-      "type": "date?",
-      "group": "expectations",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "預期報導來源連結",
-      "name_en": "Contemporaneous consensus source URL",
-      "key": "consensus_quote_source_url",
-      "type": "string?",
-      "group": "source",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "共識線索品質",
-      "name_en": "Consensus quote evidence grade",
-      "key": "consensus_quote_qa_status",
-      "type": "category",
-      "group": "quality",
-      "role": "quality",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "是否核實原始供應商快照",
-      "name_en": "Original vendor snapshot independently verified",
-      "key": "consensus_quote_vendor_vintage_confirmed",
-      "type": "boolean",
-      "group": "quality",
-      "role": "quality",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "共識 EPS 原文值（尚未對齊）",
-      "name_en": "Reported analyst EPS quote (basis unverified)",
-      "key": "reported_consensus_eps_usd_unmatched",
-      "type": "float?",
-      "group": "expectations",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "營收預期差可信度",
-      "name_en": "Sales surprise provenance status",
-      "key": "sales_surprise_evidence_grade",
-      "type": "category",
-      "group": "quality",
-      "role": "quality",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "最近財報公布後次交易日收盤變動%",
-      "name_en": "Prior earnings next-session raw closing change (%)",
-      "key": "prior_earnings_next_session_raw_close_return_pct",
-      "type": "float?",
-      "group": "priced_in",
-      "role": "input",
-      "io_role": "INPUT"
-    },
-    {
-      "name_zh": "前次財報反應觀察結束日期",
-      "name_en": "Prior earnings reaction observation end date",
-      "key": "prior_earnings_next_session_date",
-      "type": "date?",
-      "group": "priced_in",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "財報反應可能混淆因素",
-      "name_en": "Prior earnings reaction confounders",
-      "key": "prior_earnings_reaction_confounder",
-      "type": "string?",
-      "group": "quality",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "估計預期報導日期精度",
-      "name_en": "Consensus observation time precision",
-      "key": "consensus_quote_time_precision",
-      "type": "category",
-      "group": "source",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
-      "name_zh": "財報發布時段註記",
-      "name_en": "Earnings release clock certainty",
-      "key": "earnings_release_clock_quality",
-      "type": "category",
-      "group": "source",
-      "role": "metadata",
-      "io_role": "META"
-    },
-    {
       "name_zh": "歷史市場預期資料狀態",
       "name_en": "Historical consensus data status",
       "key": "expectation_data_status",
@@ -1102,6 +1003,105 @@
       "type": "boolean",
       "group": "quality",
       "role": "quality",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "分析師預期報導日",
+      "name_en": "Contemporaneous analyst-consensus report date",
+      "key": "consensus_quote_public_date",
+      "type": "date?",
+      "group": "expectations",
+      "role": "metadata",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "預期報導來源連結",
+      "name_en": "Contemporaneous consensus source URL",
+      "key": "consensus_quote_source_url",
+      "type": "string?",
+      "group": "source",
+      "role": "metadata",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "共識線索品質",
+      "name_en": "Consensus quote evidence grade",
+      "key": "consensus_quote_qa_status",
+      "type": "category",
+      "group": "quality",
+      "role": "quality",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "是否核實原始供應商快照",
+      "name_en": "Original vendor snapshot independently verified",
+      "key": "consensus_quote_vendor_vintage_confirmed",
+      "type": "boolean",
+      "group": "quality",
+      "role": "quality",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "共識 EPS 原文值（尚未對齊）",
+      "name_en": "Reported analyst EPS quote (basis unverified)",
+      "key": "reported_consensus_eps_usd_unmatched",
+      "type": "float?",
+      "group": "expectations",
+      "role": "metadata",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "營收預期差可信度",
+      "name_en": "Sales surprise provenance status",
+      "key": "sales_surprise_evidence_grade",
+      "type": "category",
+      "group": "quality",
+      "role": "quality",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "最近財報公布後次交易日收盤變動%",
+      "name_en": "Prior earnings next-session raw closing change (%)",
+      "key": "prior_earnings_next_session_raw_close_return_pct",
+      "type": "float?",
+      "group": "priced_in",
+      "role": "input",
+      "io_role": "INPUT"
+    },
+    {
+      "name_zh": "前次財報反應觀察結束日期",
+      "name_en": "Prior earnings reaction observation end date",
+      "key": "prior_earnings_next_session_date",
+      "type": "date?",
+      "group": "priced_in",
+      "role": "metadata",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "財報反應可能混淆因素",
+      "name_en": "Prior earnings reaction confounders",
+      "key": "prior_earnings_reaction_confounder",
+      "type": "string?",
+      "group": "quality",
+      "role": "metadata",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "估計預期報導日期精度",
+      "name_en": "Consensus observation time precision",
+      "key": "consensus_quote_time_precision",
+      "type": "category",
+      "group": "source",
+      "role": "metadata",
+      "io_role": "META"
+    },
+    {
+      "name_zh": "財報發布時段註記",
+      "name_en": "Earnings release clock certainty",
+      "key": "earnings_release_clock_quality",
+      "type": "category",
+      "group": "source",
+      "role": "metadata",
       "io_role": "META"
     }
   ],
