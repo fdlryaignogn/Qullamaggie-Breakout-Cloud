@@ -62,6 +62,7 @@
 
 
 ## R-001 contemporaneous expectations, v0.4 evidence milestone (2026-10-28)
+- **Merged:** [PR #31](https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/31), merge SHA `6b23e51b3d2b9123ec5404a6009301c9428cfd1e`; GitHub Verify cloud scanner run 40587637982 SUCCESS. Main-branch machine JSON + bilingual website source readback PASS; Node standalone tests and live browser GUI NOT run/verified.
 - Owner-approved Price-In research continued by locating historical **public pre-earnings** quotes instead of inventing consensus. Sources: dated Forbes 2005-10-07; MacDailyNews 2005-10-09; AppleInsider 2006-10-12; MacDailyNews quoting MarketWatch 2006-10-13; Macworld 2006-07-11 early estimate; retrospective reports retained but excluded from selection.
 - **Provisional sales surprise:** FY2005Q4 pre-report quote 3,680 vs released 3,680 USD m => 0% (alternative earlier pre-report 3,720 => -1.0753%); FY2006Q4 4,670 vs preliminary released 4,840 USD m => +3.6403%. Conflicting forecast vintages and missing original analyst database timestamp explicitly flagged. EPS surprise remains null due special-tax/reporting/restatement basis.
 - Owner-held FMP private ZIP close-to-next-session raw reactions -4.3478% Oct 2005 and +6.0150% Oct 2006, **not abnormal/market adjusted**, and October 2005 has the video iPod launch confounder. These observations are not causal Price-In proof.
