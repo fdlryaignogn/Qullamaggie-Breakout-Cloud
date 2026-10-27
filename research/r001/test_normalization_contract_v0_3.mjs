@@ -35,9 +35,13 @@ test("future reference and unlocked direction cannot be used",()=>{
  assert.equal(normalizeSigned(16,{...goodReference,locked:false},"2006-01-06"),null);
  assert.equal(normalizeSigned(16,{...goodReference,sample_count:2},"2006-01-06"),null);
 });
-test("outcome label, prediction proxy and normalized raw fields cannot be re-used as input",()=>{
+test("outcome, derived raw values and mismatched calibration cannot be used as predictors",()=>{
  assert.equal(normalizeEventInput(document.events[0],document.field_definitions,"winner_252",goodReference),null);
  assert.equal(normalizeEventInput(document.events[0],document.field_definitions,"norm_revenue_yoy",goodReference),null);
+ const ref={...goodReference,source_field:"revenue_yoy_asof_pct",calibration_id:"MOCK_FROZEN_REFERENCE_2004"};
+ assert.ok(Number.isFinite(normalizeEventInput(document.events[0],document.field_definitions,"revenue_yoy_asof_pct",ref)));
+ assert.equal(normalizeEventInput(document.events[0],document.field_definitions,"revenue_yoy_asof_pct",{...ref,source_field:"event_close_usd"}),null);
+ assert.equal(normalizeEventInput(document.events[0],document.field_definitions,"revenue_yoy_asof_pct",{...ref,calibration_id:""}),null);
 });
 test("hypothetical announcement surprise, with pre-event release, is calculable",()=>{
  const example={actual:3680,consensus:3500,consensusSnapshotDate:"2005-10-10",reportReleaseDate:"2005-10-11",eventDate:"2006-01-06",kind:"sales",comparableBasis:true};
