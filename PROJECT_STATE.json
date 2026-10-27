@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-10-25",
+  "updated_at": "2026-10-27",
   "source_of_truth": "GitHub repository fdlryaignogn/Qullamaggie-Breakout-Cloud",
   "coordination": {
     "status": "research_first_directive_approved",
@@ -333,7 +333,7 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "MERGED_MAIN_EVENT_MATRIX_V0_2_PAGES_GUI_NOT_VERIFIED",
+        "status": "V0_3_PRICE_IN_BRANCH_PENDING_REVIEW",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
@@ -376,7 +376,7 @@
         "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c",
         "feature_pr": 28,
         "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb",
-        "data_json": "site/data/r001_event_comparison_v0_2.json"
+        "data_json": "site/data/r001_event_comparison_v0_3.json"
       },
       "event_comparison_v0_2": {
         "status": "MERGED_MAIN_BROWSER_PAGES_GUI_NOT_VERIFIED",
@@ -426,6 +426,43 @@
         "pr": 29,
         "pr_url": "https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/29",
         "merge_commit": "a57fd1b7fc15e7ef00239b63f195303f72b729ed"
+      },
+      "price_in_normalization_v0_3": {
+        "status": "RESEARCH_BRANCH_PENDING_REVIEW",
+        "schema_version": "0.3.0",
+        "source": "site/data/r001_event_comparison_v0_3.json",
+        "prior_version": "site/data/r001_event_comparison_v0_2.json",
+        "methodology": "research/r001/price_in_normalization_v0_3.md",
+        "calculator": "research/r001/normalization_contract_v0_3.mjs",
+        "test": "research/r001/test_normalization_contract_v0_3.mjs",
+        "google_sheet_url": "https://docs.google.com/spreadsheets/d/1HjClNJgZsxLPMYelzanZG0WFbZGn0RvZZVgIDzwk7vk/edit",
+        "field_count": 111,
+        "io_roles": {
+          "INPUT": 74,
+          "OUTPUT": 7,
+          "META": 30
+        },
+        "event_count": 2,
+        "normalized_null_slots_per_event": 14,
+        "analyst_consensus_vintages": "MISSING",
+        "calibration_register": "EMPTY_BY_DESIGN",
+        "score_status": "NULL_UNCALIBRATED",
+        "input_score_range": "[-1,+1] only after TRAIN-frozen calibration and polarity evidence",
+        "data_status": "PROVISIONAL_NOT_TRAINING_READY",
+        "tests": {
+          "github_module_v8": "PASS exact source, positive/negative signed scores, null missing/pit guard, safe surprise fixtures and labels nonleakage",
+          "google_sheet": "PASS 10-tab native metadata and bounded values; 38 fields added; calibration/consensus sheets empty",
+          "html_js": "PASS: main research page inline JS syntax from branch source",
+          "github_ci": "NOT RUN_YET",
+          "live_pages": "NOT VERIFIED",
+          "web_i18n": "PASS: 54/54 zh-Hant and EN translation keys",
+          "web_role_group_filter": "PASS: mock DOM 111 fields, 14 normalized, 8 priced-in, 10 expectation, 38 fundamental, 7 OUTPUT fields",
+          "two_dates": "PASS: exactly two date pickers",
+          "null_render": "PASS: absent consensus and normalized score shown as dash, not zero",
+          "v8_assertions": "PASS exact fetched module: 18 checks, synthetic tampering rejected",
+          "node_runner": "7 Node test cases committed but not yet run in GitHub CI"
+        },
+        "gates": "B001_NOT_READY_UNCHANGED"
       }
     }
   },

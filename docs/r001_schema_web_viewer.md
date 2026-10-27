@@ -95,3 +95,13 @@ The Sheet contains:
 **Source links:** eight per-quarter Apple press releases are embedded in `Financials_PIT` and JSON. Financial figures shown are historical reported values or transparent computations therefrom, not a later revised financial service's series.
 
 **Validation (as-executed):** native Google Sheets metadata and bounded range readback confirms 6 tabs including correct A/B/C/D/E header and multiple input/output/metadata rows; exact committed JSON 73 fields / 2 events / 8 fiscal quarters. Repo's `validate_event_comparison_v0_2.mjs` function executed on fetched content: PASS, with three intentionally corrupt data variants rejected (wrong I/O role, wrong release date, wrong growth acceleration). HTML inline JS parsing PASS; 45/45 translatable UI keys available in each language; **exactly 2** date input elements. Browser Pages full UI and actual browser IndexedDB persistence remain **NOT VERIFIED**; user should check after merge. No A/B/C strategy changes, no production model training; B-001 remains gated.
+
+## v0.3 — price-in normalized [-1,+1] research features (2026-10-27)
+
+The bilingual page now consumes `site/data/r001_event_comparison_v0_3.json`, retains **only two chart dates** and browser-private user OHLCV, and offers a table-group filter for fundamental, expectations, priced-in and normalized metrics. It explicitly warns that no historic consensus/normalization cohort is available: `null` = unknown, never score zero.
+
+Canonical design: `research/r001/price_in_normalization_v0_3.md`; implementation/QA `research/r001/normalization_contract_v0_3.mjs` and `research/r001/test_normalization_contract_v0_3.mjs`. The v0.3 metadata-only dataset extends 73 to 111 fields (74 INPUT / 7 OUTPUT / 30 META), keeps both AAPL events PROVISIONAL, and stores all 14 normalized/composite slots as null. No FMP daily bars, API secret or vendor consensus snapshots are published. Robust MAD scaling is a **draft parameterization**, not a validated alpha signal. Directional polarity and training-cohort calibration are mandatory; future-determined labels never become X.
+
+Google Sheet with the same ID: https://docs.google.com/spreadsheets/d/1HjClNJgZsxLPMYelzanZG0WFbZGn0RvZZVgIDzwk7vk/edit — native tabs now include the original six plus `Normalization_Spec`, `Expectations_PIT` (header only), `Calibration_Register` (header only), and `Normalized_ML` (null scores).
+
+Validation: Google Sheets metadata and bounded cell readback PASS; exact module V8 in-process checks PASS for sign, bounded outputs, null on missing calibration, time leakage, OUTPUT guard and historical missingness; HTML script syntax and localization validated before PR review. GitHub Pages runtime/IndexedDB continue to need independent browser acceptance.

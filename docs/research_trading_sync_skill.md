@@ -121,3 +121,10 @@ Coordination document created. No automatic live cross-thread notifications, dat
 - Historical fundamental releases must have public `release_date < event_date` unless exact market-close publication clock is audited. Maintain period-end date independently; original reported EPS split bases and preliminary/restatement warnings must be preserved.
 - ROIC/ROE/ROA, FCF and other missing historic features stay null (never zero by default) pending PIT documentation.
 - This is a **research data-interface proposal**, not a change to any production rule, approved signal or research-to-trading gate. No inference from two overlapping AAPL events or outcome-driven replacement of selected event.
+
+## R-001 Price-In feature extensions v0.3 (2026-10-27)
+- Research-only schema at `site/data/r001_event_comparison_v0_3.json` retains original I/O separation and extends it with **dated analyst expectation vintages**, earnings surprises, forecast revisions, event-premium runup, peer valuation and price-reaction proxies.
+- `normalization_contract_v0_3.mjs` proposes bounded signed scoring in [-1,+1] from **historical TRAIN-fitted** frozen median/MAD, direction, cohort version/vintage. An uncalibrated or unavailable feature must yield null, NOT 0. Do not choose polarity after observing candidate future winners. No fixed F/S/P aggregate weighting is authorized.
+- `INPUT` as-of candidates are not automatically active screening filters; `OUTPUT` forward winner/returns must never leak into X; `META` controls source, cutoff, validation, calibration and report completeness.
+- Normalization and analyst consensus must never be fetched from post-event records unless their **original before-event vintages** are explicitly reconstructible. Announcement reaction must end before the trading event cutoff.
+- All original user-approved R-001 preregistered event rules, B-001 gate, Stage 1/2/3 Trading System logic and execution permissions are unchanged.
