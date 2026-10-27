@@ -333,7 +333,7 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "V0_4_PRE_RELEASE_QUOTES_BRANCH_PENDING_PR",
+        "status": "MERGED_MAIN_V0_4_SOURCE_QUOTE_VIEWER_LIVE_GUI_UNVERIFIED",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
@@ -473,7 +473,7 @@
         "authorized_scope": "R001_SCHEMA_AND_UI_ONLY"
       },
       "contemporaneous_expectations_v0_4": {
-        "status": "BRANCH_RESEARCH_ARCHIVED_NEWS_PROVISIONAL_PENDING_PR",
+        "status": "MERGED_MAIN_PRE_RELEASE_NEWS_EVIDENCE_PROVISIONAL",
         "schema_version": "0.4.0",
         "machine_json": "site/data/r001_event_comparison_v0_4.json",
         "methods": "research/r001/contemporaneous_expectations_v0_4.md",
@@ -533,12 +533,19 @@
           "bilingual_keys": "PASS 64/64",
           "side_by_side_dom": "PASS 122 comparison field rows + 2 quote rows",
           "date_inputs": "PASS exactly two",
-          "google_sheet": "PASS 11 tabs, 14 Expectations_PIT source rows and 2 PriceIn_Evidence rows, finance formulas readback",
+          "google_sheet": "PASS 11 tabs including 14 Expectations_PIT rows and 2 PriceIn_Evidence rows; formula-derived sales surprises 0.0 and +3.64025696",
           "source_csv_hash": "PASS bdf7342a4e6f86b97fb320e0b353d6618016dd6de46ca0d2f4699d5aa7886985",
-          "node_runner": "8 regression tests committed, not run in CI",
-          "ci": "NOT RUN_YET",
-          "live_pages": "NOT VERIFIED"
-        }
+          "node_runner": "8-case Node test file committed but CI did not execute Node tests",
+          "ci": "PASS GitHub Verify cloud scanner run 40587637982, not Node functional test",
+          "live_pages": "NOT VERIFIED",
+          "main_branch_readback": "PASS v0.4 JSON and browser HTML from main; 122 fields, 7 quote observations, 2 date inputs",
+          "browser_runtime": "NOT VERIFIED: source parsing/mock DOM and sheet readback are not live browser UI tests"
+        },
+        "pr": 31,
+        "pr_url": "https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/31",
+        "merge_commit": "6b23e51b3d2b9123ec5404a6009301c9428cfd1e",
+        "analyst_original_vendor_vintage_status": "MISSING_AND_NOT_CLAIMED_VERIFIED",
+        "price_in_score_status": "ALL_NORMALIZED_SCORES_NULL"
       }
     }
   },
