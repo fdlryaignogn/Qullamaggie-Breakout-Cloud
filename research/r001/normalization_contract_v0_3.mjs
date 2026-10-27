@@ -62,6 +62,8 @@ export function normalizeEventInput(event, schema, key, reference) {
  const field=schema?.find(f=>f.key===key);
  if(!field||field.io_role!=="INPUT"||field.role!=="input")return null;
  if(/^(norm_|fundamental_strength_norm$|expectation_surprise_norm$|priced_in_headwind_norm$)/.test(key))return null;
+ // Do not apply another feature's median/MAD reference or an unversioned calibration.
+ if(reference?.source_field!==key||typeof reference?.calibration_id!=="string"||!reference.calibration_id.trim())return null;
  return normalizeSigned(event?.[key], reference, event?.event_date);
 }
 
