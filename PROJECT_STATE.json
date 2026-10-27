@@ -333,12 +333,12 @@
       ],
       "handoff_status": "NOT_READY_B001_WAITING",
       "schema_web_viewer": {
-        "status": "V0_3_PRICE_IN_BRANCH_PENDING_REVIEW",
+        "status": "MERGED_MAIN_V0_3_PRICE_IN_UI_LIVE_PAGES_NOT_VERIFIED",
         "page": "site/historical-superstocks-schema.html",
         "page_url_after_merge": "https://fdlryaignogn.github.io/Qullamaggie-Breakout-Cloud/historical-superstocks-schema.html",
         "entrypoint": "site/research.html",
         "language_switch": "zh-Hant/en; reuses qulla_breakout_dashboard_language",
-        "chart": "private locally cached AAPL OHLCV chart, only start/end date inputs; public JSON v0.2 schema matrix and 6-tab native Google Sheet",
+        "chart": "two date controls / local owner-held OHLCV IndexedDB unchanged; metadata price-in and normalized feature filter",
         "licensing": "FMP default personal subscription does not authorize public display; no price history or API secret in public repo",
         "tests": {
           "status": "date_and_cache_unit_checks_passed_live_browser_pending",
@@ -376,7 +376,8 @@
         "feature_commit": "93ea7fe466e5da40dbbcad94bbd880cd1b70a15c",
         "feature_pr": 28,
         "feature_merge_commit": "b31f5d44d5c536235c9d8fec1f8c65aa9eaf87fb",
-        "data_json": "site/data/r001_event_comparison_v0_3.json"
+        "data_json": "site/data/r001_event_comparison_v0_3.json",
+        "price_in_version": "0.3.0"
       },
       "event_comparison_v0_2": {
         "status": "MERGED_MAIN_BROWSER_PAGES_GUI_NOT_VERIFIED",
@@ -428,7 +429,7 @@
         "merge_commit": "a57fd1b7fc15e7ef00239b63f195303f72b729ed"
       },
       "price_in_normalization_v0_3": {
-        "status": "RESEARCH_BRANCH_PENDING_REVIEW",
+        "status": "MERGED_MAIN_RESEARCH_ONLY_PRICE_IN_UNCALIBRATED",
         "schema_version": "0.3.0",
         "source": "site/data/r001_event_comparison_v0_3.json",
         "prior_version": "site/data/r001_event_comparison_v0_2.json",
@@ -446,23 +447,30 @@
         "normalized_null_slots_per_event": 14,
         "analyst_consensus_vintages": "MISSING",
         "calibration_register": "EMPTY_BY_DESIGN",
-        "score_status": "NULL_UNCALIBRATED",
+        "score_status": "ALL_NULL_FOR_BOTH_AAPL_CASES_NO_FAKE_PRICE_IN",
         "input_score_range": "[-1,+1] only after TRAIN-frozen calibration and polarity evidence",
         "data_status": "PROVISIONAL_NOT_TRAINING_READY",
         "tests": {
           "github_module_v8": "PASS exact source, positive/negative signed scores, null missing/pit guard, safe surprise fixtures and labels nonleakage",
-          "google_sheet": "PASS 10-tab native metadata and bounded values; 38 fields added; calibration/consensus sheets empty",
-          "html_js": "PASS: main research page inline JS syntax from branch source",
-          "github_ci": "NOT RUN_YET",
-          "live_pages": "NOT VERIFIED",
-          "web_i18n": "PASS: 54/54 zh-Hant and EN translation keys",
-          "web_role_group_filter": "PASS: mock DOM 111 fields, 14 normalized, 8 priced-in, 10 expectation, 38 fundamental, 7 OUTPUT fields",
+          "google_sheet": "PASS: native Google Sheet 10 tabs verified; appended 38 compare rows, 38 machine cols, 4 new worksheets; conditional role formatting applied",
+          "html_js": "PASS: main-branch inline script syntax verified",
+          "github_ci": "PASS Verify cloud scanner run 40452631793; not price-in functional Node or GUI test",
+          "live_pages": "NOT VERIFIED: public Github Pages URL not accessible via available browser/web tool",
+          "web_i18n": "PASS 54/54 zh and en UI keys from branch",
+          "web_role_group_filter": "PASS: mock DOM 111 fields, normalized 14, priced_in 8, expectations 10, fundamental 38, OUTPUT 7",
           "two_dates": "PASS: exactly two date pickers",
           "null_render": "PASS: absent consensus and normalized score shown as dash, not zero",
           "v8_assertions": "PASS exact fetched module: 18 checks, synthetic tampering rejected",
-          "node_runner": "7 Node test cases committed but not yet run in GitHub CI"
+          "node_runner": "7 regression cases committed; not independently executed in Node CI",
+          "main_readback": "PASS v0.3 JSON 111 fields 74 INPUT/7 OUTPUT/30 META; 14 score fields null for both cases; main HTML fetched with v0.3, 2 chart date inputs and valid JS",
+          "v8_calibration_guard": "PASS exact committed module: source_field/calibration_id match, locked TRAIN polarity, future vintage rejected, no false consensus or zero default"
         },
-        "gates": "B001_NOT_READY_UNCHANGED"
+        "gates": "B001_NOT_READY_UNCHANGED",
+        "pr": 30,
+        "pr_url": "https://github.com/fdlryaignogn/Qullamaggie-Breakout-Cloud/pull/30",
+        "merge_commit": "b0519f065a0799783d33eaaf21d9355bfd4d17c5",
+        "calibration_register_status": "EMPTY_BY_DESIGN_NO_FROZEN_COHORT",
+        "authorized_scope": "R001_SCHEMA_AND_UI_ONLY"
       }
     }
   },
