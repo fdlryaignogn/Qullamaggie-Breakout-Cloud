@@ -98,6 +98,14 @@ button[hidden],section[hidden],div[hidden]{display:none!important}
 </section>
 </div>
 <section class="panel">
+<h2 data-i18n="quoteTitle">當年的市場預期：AAPL 財報前線索</h2>
+<p data-i18n="quoteDesc" class="muted">來自財報前的歷史新聞，而非已驗證的分析師原始快照；營收預期差只是研究線索。</p>
+<div class="table-wrap"><table aria-label="Contemporary analyst consensus quotes">
+<thead><tr><th data-i18n="qEvent">研究事件</th><th data-i18n="qQuoteDate">預期報導日期</th><th data-i18n="qSales">預期營收 USD m</th><th data-i18n="qActual">公布營收 USD m</th><th data-i18n="qSurprise">營收預期差</th><th data-i18n="qReaction">財報後次交易日收盤變動</th><th data-i18n="qSource">資料來源</th></tr></thead>
+<tbody id="quotedRows"></tbody></table></div>
+<p class="note warn" data-i18n="quoteCaveat">2005 年不同日期的預期並不一致，均已保存在 Expectations_PIT。2005 年次交易日另有 video iPod 發布。EPS 口徑未核實，股價變化未扣大盤，不能直接稱為 Price In 分數。</p>
+</section>
+<section class="panel">
 <h2 data-i18n="chartTitle">AAPL 歷史日線圖</h2>
 <p class="muted" data-i18n="chartDesc">為遵守行情資料授權，公開網站不內嵌 FMP 歷史日線。請選擇自己的 r001_aapl_audit.zip 或其 CSV；檔案只在你的瀏覽器本機處理，不會上傳到伺服器。</p>
 <div class="controls">
@@ -144,7 +152,7 @@ button[hidden],section[hidden],div[hidden]{display:none!important}
 const LANGUAGE_KEY="qulla_breakout_dashboard_language";
 const STRINGS={
 zh:{
-normTitle:"Price In / -1 至 +1 標準化（研究設計）",normExplainer:"分數方向必須用事先固定的歷史訓練樣本驗證；缺少歷史市場預期或校準時，「—」代表未知，並非中性 0。無法直接量度市場已 Price In 的百分比。",normStatus:"AAPL 2006／2007 尚缺歷史共識與參考樣本，因此未產生任何 Price In 分數。",groupLabel:"欄位類別",groupAll:"全部欄位",groupFund:"基本面",groupExpectation:"市場預期／驚喜",groupPriceIn:"Price In 觀察",groupNorm:"-1 至 +1 分數",
+normTitle:"Price In / -1 至 +1 標準化（研究設計）",normExplainer:"分數方向必須用事先固定的歷史訓練樣本驗證；缺少歷史市場預期或校準時，「—」代表未知，並非中性 0。無法直接量度市場已 Price In 的百分比。",normStatus:"已找到財報前的歷史新聞預期線索，可暫算營收預期差；原始分析師快照、EPS 對齊和分數校準仍未驗證，沒有 Price In 分數。",quoteTitle:"財報前的市場預期：AAPL 歷史證據",quoteDesc:"出自財報前的歷史新聞報導，並非供應商的正式歷史共識快照。營收驚喜只是研究線索，不能證明市場已 Price In 多少。",qEvent:"研究事件",qQuoteDate:"預期報導日",qSales:"預期營收 USD m",qActual:"實際營收 USD m",qSurprise:"營收預期差",qReaction:"次交易日原始收盤變化",qSource:"歷史來源",quoteCaveat:"2005 年不同日期的預期不一致，詳見 Expectations_PIT；財報次日另有 video iPod 發布。EPS 口徑未核實，股價反應未扣除大盤，均不能直接當作 Price In 分數。",groupLabel:"欄位類別",groupAll:"全部欄位",groupFund:"基本面",groupExpectation:"市場預期／驚喜",groupPriceIn:"Price In 觀察",groupNorm:"-1 至 +1 分數",
 sheetLink:"開啟 Google Sheets 比較表",colHuman:"名稱 / Name",colSchema:"Schema",ioRoleCol:"輸入／輸出",ioHelpInput:"模型輸入候選（須檢查時間與品質）",ioHelpOutput:"未來結果標籤，不可用作模型輸入",ioHelpMeta:"身份／來源／品質或驗收資訊，不是模型 X 或 y",schemaUnavailable:"無法載入事件比較資料。請使用 Google Sheets 連結。",startDateLabel:"開始日期",endDateLabel:"結束日期",rangeNoData:"日期範圍內沒有交易日",rangeInvalid:"開始日期不可晚於結束日期",rangeShown:"顯示 {start} 至 {end}，共 {n} 個交易日",selectedEventsLabel:"虛線標示已有研究候選，非交易訊號",
 back:"← 返回研究實驗室",title:"歷史飆股研究：資料欄位與日線圖",hero:"將點時間可觀察的特徵、未來結果與資料品質分開展示。AAPL 僅作示範案例，並非已通過驗收的訓練樣本。",
 provisional:"PROVISIONAL · 尚未完成驗證",noOrders:"研究展示 · 不產生交易訊號",summaryTitle:"案例重點（研究審計）",selectedDate:"規則選定事件",firstWindow:"僅為 2005–2009 樣本中的首個候選",firstOutcome:"首個事件的 252 日標籤",nonWinner:"未達兩倍",laterDate:"後續比較候選",nonSelected:"不能事後取代首個事件",laterOutcome:"後續候選的 252 日標籤",winner:"達到兩倍",explore:"探索性對照，非新選定案例",guard:"嚴格時間順序：2007 年 iPhone 公布不可用於 2006 年事件的輸入特徵。結果欄位亦不可當成機器學習輸入。上述事件標籤仍待獨立價格調整驗證。",
@@ -165,7 +173,7 @@ eventPrice:"事件收盤價",maxGain:"其後 252 日最高收盤漲幅",doubleLa
 fileTooLarge:"檔案過大（最多 10 MB）",unsupportedZip:"瀏覽器不支援 ZIP 解壓，請改為選擇 CSV",invalidCsv:"CSV 格式或 OHLC 資料不正確",eventMarker:"突破日",after:"事件後"
 },
 en:{
-normTitle:"Priced-In Research / -1 to +1 Feature Normalization",normExplainer:"Direction must be validated and frozen on historical training data. When historical expectations or calibration are missing, — means unknown, not neutral zero. No observable percentage can directly prove that news is priced in.",normStatus:"No consensus vintages or valid normalization cohorts for AAPL 2006/2007: all Price-In scores remain missing.",groupLabel:"Feature group",groupAll:"All fields",groupFund:"Fundamentals",groupExpectation:"Expectations / Surprise",groupPriceIn:"Priced-In Proxies",groupNorm:"-1 to +1 Scores",
+normTitle:"Priced-In Research / -1 to +1 Feature Normalization",normExplainer:"Direction must be validated and frozen on historical training data. When historical expectations or calibration are missing, — means unknown, not neutral zero. No observable percentage can directly prove that news is priced in.",normStatus:"Contemporaneous news quotes support provisional revenue-surprise arithmetic, but original vendor vintages, EPS comparability and score calibrations remain missing. No Price-In score exists.",quoteTitle:"Pre-earnings market expectations: AAPL archival evidence",quoteDesc:"From news published before earnings, not verified original analyst-provider vintages. Revenue surprises are provisional evidence, not a direct measure of how much was priced in.",qEvent:"Research event",qQuoteDate:"Article date",qSales:"Expected sales USD m",qActual:"Reported sales USD m",qSurprise:"Revenue surprise",qReaction:"Next-session raw close change",qSource:"Historic article",quoteCaveat:"2005 pre-earnings quotes vary by publication date (see Expectations_PIT). The reaction day also featured a video iPod launch. Returns are not benchmark-adjusted and EPS surprise accounting basis is unverified. Normalized Price-In scores remain missing.",groupLabel:"Feature group",groupAll:"All fields",groupFund:"Fundamentals",groupExpectation:"Expectations / Surprise",groupPriceIn:"Priced-In Proxies",groupNorm:"-1 to +1 Scores",
 sheetLink:"Open event comparison in Google Sheets",colHuman:"Name",colSchema:"Schema",ioRoleCol:"Input / Output",ioHelpInput:"Candidate model input (requires as-of and quality checks)",ioHelpOutput:"Forward label — never an input feature",ioHelpMeta:"Identity, provenance or quality metadata — not X or y",schemaUnavailable:"Event comparison cannot be loaded. Use the Google Sheets link.",startDateLabel:"Start date",endDateLabel:"End date",rangeNoData:"No trading sessions inside selected dates",rangeInvalid:"Start date must not be after end date",rangeShown:"Showing {start} to {end} ({n} trading sessions)",selectedEventsLabel:"Dashed lines are research candidates, not trade signals",
 back:"← Back to Research Lab",title:"Historical Superstocks: Schema & Daily Charts",hero:"Separate point-in-time observable features, future outcomes and data quality. AAPL is a demonstration, not an accepted model-training case.",
 provisional:"PROVISIONAL · Not independently validated",noOrders:"Research display · No trading signal",summaryTitle:"Case summary (research audit)",selectedDate:"Rule-selected event",firstWindow:"Earliest candidate only in the 2005–2009 sample",firstOutcome:"252-day label for first event",nonWinner:"Did not double",laterDate:"Later comparison event",nonSelected:"Cannot replace the first event retrospectively",laterOutcome:"252-day label for later event",winner:"Doubled",explore:"Exploratory comparator, not selected event",guard:"Strict point-in-time: the 2007 iPhone announcement cannot be an input for the 2006 event. Future outcome labels must never become ML input features. Split-adjustment checks remain incomplete.",
@@ -206,13 +214,24 @@ function renderComparison(){
   });body.appendChild(tr);
  }
 }
+function renderQuoteSummary(){
+ const tbody=el("quotedRows");tbody.replaceChildren();
+ if(!comparisonData)return;
+ for(const ev of comparisonData.events){
+  const actual=comparisonData.expectation_actuals?.[ev.latest_fiscal_quarter];
+  const vals=[ev.event_date,ev.consensus_quote_public_date,ev.consensus_revenue_usd_m,actual?.revenue,ev.sales_surprise_pct,ev.prior_earnings_next_session_raw_close_return_pct];
+  const tr=document.createElement("tr");
+  vals.forEach((v,i)=>{const td=document.createElement("td");td.textContent=v==null?"—":i>=4?(v>0?"+":"")+Number(v).toFixed(2)+"%":typeof v==="number"?v.toLocaleString("en-US"):String(v);tr.appendChild(td)});
+  const sourceCell=document.createElement("td"),a=document.createElement("a");a.href=ev.consensus_quote_source_url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=t("qSource")+" ↗";sourceCell.appendChild(a);tr.appendChild(sourceCell);tbody.appendChild(tr);
+ }
+}
 async function loadComparison(){
  try{
-  const response=await fetch("./data/r001_event_comparison_v0_3.json",{cache:"no-store"});
+  const response=await fetch("./data/r001_event_comparison_v0_4.json",{cache:"no-store"});
   if(!response.ok)throw Error(String(response.status));
   const data=await response.json();
-  if(data.schema_version!=="0.3.0"||!Array.isArray(data.field_definitions)||!Array.isArray(data.events)||data.events.length!==2)throw Error("Unexpected schema");
-  comparisonData=data;renderComparison();el("schemaLoadState").textContent="";
+  if(data.schema_version!=="0.4.0"||!Array.isArray(data.field_definitions)||!Array.isArray(data.events)||data.events.length!==2)throw Error("Unexpected schema");
+  comparisonData=data;renderComparison();renderQuoteSummary();el("schemaLoadState").textContent="";
  }catch(err){el("schemaLoadState").textContent=t("schemaUnavailable")}
 }
 const EVIDENCE=[
@@ -230,7 +249,7 @@ document.documentElement.lang=language==="en"?"en":"zh-Hant";
 document.querySelectorAll("[data-i18n]").forEach(n=>{n.textContent=t(n.dataset.i18n)});
 el("langZh").setAttribute("aria-pressed",String(language==="zh"));
 el("langEn").setAttribute("aria-pressed",String(language==="en"));
-renderComparison();
+renderComparison();renderQuoteSummary();
 el("evidenceRows").replaceChildren();
 for(const [date,zh,en,url] of EVIDENCE){
  const tr=document.createElement("tr"),d=document.createElement("td"),detail=document.createElement("td"),a=document.createElement("a");
