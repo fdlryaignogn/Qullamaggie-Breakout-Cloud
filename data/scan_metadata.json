@@ -1,6 +1,6 @@
 {
   "phase": "success",
-  "last_success": "2026-11-10T04:45:47+00:00",
+  "last_success": "2026-11-11T02:58:31+00:00",
   "last_error": null,
   "last_attempt": null,
   "startup_action": "pending",
@@ -11,12 +11,12 @@
   "progress": null,
   "universe_target_size": 5925,
   "universe_target_mode": "us",
-  "as_of_date": "2026-11-09",
-  "eligible": 5633,
+  "as_of_date": "2026-11-10",
+  "eligible": 5615,
   "eligible_by_window": {
-    "1m": 5824,
-    "3m": 5768,
-    "6m": 5633
+    "1m": 5808,
+    "3m": 5756,
+    "6m": 5615
   },
   "per_window_top_count": 113,
   "per_window_top_counts": {
@@ -24,18 +24,17 @@
     "3m": 116,
     "6m": 113
   },
-  "selected": 257,
+  "selected": 253,
   "top_fraction": 0.02,
-  "excluded_incomplete_or_stale": 261,
-  "excluded_stale": 70,
+  "excluded_incomplete_or_stale": 281,
+  "excluded_stale": 88,
   "rank_definition": "rank / eligible_count per period * 100 (lower = stronger)",
   "lookbacks": "21/63/126 trading sessions; union of winners",
   "last_scan_universe_mode": "us",
   "universe_size": 5925,
-  "downloaded": 5894,
-  "download_error_count": 31,
+  "downloaded": 5896,
+  "download_error_count": 29,
   "download_error_sample": {
-    "AADX": "Yahoo data unavailable: Insufficient 1-month return history",
     "ADIL": "Yahoo data unavailable: Insufficient 1-month return history",
     "ALDF": "Yahoo data unavailable: Insufficient 1-month return history",
     "AMRO": "Yahoo data unavailable: Insufficient 1-month return history",
@@ -54,11 +53,12 @@
     "KVUE": "Yahoo data unavailable: Insufficient 1-month return history",
     "LNAI": "Yahoo data unavailable: Insufficient 1-month return history",
     "LXP": "Yahoo data unavailable: Insufficient 1-month return history",
-    "LYCA": "Yahoo data unavailable: Insufficient 1-month return history"
+    "LYCA": "Yahoo data unavailable: Insufficient 1-month return history",
+    "MGPI": "Yahoo data unavailable: Insufficient 1-month return history"
   },
-  "coverage": 0.983,
-  "market_coverage_pct": 98.3,
-  "completed_at": "2026-11-10T04:45:46+00:00",
+  "coverage": 0.9803,
+  "market_coverage_pct": 98.0,
+  "completed_at": "2026-11-11T02:58:30+00:00",
   "listing_info": {
     "directory_rows": {
       "nasdaq": 5625,
